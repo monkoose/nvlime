@@ -154,7 +154,7 @@
          (*static-buffer* (make-array 4096 :element-type '(unsigned-byte 8))))
      ,@body
      (loop for event-handled = (serve-event)
-          when (not event-handled) return nil)))
+           when (not event-handled) return nil)))
 
 
 (defun tcp-connect (host port &key read-cb write-cb error-cb)

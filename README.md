@@ -1,149 +1,160 @@
-Intro
-=====
+# NVLIME
 
-Vlime is a Common Lisp dev environment for Vim (and Neovim), similar to SLIME
-for Emacs and SLIMV for Vim.
+**WARNING**
+[parsley][parsley] neovim plugin should be installed for Nvlime to work.
 
-It provides REPL integration, as well as omni-completions, cross reference
-utilities, a nice inspector, debugger support, and many other great facilities
-to aid you in your glorious Common Lisp hacking quest.
+## Intro
 
-To get your feet wet: [Quickstart](#quickstart)
+Nvlime is a Common Lisp development environment for Neovim, similar to SLIME
+for Emacs. It is a fork of long lived [Vlime][Vlime] plugin but with modernized
+UI.
 
-Short demo:
+It provides REPL integration, autocompletion with [nvim-cmp][nvim-cmp], cross
+reference utilities, a nice inspector, debugger, trace dialog, and many other
+great facilities.
 
-[![asciicast](https://asciinema.org/a/129756.png)](https://asciinema.org/a/129756)
+To get your feet wet: [Quickstart](#Quickstart)
 
-Why?
-====
+## Why?
 
-* There were barely no choice besides SLIMV.
-* SLIMV was written in Python on the Vim side, but I think a Lisp-and-Vimscript
-  implementation would be awesome.
-* Vim 8 has these nice `channel` APIs, why not try them out?
+Vlime is a good plugin on top of the great tool. But it tries to sit on both
+chairs (vim and Neovim), when their feature implementations keep diverging, and
+it's UI is clunky and disruptive (at least for my taste). So Nvlime is
+supporting only Neovim and focusing on improving Vlime UI with new Neovim
+features. Check `CHANGELOG.md` to find out what have changed.
 
-How Does It Work?
-=================
+## Current State
 
-Vlime consists of a server written in Common Lisp, and a client written in
-Vimscript.
+Nvlime is currently in beta state. MREPLs currently do not work.
+Please beware of bugs, and file an issue if you find anything weird/unexpected.
 
-The server is basically a wrapped Swank server. The extra wrapper code
-translates the messages from JSON to Swank commands, and vise versa.
-
-The client handles user input, emits JSON messages, and communicates with the
-server via Vim channels, or Neovim Jobs.
-
-Current State
-=============
-
-Vlime is currently in beta state. Please beware of bugs, and file an issue if
-you find anything weird/unexpected (see the Contributing section below).
-
-Dependencies
-============
+## Dependencies
 
 Must-have:
 
-* Vim 8.0.0312+ with +channel, or Neovim 0.2.2+
-* ASDF
-* Quicklisp
-* An Internet connection to install other dependencies from Quicklisp
+- Neovim master branch with the support of a title for `nvim_open_win()`
+  [1af4bd0](https://github.com/neovim/neovim/commit/1af4bd04f9ad157edbfea30642250e854c5cb5d2)
+- Helper plugin [parsley][parsley]
+- ASDF
+- Quicklisp
+- An Internet connection to install other dependencies from Quicklisp
 
-Note that there was a bug in the channel implementation of Vim, which may
-cause large messages to be dropped incorrectly. This was fixed in 8.0.0312.
-[Details](https://groups.google.com/d/topic/vim_dev/Rl0X_R5pjxk/discussion).
+Good to have:
 
-Currently Vlime can only detect s-expressions inside parentheses. To make your
-life easier, use [parinfer](https://github.com/bhurlow/vim-parinfer) or
-[paredit](https://github.com/kovisoft/paredit).
+- [nvim-cmp][nvim-cmp] for autocompletion
+- parinfer or paredit plugin - currently Nvlime can only detect s-expressions
+  inside parentheses. To make your life easier, use
+  [paredit](https://github.com/kovisoft/paredit) or any of parinfer
+  implementations, like:
+  [nvim-parinfer](https://github.com/gpanders/nvim-parinfer) or
+  [nvim-parinfer-rust](https://github.com/harrygallagher4/nvim-parinfer-rust).
+  Even though paredit isn't perfect, but in my experience curretly parinfer
+  plugins are the cause of annoying bugs.
 
-Supported CL Implementations
-============================
+## Supported CL Implementations
 
-The CL implementations listed below are supported. If you tried out Vlime with
+The CL implementations listed below are supported. If you tried out Nvlime with
 an implementation not listed here, please let me know (see the Contributing
 section below for contact info).
 
-```
-Implementation  Version  Notes
------------------------------------------------------
-ABCL            1.4.0    Supported by the vlime-patched backend
-Allegro CL      10.0     Tested with the Express Edition
-CLISP           2.49+    No multithreading support
-ECL             16.1.3   No SLDB support
-CCL             1.11     
-SBCL            2.1.19   
-LispWorks       6.1      Tested with the Personal Edition
-```
+| Implementation | Version | Notes                                   |
+|----------------|---------|-----------------------------------------|
+| ABCL           | 1.4.0   | Supported by the nvlime-patched backend |
+| Allegro CL     | 10.0    | Tested with the Express Edition         |
+| CLISP          | 2.49+   | No multithreading support               |
+| ECL            | 16.1.3  | No SLDB support                         |
+| CCL            | 1.11    |                                         |
+| SBCL           | 2.1.19  |                                         |
+| LispWorks      | 6.1     | Tested with the Personal Edition        |
 
-Quickstart
-==========
+## Quickstart
 
-Before proceeding with the instructions shown below, please make sure
-[Quicklisp](https://www.quicklisp.org/beta/#installation) is properly installed.
+### Installation
 
-Installing using [Vundle](https://github.com/VundleVim/Vundle.Vim):
+Use `:h packages` or your plugin manager instructions to add Nvlime to Neovim.
+As dependency Nvlime uses [parsley][parsley] - it is mine plugin with a bunch
+of auxiliary functions. So it should be installed too. After that run `sbcl
+--load <neovim plugins dir>/nvlime/lisp/start-nvlime.lisp`.
 
-1. Add `Plugin 'vlime/vlime', {'rtp': 'vim/'}` to your `vimrc`, then run
-   `:PluginInstall` in Vim.
-2. Run the server: `sbcl --load <your bundle dir>/vlime/lisp/start-vlime.lisp`
-
-Installing using Vim-Plug
-
-1. Add `Plug 'vlime/vlime', {'rtp': 'vim/'}` to your `vimrc`, then run
-   `:PlugInstall` in Vim.
-2. Run the server: `sbcl --load <your bundle dir>/vlime/lisp/start-vlime.lisp`
-
-Installing using [dein.vim](https://github.com/Shougo/dein.vim):
-
-1. Add `call dein#add('vlime/vlime', {'rtp': 'vim/'})` to your `vimrc`, then run
-   `:call dein#install(['vlime'])` in Vim.
-2. Run the server:
-   `sbcl --load <your bundle dir>/repos/github.com/vlime/vlime/lisp/start-vlime.lisp`
-
-Installing manually:
-
-1. Clone this repo.
-2. Make sure the `<vlime repo>/vim/` directory is in your `runtimepath` (see
-   `:help rtp`). You may use symlinks to point to this directory, but please
-   don't move it from the Vlime source tree, or Vlime may not be able to
-   automatically locate the server entry point.
-3. Run the server: `sbcl --load <vlime repo>/lisp/start-vlime.lisp`
-
-If it's your first time running the server, Vlime will try to install it's
+If it's your first time running the server, Nvlime will try to install it's
 dependencies via Quicklisp.
 
-When the server is up and running, use Vim to start editing a CL source file,
-and type "\cc" (without the quote marks) in normal mode to connect to the
+### Usage
+
+When the server is up and running, use Neovim to start editing a CL source
+file, and type `<leader>cc` (`\cc` by default) in normal mode to connect to the
 server.
 
-You can also let Vim start the server for you. See `:help vlime-start-up`.
+You can also let Neovim start the server for you - `<leader>rr`. See `:help
+nvlime-start-up` for more info.
 
-See `:help vlime-tutor` for a tutorial on how to use the main features, and
-`:help vlime` for the full documentation.
+All Nvlime keymaps starts with the "leader", so change `g:nvlime_leader` to key
+that is convenient for you (by default it is mapped to `\`). Suggested keys is
+`,` or `<Space>`.
 
-License
-=======
+To find out all plugin mappings for the current window type `<leader>?` or
+`<F1>`. There is a set of global mappings not shown in this window listed
+below, which works for all the windows:
+
+- `q` - to close the current window (except for lisp filetypes).
+- `<leader>ww` - closes all plugin windows except main windows.
+- `<Esc>` - closes last opened floating window except current one.
+- `<C-n>` and `<C-p>` to scroll last opened floating window. If this keys is
+  messing up with your config change it with `g:nvlime_scroll_up` and
+  `g:nvlime_scroll_down`. Example `let g:nvlime_scroll_up = '<C-u>'` or
+  `vim.g.nvlime_scroll_down = '<C-d>'`. You can adjust scroll step with
+  `g:nvlime_scroll_step` variable. It is set to `3` lines by default.
+
+If you need to make a floating window persistent, just make it a normal window
+splitting it into you current window with `<C-w>h`, `<C-w>j`, `<C-w>k`,
+`<C-w>l` or split whole Neovim screen with `<C-w>H` `<C-w>J` `<C-w>K` `<C-w>L`.
+
+Main windows (repl, sbcl and compiler notes) aren't floating and by default
+placed at the right side of the screen. You can change this behavior with
+`g:nvlime_main_win` variable, which can accept such positions `"top"`,
+`"bottom"`, `"left"` or `"right"`.
+
+To enable autocompletion with [nvim-cmp][nvim-cmp], first set `let
+g:nvlime_enable_cmp = v:true`.
+Additionally you need to register the source for nvim-cmp, read its
+documentation for more information:
+
+```lua
+require('cmp').setup.filetype({'lisp'}, {
+    sources = {
+        { name = 'nvlime' }
+        -- other sources like path or buffer, etc.
+        -- .
+        -- .
+    }
+})
+```
+
+See `:help nvlime-tutor` for a tutorial on how to use the main features, and
+`:help nvlime` for the full documentation.
+
+## Contributing
+
+The source repo for Nvlime is hosted on GitHub:
+
+    https://github.com/monkoose/nvlime
+
+Issues and pull requests are welcome. Read `CONTRIBUTING.md` for more info.
+
+## Credits
+
+- To all the contributors of [slime](https://github.com/slime/slime) Emacs
+  extension. SLIME is free software.
+- To all the contributors of [Vlime][Vlime] plugin. Without it there wouldn't
+  be Nvlime. MIT license.
+- To [HiPhish](https://github.com/HiPhish) for
+  [nvim-cmp-vlime](https://github.com/HiPhish/nvim-cmp-vlime) Some code from it
+  were converted from lua to fennel for autocompletion support. MIT license.
+
+## License
 
 MIT. See `LICENSE.txt`.
 
-Contributing
-============
-
-The source repo for Vlime is hosted on GitHub:
-
-    https://github.com/vlime/vlime
-
-Issues and pull requests are welcome. Please feel free to contact me at
-l04m33(at)gmail.com if you have any suggestions for improving Vlime.
-
-See `:help vlime-tests` for a how-to on setting up and running the
-tests for development.
-
-Sponsor
-=======
-
-<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/EFJRj73XqnJXrjmRNJd9gKeU/vlime/vlime'>
-  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/EFJRj73XqnJXrjmRNJd9gKeU/vlime/vlime.svg' />
-</a>
+[nvim-cmp]: https://github.com/hrsh7th/nvim-cmp
+[Vlime]: https://github.com/vlime/vlime
+[parsley]: https://github.com/monkoose/parsley

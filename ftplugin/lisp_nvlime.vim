@@ -1,0 +1,1 @@
+call nvlime#plugin#Setup()

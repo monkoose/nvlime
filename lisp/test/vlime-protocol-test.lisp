@@ -1,12 +1,12 @@
 (in-package #:cl-user)
 
-(defpackage #:vlime-protocol-test
+(defpackage #:nvlime-protocol-test
   (:use #:cl
         #:prove
         #:yason
-        #:vlime-protocol))
+        #:nvlime-protocol))
 
-(in-package #:vlime-protocol-test)
+(in-package #:nvlime-protocol-test)
 
 
 (plan 28)
@@ -17,18 +17,18 @@
   "parse-form - simple form")
 
 (ok
-  (equal (parse-form "(vlime-protocol-test::qualified vlime-protocol-test::form)")
+  (equal (parse-form "(nvlime-protocol-test::qualified nvlime-protocol-test::form)")
          '(qualified form))
   "parse-form - qualified symbols")
 
 (ok
   (equal (write-form '(simple form))
-         "(vlime-protocol-test::simple vlime-protocol-test::form)")
+         "(nvlime-protocol-test::simple nvlime-protocol-test::form)")
   "write-form - simple form")
 
 (ok
-  (equal (write-form '(vlime-protocol-test::qualified vlime-protocol-test::form))
-         "(vlime-protocol-test::qualified vlime-protocol-test::form)")
+  (equal (write-form '(nvlime-protocol-test::qualified nvlime-protocol-test::form))
+         "(nvlime-protocol-test::qualified nvlime-protocol-test::form)")
   "write-form - qualified symbols")
 
 (let ((json (form-to-json '(simple form))))
@@ -38,9 +38,9 @@
       "form-to-json - simple form symbol name 1")
   (ok (equal (gethash "name" (nth 1 json)) "FORM")
       "form-to-json - simple form symbol name 2")
-  (ok (equal (gethash "package" (nth 0 json)) "VLIME-PROTOCOL-TEST")
+  (ok (equal (gethash "package" (nth 0 json)) "NVLIME-PROTOCOL-TEST")
       "form-to-json - simple form package name 1")
-  (ok (equal (gethash "package" (nth 1 json)) "VLIME-PROTOCOL-TEST")
+  (ok (equal (gethash "package" (nth 1 json)) "NVLIME-PROTOCOL-TEST")
       "form-to-json - simple form package name 2"))
 
 (ok (eql (form-to-json 42) 42)
@@ -67,10 +67,10 @@
   (ok (eql (gethash "tail" json) 42)
       "form-to-json - cons cell tail"))
 
-(let ((json-sym-1 (parse "{\"name\":\"SIMPLE\", \"package\":\"VLIME-PROTOCOL-TEST\"}"))
-      (json-sym-2 (parse "{\"name\":\"FORM\", \"package\":\"VLIME-PROTOCOL-TEST\"}"))
-      (json-cons (parse "{\"head\":[{\"name\":\"SIMPLE\", \"package\":\"VLIME-PROTOCOL-TEST\"}],
-                          \"tail\":{\"name\":\"FORM\", \"package\":\"VLIME-PROTOCOL-TEST\"}}")))
+(let ((json-sym-1 (parse "{\"name\":\"SIMPLE\", \"package\":\"NVLIME-PROTOCOL-TEST\"}"))
+      (json-sym-2 (parse "{\"name\":\"FORM\", \"package\":\"NVLIME-PROTOCOL-TEST\"}"))
+      (json-cons (parse "{\"head\":[{\"name\":\"SIMPLE\", \"package\":\"NVLIME-PROTOCOL-TEST\"}],
+                          \"tail\":{\"name\":\"FORM\", \"package\":\"NVLIME-PROTOCOL-TEST\"}}")))
   (ok
     (equal (json-to-form (list json-sym-1 json-sym-2))
            '(simple form))
@@ -106,7 +106,7 @@
   "msg-client-to-swank - simple message")
 
 (ok
-  (equal (msg-client-to-swank "[1, [{\"name\":\"VLIME-RAW-MSG\", \"package\":\"KEYWORD\"},
+  (equal (msg-client-to-swank "[1, [{\"name\":\"NVLIME-RAW-MSG\", \"package\":\"KEYWORD\"},
                                     \"This-is-a-raw-message\"]]"
                               :string)
          "000015This-is-a-raw-message")

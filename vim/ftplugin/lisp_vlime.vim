@@ -1,1 +1,0 @@
-call vlime#plugin#Setup()
