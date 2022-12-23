@@ -1,5 +1,6 @@
 (local buffer (require "nvlime.buffer"))
 (local main (require "nvlime.window.main"))
+(local presentations (require "nvlime.contrib.presentations"))
 
 (local repl {})
 
@@ -21,11 +22,10 @@
 ;;; BufNr ->
 (fn clear-repl* [bufnr conn]
   (buffer.set-vars
-    bufnr {:nvlime_repl_pending_coords []
-           :nvlime_repl_coords []})
-  (vim.api.nvim_buf_del_var bufnr "nvlime_repl_pending_coords")
-  ;; TODO clear extmarks
-  (buffer.fill! bufnr (repl-banner conn)))
+    bufnr {:nvlime_repl_coords []})
+  (buffer.fill! bufnr (repl-banner conn))
+  (vim.api.nvim_buf_clear_namespace
+    bufnr presentations.namespace 0 -1))
 
 ;;; BufNr {any} ->
 (fn buf-callback [bufnr]

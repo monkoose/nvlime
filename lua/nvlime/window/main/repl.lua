@@ -1,5 +1,6 @@
 local buffer = require("nvlime.buffer")
 local main = require("nvlime.window.main")
+local presentations = require("nvlime.contrib.presentations")
 local repl = {}
 local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.repl)
 local function repl_banner(conn)
@@ -24,9 +25,9 @@ local function repl_banner(conn)
   return {banner, border, ""}
 end
 local function clear_repl_2a(bufnr, conn)
-  buffer["set-vars"](bufnr, {nvlime_repl_pending_coords = {}, nvlime_repl_coords = {}})
-  vim.api.nvim_buf_del_var(bufnr, "nvlime_repl_pending_coords")
-  return buffer["fill!"](bufnr, repl_banner(conn))
+  buffer["set-vars"](bufnr, {nvlime_repl_coords = {}})
+  buffer["fill!"](bufnr, repl_banner(conn))
+  return vim.api.nvim_buf_clear_namespace(bufnr, presentations.namespace, 0, -1)
 end
 local function buf_callback(bufnr)
   buffer["set-opts"](bufnr, {filetype = _2bfiletype_2b})
