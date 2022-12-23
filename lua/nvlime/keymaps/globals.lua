@@ -5,13 +5,16 @@ local globals = {}
 local _2bscroll_step_2b = (vim.g.nvlime_scroll_step or 3)
 local _2bscroll_up_2b = (vim.g.nvlime_scroll_up or "<C-p>")
 local _2bscroll_down_2b = (vim.g.nvlime_scroll_down or "<C-n>")
+local function del_buffer_keymaps(bufnr, mode, maps)
+  for _, map in ipairs(maps) do
+    pcall(vim.api.nvim_buf_del_keymap, bufnr, mode, map)
+  end
+  return nil
+end
 local function split_focus(cmd, key)
   local function _1_()
     if window.split_focus(cmd) then
-      vim.api.nvim_buf_del_keymap(0, "n", "<C-w>h")
-      vim.api.nvim_buf_del_keymap(0, "n", "<C-w>l")
-      vim.api.nvim_buf_del_keymap(0, "n", "<C-w>k")
-      return vim.api.nvim_buf_del_keymap(0, "n", "<C-w>j")
+      return del_buffer_keymaps(0, "n", {"<C-w>h", "<C-w>j", "<C-w>k", "<C-w>l"})
     else
       return nil
     end
