@@ -1,5 +1,5 @@
 local km = require("nvlime.keymaps")
-local main = require("nvlime.window.main")
+local repl = require("nvlime.window.main.repl")
 local km_globals = require("nvlime.keymaps.globals")
 if not (vim.g.nvlime_disable_repl_mappings or vim.g.nvlime_disable_mappings) then
   if not vim.g.nvlime_disable_global_mappings then
@@ -10,7 +10,7 @@ if not (vim.g.nvlime_disable_repl_mappings or vim.g.nvlime_disable_mappings) the
   km.buffer.normal("i", "<Cmd>call nvlime#ui#repl#InspectCurREPLPresentation()<CR>", "nvlime: Insect the evaluation result under the cursor")
   km.buffer.normal("y", "<Cmd>call nvlime#ui#repl#YankCurREPLPresentation()<CR>", "nvlime: Yank the evaluation result under the cursor")
   local function _2_()
-    return main["clear-repl!"]()
+    return repl.clear()
   end
   km.buffer.normal("C", _2_, "nvlime: Clear the REPL buffer")
   km.buffer.normal("<Tab>", "<Cmd>call nvlime#ui#repl#NextField(v:true)<CR>", "nvlime: Move the cursor to the next presented object")
