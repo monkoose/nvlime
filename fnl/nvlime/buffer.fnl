@@ -23,12 +23,12 @@
 ;;; Allows to run text manipulation code
 ;;; even if buffer with `bufnr` is 'nomodifiable'
 (macro with-modifiable [bufnr ...]
-  `(if (vim.api.nvim_buf_get_option ,bufnr :modifiable)
+  `(let [old-mod# (vim.api.nvim_buf_get_option ,bufnr :modifiable)]
+     (do
+       (vim.api.nvim_buf_set_option ,bufnr :modifiable true)
        (do ,(unpack [...]))
-       (do
-         (vim.api.nvim_buf_set_option ,bufnr :modifiable true)
-         ,(unpack [...])
-         (vim.api.nvim_buf_set_option ,bufnr :modifiable false))))
+       (vim.api.nvim_buf_set_option ,bufnr :modifiable old-mod#)
+       nil)))
 
 ;;; ...string -> BufName
 (fn buffer.gen-name [...]
@@ -155,15 +155,22 @@
                                   :bufhidden "wipe"}))]
     (buffer.create-if-not-exists name false #(callback $))))
 
-;;; BufNr [string] ... ->
+;;; BufNr [string] ...[string] ->
 (fn buffer.fill! [bufnr lines ...]
-  "Change all lines of the buffer with `bufnr` number to `content` text"
+  "Change all lines of the buffer with `bufnr` to `lines` and ... if any."
   (with-modifiable bufnr
     (vim.api.nvim_buf_set_lines bufnr 0 -1 false lines)
     (when ...
-      (var last-linenr (length lines))
       (each [_ ls (ipairs [...])]
-        (vim.api.nvim_buf_set_lines bufnr last-linenr -1 false ls)
-        (set last-linenr (+ last-linenr (length ls)))))))
+        (vim.api.nvim_buf_set_lines bufnr -1 -1 false ls)))))
+
+;;; BufNr ...[string] ->
+(fn buffer.append! [bufnr ...]
+  "Append `...` any number of list of strings to the end of the
+  buffer with `bufnr`."
+  (with-modifiable bufnr
+    (when ...
+      (each [_ ls (ipairs [...])]
+        (vim.api.nvim_buf_set_lines bufnr -1 -1 false ls)))))
 
 buffer

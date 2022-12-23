@@ -27,7 +27,7 @@ window["set-opts"] = function(winid, opts)
   return nil
 end
 window["set-minimal-style-options"] = function(winid)
-  return window["set-opts"](winid, {wrap = true, signcolumn = "no", list = false, number = false, spell = false, relativenumber = false})
+  return window["set-opts"](winid, {wrap = true, signcolumn = "no", spell = false, relativenumber = false, number = false, list = false})
 end
 window["find-horiz-pos"] = function(req_height, scr_row, scr_height)
   local border_len = 3

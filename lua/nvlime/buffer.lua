@@ -50,7 +50,7 @@ end
 buffer.create = function(name, listed_3f, _3fcallback)
   local bufnr = vim.api.nvim_create_buf(listed_3f, false)
   vim.api.nvim_buf_set_name(bufnr, name)
-  buffer["set-opts"](bufnr, {buftype = "nofile", modifiable = false, swapfile = false, modeline = false})
+  buffer["set-opts"](bufnr, {buftype = "nofile", modeline = false, swapfile = false, modifiable = false})
   if not listed_3f then
     local function _5_()
       return buffer["set-opts"](bufnr, {buflisted = false})
@@ -106,22 +106,32 @@ buffer["create-scratch-with-conn-var!"] = function(name, filetype)
   return buffer["create-if-not-exists"](name, false, _14_)
 end
 buffer["fill!"] = function(bufnr, lines, ...)
-  if vim.api.nvim_buf_get_option(bufnr, "modifiable") then
+  local old_mod_2_auto = vim.api.nvim_buf_get_option(bufnr, "modifiable")
+  vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
+  do
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
     if ... then
-      local last_linenr = #lines
       for _, ls in ipairs({...}) do
-        vim.api.nvim_buf_set_lines(bufnr, last_linenr, -1, false, ls)
-        last_linenr = (last_linenr + #ls)
+        vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, ls)
       end
-      return nil
     else
-      return nil
     end
-  else
-    vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
-    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
-    return vim.api.nvim_buf_set_option(bufnr, "modifiable", false)
   end
+  vim.api.nvim_buf_set_option(bufnr, "modifiable", old_mod_2_auto)
+  return nil
+end
+buffer["append!"] = function(bufnr, ...)
+  local old_mod_2_auto = vim.api.nvim_buf_get_option(bufnr, "modifiable")
+  vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
+  do
+    if ... then
+      for _, ls in ipairs({...}) do
+        vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, ls)
+      end
+    else
+    end
+  end
+  vim.api.nvim_buf_set_option(bufnr, "modifiable", old_mod_2_auto)
+  return nil
 end
 return buffer
