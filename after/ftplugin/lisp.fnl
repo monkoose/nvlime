@@ -1,6 +1,6 @@
 (local km (require "nvlime.keymaps"))
 (local window (require "nvlime.window"))
-(local main (require "nvlime.window.main"))
+(local repl (require "nvlime.window.main.repl"))
 (local km-window (require "nvlime.window.keymaps"))
 (local km-globals (require "nvlime.keymaps.globals"))
 
@@ -104,7 +104,7 @@
         (km.buffer.normal (.. km.leader "rt")
                           "<Cmd>call nvlime#plugin#RestartCurrentServer()<CR>"
                           "nvlime: Restart the current server")
-        (km.buffer.normal (.. km.leader "rc") #(main.clear-repl!)
+        (km.buffer.normal (.. km.leader "rc") #(repl.clear)
                           "nvlime: Clear the REPL buffer")
 
         (km.buffer.normal (.. km.leader "ss")

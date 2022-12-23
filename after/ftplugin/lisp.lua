@@ -1,6 +1,6 @@
 local km = require("nvlime.keymaps")
 local window = require("nvlime.window")
-local main = require("nvlime.window.main")
+local repl = require("nvlime.window.main.repl")
 local km_window = require("nvlime.window.keymaps")
 local km_globals = require("nvlime.keymaps.globals")
 vim.api.nvim_buf_set_option(0, "lisp", false)
@@ -63,7 +63,7 @@ if not vim.g.nvlime_disable_mappings then
     km.buffer.normal((km.leader .. "rR"), "<Cmd>call nvlime#plugin#RenameSelectedServer()<CR>", "nvlime: Rename a server")
     km.buffer.normal((km.leader .. "rt"), "<Cmd>call nvlime#plugin#RestartCurrentServer()<CR>", "nvlime: Restart the current server")
     local function _9_()
-      return main["clear-repl!"]()
+      return repl.clear()
     end
     km.buffer.normal((km.leader .. "rc"), _9_, "nvlime: Clear the REPL buffer")
     km.buffer.normal((km.leader .. "ss"), "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurExprOrAtom())<CR>", "nvlime: Send the expression/atom under the cursor to the REPL")
