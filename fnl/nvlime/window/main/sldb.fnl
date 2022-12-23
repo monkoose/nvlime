@@ -5,12 +5,7 @@
 
 (local sldb {})
 
-(local +name+ "sldb")
-(local +filetype+ (buffer.gen-filetype +name+))
-
-;;; integer -> BufName
-(fn gen-sldb-bufname [conn-name thread]
-  (buffer.gen-name conn-name +name+ thread))
+(local +filetype+ (buffer.gen-filetype buffer.names.sldb))
 
 ;;; BufNr {any} ->
 (fn buf-callback [bufnr opts]
@@ -27,8 +22,8 @@
 ;;; TODO remove flickering of stepping and continue
 ;;; {any} ->
 (fn sldb.on-debug-return [config]
-  (match (psl-buf.exists? (gen-sldb-bufname
-                           config.conn-name config.thread))
+  (match (psl-buf.exists? (buffer.gen-sldb-name
+                            config.conn-name config.thread))
     (true bufnr)
     (let [buf-level (or (vim.api.nvim_buf_get_var
                           bufnr "nvlime_sldb_level")
@@ -46,7 +41,7 @@
 ;;; string {any} -> [WinID BufNr]
 (fn sldb.open [content config]
   (let [bufnr (buffer.create-if-not-exists
-                (gen-sldb-bufname
+                (buffer.gen-sldb-name
                   config.conn-name config.thread)
                 true
                 #(buf-callback $ config))]

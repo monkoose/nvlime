@@ -3,8 +3,7 @@
 
 (local threads {})
 
-(local +name+ "threads")
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +filetype+ (buffer.gen-filetype buffer.names.threads))
 
 ;;; BufNr ->
 (fn restrict-cursor [bufnr]
@@ -28,11 +27,11 @@
 (fn threads.open [content config]
   (let [bufnr (buffer.create-scratch-with-conn-var!
                 (buffer.gen-name
-                  config.conn-name +name+)
+                  config.conn-name buffer.names.threads)
                 +filetype+)]
     [(window.center.open
        bufnr content
-       {:height 10 :width 40 :title +name+}
+       {:height 10 :width 40 :title buffer.names.threads}
        #(win-callback $1 $2))
      bufnr]))
 

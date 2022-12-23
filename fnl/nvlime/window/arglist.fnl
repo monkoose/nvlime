@@ -5,9 +5,8 @@
 (local psl-win (require "parsley.window"))
 
 (local arglist {})
-(local +name+ "arglist")
-(local +bufname+ (buffer.gen-name +name+))
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +bufname+ (buffer.gen-name buffer.names.arglist))
+(local +filetype+ (buffer.gen-filetype buffer.names.arglist))
 
 ;;; {any} -> {any}
 (fn calc-opts [args]

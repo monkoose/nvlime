@@ -4,8 +4,7 @@
 
 (local xref {})
 
-(local +name+ "xref")
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +filetype+ (buffer.gen-filetype buffer.names.xref))
 (local +namespace+ (vim.api.nvim_create_namespace +filetype+))
 
 (var *last-line* 1)
@@ -61,10 +60,13 @@
 (fn xref.open [content config]
   (let [lines (content->lines content)
         bufnr (buffer.create-scratch-with-conn-var!
-                (buffer.gen-name config.conn-name +name+)
+                (buffer.gen-name
+                  config.conn-name buffer.names.xref)
                 +filetype+)]
     [(window.center.open
-       bufnr lines {:width 80 :height 10 :title +name+}
+       bufnr lines {:width 80
+                    :height 10
+                    :title buffer.names.xref}
        #(win-callback $1 $2))
      bufnr]))
 

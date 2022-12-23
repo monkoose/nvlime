@@ -3,9 +3,8 @@
 
 (local macroexpand {})
 
-(local +name+ "macroexpand")
-(local +bufname+ (buffer.gen-name +name+))
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +bufname+ (buffer.gen-name buffer.names.macroexpand))
+(local +filetype+ (buffer.gen-filetype buffer.names.macroexpand))
 
 ;;; string -> [WinID BufNr]
 (fn macroexpand.open [content]
@@ -13,7 +12,7 @@
                 +bufname+ +filetype+)]
     [(window.cursor.open
        bufnr (string.lower content)
-       {:title +name+
+       {:title buffer.names.macroexpand
         :similar ["nvlime_documentation"
                   "nvlime_description"]})
      bufnr]))

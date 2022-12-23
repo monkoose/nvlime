@@ -6,9 +6,8 @@
 
 (local inspector {})
 
-(local +name+ "inspector")
-(local +bufname+ (buffer.gen-name +name+))
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +bufname+ (buffer.gen-name buffer.names.inspector))
+(local +filetype+ (buffer.gen-filetype buffer.names.inspector))
 (local +namespace+ (vim.api.nvim_create_namespace +filetype+))
 
 (var *content-title* "")
@@ -123,7 +122,9 @@
                 #(buf-callback $))]
     (let [winid (window.center.open
                   bufnr lines
-                  { :height 12 :width 80 :title +name+})]
+                  {:height 12
+                   :width 80
+                   :title buffer.names.inspector})]
       (add-coords-highlight bufnr)
       (buffer.set-vars
         bufnr {:nvlime_inspector_title *content-title*

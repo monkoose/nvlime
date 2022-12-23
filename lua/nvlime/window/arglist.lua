@@ -4,9 +4,8 @@ local ut = require("nvlime.utilities")
 local psl_buf = require("parsley.buffer")
 local psl_win = require("parsley.window")
 local arglist = {}
-local _2bname_2b = "arglist"
-local _2bbufname_2b = buffer["gen-name"](_2bname_2b)
-local _2bfiletype_2b = buffer["gen-filetype"](_2bname_2b)
+local _2bbufname_2b = buffer["gen-name"](buffer.names.arglist)
+local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.arglist)
 local function calc_opts(args)
   local border_len = 2
   local wininfo = psl_win["get-info"](vim.api.nvim_get_current_win())

@@ -3,8 +3,7 @@
 
 (local server {})
 
-(local +name+ "server")
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +filetype+ (buffer.gen-filetype buffer.names.server))
 
 ;;; string -> [WinID BufNr]
 (fn server.open [server-name]
@@ -15,7 +14,7 @@
         config {:height 18
                 :width 100
                 :noedit true
-                :title (.. +name+ " - " server-name)}]
+                :title (.. buffer.names.server " - " server-name)}]
     [(window.center.open bufnr [] config)
      bufnr]))
 

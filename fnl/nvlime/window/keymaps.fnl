@@ -7,9 +7,8 @@
 
 (local keymaps {})
 
-(local +name+ "keymaps")
-(local +bufname+ (buffer.gen-name +name+))
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +bufname+ (buffer.gen-name buffer.names.keymaps))
+(local +filetype+ (buffer.gen-filetype buffer.names.keymaps))
 
 ;;; string string string -> string
 (fn format-keymap-line [mode map desc]

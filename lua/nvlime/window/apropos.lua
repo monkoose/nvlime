@@ -1,9 +1,8 @@
 local window = require("nvlime.window")
 local buffer = require("nvlime.buffer")
 local apropos = {}
-local _2bname_2b = "apropos"
-local _2bbufname_2b = buffer["gen-name"](_2bname_2b)
-local _2bfiletype_2b = buffer["gen-filetype"](_2bname_2b)
+local _2bbufname_2b = buffer["gen-name"](buffer.names.apropos)
+local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.apropos)
 local function content__3elines(content)
   local lines = {}
   for _, item in ipairs(content) do
@@ -60,6 +59,6 @@ apropos.open = function(content)
   local function _11_(_241)
     return win_callback(_241)
   end
-  return {window.center.open(bufnr, lines, {height = 10, width = 60, title = _2bname_2b}, _11_), bufnr}
+  return {window.center.open(bufnr, lines, {height = 10, width = 60, title = buffer.names.apropos}, _11_), bufnr}
 end
 return apropos

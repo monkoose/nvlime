@@ -4,9 +4,8 @@
 
 (local disassembly {})
 
-(local +name+ "disassembly")
-(local +bufname+ (buffer.gen-name +name+))
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +bufname+ (buffer.gen-name buffer.names.disassembly))
+(local +filetype+ (buffer.gen-filetype buffer.names.disassembly))
 
 ;;; string -> {..}
 (fn content->lines [content]
@@ -31,7 +30,7 @@
                 +bufname+ +filetype+)
         config {:height text.height
                 :width text.width
-                :title +name+}]
+                :title buffer.names.disassembly}]
     [(window.center.open bufnr text.lines config)
      bufnr]))
 

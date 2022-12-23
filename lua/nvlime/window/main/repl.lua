@@ -1,8 +1,7 @@
 local buffer = require("nvlime.buffer")
 local main = require("nvlime.window.main")
 local repl = {}
-local _2bname_2b = "repl"
-local _2bfiletype_2b = buffer["gen-filetype"](_2bname_2b)
+local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.repl)
 local function repl_banner(conn)
   local data = conn.cb_data
   local banner
@@ -43,7 +42,7 @@ repl.open = function(content, config)
   local function _4_(_241)
     return buf_callback(_241)
   end
-  bufnr = buffer["create-if-not-exists"](buffer["gen-name"](config["conn-name"], _2bname_2b), false, _4_)
+  bufnr = buffer["create-if-not-exists"](buffer["gen-repl-name"](config["conn-name"]), false, _4_)
   return {(main.repl):open(bufnr, config["focus?"]), bufnr}
 end
 repl.clear = function()

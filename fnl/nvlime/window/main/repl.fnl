@@ -3,8 +3,7 @@
 
 (local repl {})
 
-(local +name+ "repl")
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +filetype+ (buffer.gen-filetype buffer.names.repl))
 
 ;;; Conn -> [string]
 (fn repl-banner [conn]
@@ -38,7 +37,7 @@
 ;;; string {any} -> [WinID BufNr]
 (fn repl.open [content config]
   (let [bufnr (buffer.create-if-not-exists
-                (buffer.gen-name config.conn-name +name+)
+                (buffer.gen-repl-name config.conn-name)
                 false
                 #(buf-callback $))]
     [(main.repl:open bufnr config.focus?) bufnr]))

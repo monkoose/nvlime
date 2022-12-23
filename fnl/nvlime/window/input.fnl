@@ -7,9 +7,8 @@
 
 (local input {})
 
-(local +name+ "input")
 (local +namespace+ (vim.api.nvim_create_namespace
-                     (buffer.gen-filetype +name+)))
+                     (buffer.gen-filetype buffer.names.input)))
 
 ;;; {any} -> {any}
 (fn calc-opts [config]
@@ -79,7 +78,7 @@
   (let [lines (ut.text->lines content)
         bufnr (buffer.create-if-not-exists
                 (buffer.gen-name config.conn-name
-                                 +name+
+                                 buffer.names.input
                                  config.prompt)
                 false
                 #(buf-callback $))

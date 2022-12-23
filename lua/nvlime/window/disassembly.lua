@@ -2,9 +2,8 @@ local window = require("nvlime.window")
 local buffer = require("nvlime.buffer")
 local ut = require("nvlime.utilities")
 local disassembly = {}
-local _2bname_2b = "disassembly"
-local _2bbufname_2b = buffer["gen-name"](_2bname_2b)
-local _2bfiletype_2b = buffer["gen-filetype"](_2bname_2b)
+local _2bbufname_2b = buffer["gen-name"](buffer.names.disassembly)
+local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.disassembly)
 local function content__3elines(content)
   local lines = ut["text->lines"](content)
   local height = 1
@@ -24,7 +23,7 @@ end
 disassembly.open = function(content)
   local text = content__3elines(content)
   local bufnr = buffer["create-scratch"](_2bbufname_2b, _2bfiletype_2b)
-  local config = {height = text.height, width = text.width, title = _2bname_2b}
+  local config = {height = text.height, width = text.width, title = buffer.names.disassembly}
   return {window.center.open(bufnr, text.lines, config), bufnr}
 end
 return disassembly

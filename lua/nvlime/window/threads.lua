@@ -1,8 +1,7 @@
 local window = require("nvlime.window")
 local buffer = require("nvlime.buffer")
 local threads = {}
-local _2bname_2b = "threads"
-local _2bfiletype_2b = buffer["gen-filetype"](_2bname_2b)
+local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.threads)
 local function restrict_cursor(bufnr)
   local prev_col = 1
   local function restrict()
@@ -24,10 +23,10 @@ local function win_callback(winid, bufnr)
   return restrict_cursor(bufnr)
 end
 threads.open = function(content, config)
-  local bufnr = buffer["create-scratch-with-conn-var!"](buffer["gen-name"](config["conn-name"], _2bname_2b), _2bfiletype_2b)
+  local bufnr = buffer["create-scratch-with-conn-var!"](buffer["gen-name"](config["conn-name"], buffer.names.threads), _2bfiletype_2b)
   local function _3_(_241, _242)
     return win_callback(_241, _242)
   end
-  return {window.center.open(bufnr, content, {height = 10, width = 40, title = _2bname_2b}, _3_), bufnr}
+  return {window.center.open(bufnr, content, {height = 10, width = 40, title = buffer.names.threads}, _3_), bufnr}
 end
 return threads

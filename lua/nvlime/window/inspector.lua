@@ -4,9 +4,8 @@ local ut = require("nvlime.utilities")
 local psl = require("parsley")
 local psl_list = require("parsley.list")
 local inspector = {}
-local _2bname_2b = "inspector"
-local _2bbufname_2b = buffer["gen-name"](_2bname_2b)
-local _2bfiletype_2b = buffer["gen-filetype"](_2bname_2b)
+local _2bbufname_2b = buffer["gen-name"](buffer.names.inspector)
+local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.inspector)
 local _2bnamespace_2b = vim.api.nvim_create_namespace(_2bfiletype_2b)
 local _2acontent_title_2a = ""
 local _2acoords_2a = {}
@@ -142,7 +141,7 @@ inspector.open = function(content)
     return buf_callback(_241)
   end
   bufnr = buffer["create-if-not-exists"](_2bbufname_2b, false, _16_)
-  local winid = window.center.open(bufnr, lines, {height = 12, width = 80, title = _2bname_2b})
+  local winid = window.center.open(bufnr, lines, {height = 12, width = 80, title = buffer.names.inspector})
   add_coords_highlight(bufnr)
   buffer["set-vars"](bufnr, {nvlime_inspector_title = _2acontent_title_2a, nvlime_inspector_coords = _2acoords_2a, nvlime_inspector_content_start = _2acontent_start_2a, nvlime_inspector_content_end = _2acontent_end_2a})
   return {winid, bufnr}

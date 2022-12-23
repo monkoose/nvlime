@@ -5,8 +5,7 @@ local ut = require("nvlime.utilities")
 local psl_buf = require("parsley.buffer")
 local psl_win = require("parsley.window")
 local input = {}
-local _2bname_2b = "input"
-local _2bnamespace_2b = vim.api.nvim_create_namespace(buffer["gen-filetype"](_2bname_2b))
+local _2bnamespace_2b = vim.api.nvim_create_namespace(buffer["gen-filetype"](buffer.names.input))
 local function calc_opts(config)
   local border_len = 2
   local wininfo = psl_win["get-info"](vim.api.nvim_get_current_win())
@@ -63,7 +62,7 @@ input.open = function(content, config)
   local function _5_(_241)
     return buf_callback(_241)
   end
-  bufnr = buffer["create-if-not-exists"](buffer["gen-name"](config["conn-name"], _2bname_2b, config.prompt), false, _5_)
+  bufnr = buffer["create-if-not-exists"](buffer["gen-name"](config["conn-name"], buffer.names.input, config.prompt), false, _5_)
   local opts = calc_opts(config)
   show_history_extmark(bufnr)
   buffer["fill!"](bufnr, lines)

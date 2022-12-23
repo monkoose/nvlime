@@ -8,13 +8,15 @@
 (local +scroll-up+ (or vim.g.nvlime_scroll_up "<C-p>"))
 (local +scroll-down+ (or vim.g.nvlime_scroll_down "<C-n>"))
 
+(fn del-buffer-keymaps [bufnr mode maps]
+  (each [_ map (ipairs maps)]
+    (pcall vim.api.nvim_buf_del_keymap bufnr mode map)))
+
 (fn split-focus [cmd key]
   (km.buffer.normal key
                     #(when (window.split_focus cmd)
-                       (vim.api.nvim_buf_del_keymap 0 "n" "<C-w>h")
-                       (vim.api.nvim_buf_del_keymap 0 "n" "<C-w>l")
-                       (vim.api.nvim_buf_del_keymap 0 "n" "<C-w>k")
-                       (vim.api.nvim_buf_del_keymap 0 "n" "<C-w>j"))
+                       (del-buffer-keymaps
+                         0 "n" ["<C-w>h" "<C-w>j" "<C-w>k" "<C-w>l"]))
                     "Split into last non-floating window"))
 
 ;;; bool ->

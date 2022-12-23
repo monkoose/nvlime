@@ -3,14 +3,13 @@
 
 (local trace {})
 
-(local +name+ "trace")
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +filetype+ (buffer.gen-filetype buffer.names.trace))
 
 ;;; ========== TRACE ==========
 (fn trace.open [content config]
   (let [bufnr (buffer.create-scratch
                 (buffer.gen-name
-                  config.conn-name +name+)
+                  config.conn-name buffer.names.trace)
                 +filetype+)]
     [(window.center.open
        bufnr content {:height 15

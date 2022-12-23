@@ -5,9 +5,8 @@ local ut = require("nvlime.utilities")
 local psl_buf = require("parsley.buffer")
 local psl_win = require("parsley.window")
 local keymaps = {}
-local _2bname_2b = "keymaps"
-local _2bbufname_2b = buffer["gen-name"](_2bname_2b)
-local _2bfiletype_2b = buffer["gen-filetype"](_2bname_2b)
+local _2bbufname_2b = buffer["gen-name"](buffer.names.keymaps)
+local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.keymaps)
 local function format_keymap_line(mode, map, desc)
   return string.format("%-5s %-10s %s", mode, map, desc)
 end

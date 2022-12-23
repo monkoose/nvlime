@@ -3,9 +3,8 @@
 
 (local apropos {})
 
-(local +name+ "apropos")
-(local +bufname+ (buffer.gen-name +name+))
-(local +filetype+ (buffer.gen-filetype +name+))
+(local +bufname+ (buffer.gen-name buffer.names.apropos))
+(local +filetype+ (buffer.gen-filetype buffer.names.apropos))
 
 ;;; {any} -> [string]
 (fn content->lines [content]
@@ -29,7 +28,7 @@
                 +bufname+ +filetype+)]
     [(window.center.open
        bufnr lines
-       {:height 10 :width 60 :title +name+}
+       {:height 10 :width 60 :title buffer.names.apropos}
        #(win-callback $1))
      bufnr]))
 

@@ -2,6 +2,24 @@
 
 (local buffer {})
 
+(tset buffer
+      :names {:repl "repl"
+              :sldb "sldb"
+              :xref "xref"
+              :input "input"
+              :notes "notes"
+              :trace "trace"
+              :server "server"
+              :apropos "apropos"
+              :arglist "arglist"
+              :keymaps "keymaps"
+              :threads "threads"
+              :inspector "inspector"
+              :description "description"
+              :disassembly "disassembly"
+              :macroexpand "macroexpand"
+              :documentation "documentation"})
+
 ;;; Allows to run text manipulation code
 ;;; even if buffer with `bufnr` is 'nomodifiable'
 (macro with-modifiable [bufnr ...]
@@ -16,6 +34,15 @@
 (fn buffer.gen-name [...]
   "Generate name for the nvlime buffers."
   (.. "nvlime://" (table.concat [...] "/")))
+
+;;; string -> BufName
+(fn buffer.gen-repl-name [conn-name]
+  (buffer.gen-name conn-name buffer.names.repl))
+
+;;; string integer -> BufName
+(fn buffer.gen-sldb-name [conn-name thread]
+  (buffer.gen-name
+    conn-name buffer.names.sldb thread))
 
 ;;; string -> string
 (fn buffer.gen-filetype [suffix]

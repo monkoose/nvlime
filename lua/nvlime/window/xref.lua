@@ -2,8 +2,7 @@ local window = require("nvlime.window")
 local buffer = require("nvlime.buffer")
 local psl = require("parsley")
 local xref = {}
-local _2bname_2b = "xref"
-local _2bfiletype_2b = buffer["gen-filetype"](_2bname_2b)
+local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.xref)
 local _2bnamespace_2b = vim.api.nvim_create_namespace(_2bfiletype_2b)
 local _2alast_line_2a = 1
 local _2aprev_line_2a = 0
@@ -50,10 +49,10 @@ local function win_callback(winid, bufnr)
 end
 xref.open = function(content, config)
   local lines = content__3elines(content)
-  local bufnr = buffer["create-scratch-with-conn-var!"](buffer["gen-name"](config["conn-name"], _2bname_2b), _2bfiletype_2b)
+  local bufnr = buffer["create-scratch-with-conn-var!"](buffer["gen-name"](config["conn-name"], buffer.names.xref), _2bfiletype_2b)
   local function _5_(_241, _242)
     return win_callback(_241, _242)
   end
-  return {window.center.open(bufnr, lines, {width = 80, height = 10, title = _2bname_2b}, _5_), bufnr}
+  return {window.center.open(bufnr, lines, {width = 80, height = 10, title = buffer.names.xref}, _5_), bufnr}
 end
 return xref

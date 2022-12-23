@@ -1,7 +1,14 @@
 local psl_buf = require("parsley.buffer")
 local buffer = {}
+buffer["names"] = {repl = "repl", sldb = "sldb", xref = "xref", input = "input", notes = "notes", trace = "trace", server = "server", apropos = "apropos", arglist = "arglist", keymaps = "keymaps", threads = "threads", inspector = "inspector", description = "description", disassembly = "disassembly", macroexpand = "macroexpand", documentation = "documentation"}
 buffer["gen-name"] = function(...)
   return ("nvlime://" .. table.concat({...}, "/"))
+end
+buffer["gen-repl-name"] = function(conn_name)
+  return buffer["gen-name"](conn_name, buffer.names.repl)
+end
+buffer["gen-sldb-name"] = function(conn_name, thread)
+  return buffer["gen-name"](conn_name, buffer.names.sldb, thread)
 end
 buffer["gen-filetype"] = function(suffix)
   return ("nvlime_" .. suffix)
@@ -43,7 +50,7 @@ end
 buffer.create = function(name, listed_3f, _3fcallback)
   local bufnr = vim.api.nvim_create_buf(listed_3f, false)
   vim.api.nvim_buf_set_name(bufnr, name)
-  buffer["set-opts"](bufnr, {buftype = "nofile", modeline = false, swapfile = false, modifiable = false})
+  buffer["set-opts"](bufnr, {buftype = "nofile", modifiable = false, swapfile = false, modeline = false})
   if not listed_3f then
     local function _5_()
       return buffer["set-opts"](bufnr, {buflisted = false})
