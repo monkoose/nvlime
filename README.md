@@ -18,7 +18,7 @@ To get your feet wet: [Quickstart](#Quickstart)
 ## Why?
 
 Vlime is a good plugin on top of the great tool. But it tries to sit on both
-chairs (vim and Neovim), when their feature implementations keep diverging, and
+chairs (Vim and Neovim), when their feature implementations keep diverging. Also
 it's UI is clunky and disruptive (at least for my taste). So Nvlime is
 supporting only Neovim and focusing on improving Vlime UI with new Neovim
 features. Check `CHANGELOG.md` to find out what have changed.
@@ -42,14 +42,14 @@ Must-have:
 Good to have:
 
 - [nvim-cmp][nvim-cmp] for autocompletion
-- parinfer or paredit plugin - currently Nvlime can only detect s-expressions
-  inside parentheses. To make your life easier, use
+- parinfer or paredit plugin - Nvlime can only detect s-expressions inside
+  parentheses. To make your life easier, use
   [paredit](https://github.com/kovisoft/paredit) or any of parinfer
   implementations, like:
   [nvim-parinfer](https://github.com/gpanders/nvim-parinfer) or
   [nvim-parinfer-rust](https://github.com/harrygallagher4/nvim-parinfer-rust).
-  Even though paredit isn't perfect, but in my experience curretly parinfer
-  plugins are the cause of annoying bugs.
+  Even though paredit isn't perfect, but in my experience parinfer
+  plugins are the cause of annoying bugs at the time of this writing.
 
 ## Supported CL Implementations
 
@@ -72,7 +72,7 @@ section below for contact info).
 ### Installation
 
 Use `:h packages` or your plugin manager instructions to add Nvlime to Neovim.
-As dependency Nvlime uses [parsley][parsley] - it is mine plugin with a bunch
+As dependency Nvlime uses [parsley][parsley] - it is my plugin with a bunch
 of auxiliary functions. So it should be installed too. After that run `sbcl
 --load <neovim plugins dir>/nvlime/lisp/start-nvlime.lisp`.
 
@@ -89,29 +89,30 @@ You can also let Neovim start the server for you - `<leader>rr`. See `:help
 nvlime-start-up` for more info.
 
 All Nvlime keymaps starts with the "leader", so change `g:nvlime_leader` to key
-that is convenient for you (by default it is mapped to `\`). Suggested keys is
+that is convenient for you (by default it is mapped to `\`). Suggested keys are
 `,` or `<Space>`.
 
 To find out all plugin mappings for the current window type `<leader>?` or
-`<F1>`. There is a set of global mappings not shown in this window listed
-below, which works for all the windows:
+`<F1>`. There are a set of global mappings, which do not show in the help window.
+They are listed below and work for all Nvlime windows:
 
 - `q` - to close the current window (except for lisp filetypes).
 - `<leader>ww` - closes all plugin windows except main windows.
 - `<Esc>` - closes last opened floating window except current one.
-- `<C-n>` and `<C-p>` to scroll last opened floating window. If this keys is
-  messing up with your config change it with `g:nvlime_scroll_up` and
+- `<C-n>` and `<C-p>` to scroll last opened floating window. If this keys are
+  messing up with your config change them with `g:nvlime_scroll_up` and
   `g:nvlime_scroll_down`. Example `let g:nvlime_scroll_up = '<C-u>'` or
   `vim.g.nvlime_scroll_down = '<C-d>'`. You can adjust scroll step with
   `g:nvlime_scroll_step` variable. It is set to `3` lines by default.
 
-If you need to make a floating window persistent, just make it a normal window
-splitting it into you current window with `<C-w>h`, `<C-w>j`, `<C-w>k`,
-`<C-w>l` or split whole Neovim screen with `<C-w>H` `<C-w>J` `<C-w>K` `<C-w>L`.
+If you need to make some floating window persistent, just make it a normal
+window. You can do it by splitting it into you current window with `<C-w>h`,
+`<C-w>j`, `<C-w>k`, `<C-w>l` or split the whole Neovim screen with `<C-w>H`,
+`<C-w>J`, `<C-w>K` or `<C-w>L`.
 
 Main windows (repl, sbcl and compiler notes) aren't floating and by default
-placed at the right side of the screen. You can change this behavior with
-`g:nvlime_main_win` variable, which can accept such positions `"top"`,
+placed on the right side of the screen. You can change this behavior with
+`g:nvlime_main_win` variable, which can accept one position from `"top"`,
 `"bottom"`, `"left"` or `"right"`.
 
 To enable autocompletion with [nvim-cmp][nvim-cmp], first set `let
