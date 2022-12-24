@@ -1,6 +1,8 @@
-# NVLIME
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/6261276/209430731-dccaeebd-23e4-4f55-b8c3-4a6bfec7f01b.jpg" alt="Nvlime logo">
+</p>
 
-**WARNING**
+**WARNING:**
 [parsley][parsley] neovim plugin should be installed for Nvlime to work.
 
 ## Intro
