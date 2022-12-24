@@ -27,7 +27,7 @@ window["set-opts"] = function(winid, opts)
   return nil
 end
 window["set-minimal-style-options"] = function(winid)
-  return window["set-opts"](winid, {wrap = true, signcolumn = "no", spell = false, relativenumber = false, number = false, list = false})
+  return window["set-opts"](winid, {wrap = true, signcolumn = "no", number = false, list = false, relativenumber = false, spell = false})
 end
 window["find-horiz-pos"] = function(req_height, scr_row, scr_height)
   local border_len = 3
@@ -53,7 +53,7 @@ window["update-win-options"] = function(winid, opts, _3ffocus_3f)
   end
 end
 local function win_buf_nvlime_ft_3f(winid)
-  local pattern = ("^" .. buffer["filetype-prefix"])
+  local pattern = "nvlime_"
   return string.find(psl_win.filetype(winid), pattern)
 end
 local function main_win_3f(winid)

@@ -64,7 +64,7 @@
 (fn win-buf-nvlime-ft? [winid]
   "Checks if window with `winid` has buffer with
   one of nvlime filetypes."
-  (let [pattern (.. "^" buffer.filetype-prefix)]
+  (let [pattern "nvlime_"]
     (string.find (psl-win.filetype winid) pattern)))
 
 ;;; WinID -> bool
