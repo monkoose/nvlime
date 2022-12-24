@@ -43,7 +43,10 @@
                 false
                 #(buf-callback $))]
     (buffer.append! bufnr lines)
-    [(main.repl:open bufnr config.focus?) bufnr]))
+    (let [winid (main.repl:open bufnr config.focus?)]
+      (vim.api.nvim_win_set_cursor
+        winid [(vim.api.nvim_buf_line_count bufnr) 0])
+      [winid bufnr])))
 
 ;;; ->
 (fn repl.clear []

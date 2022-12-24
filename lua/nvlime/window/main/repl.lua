@@ -47,7 +47,9 @@ repl.open = function(content, config)
   end
   bufnr = buffer["create-if-not-exists"](buffer["gen-repl-name"](config["conn-name"]), false, _4_)
   buffer["append!"](bufnr, lines)
-  return {(main.repl):open(bufnr, config["focus?"]), bufnr}
+  local winid = (main.repl):open(bufnr, config["focus?"])
+  vim.api.nvim_win_set_cursor(winid, {vim.api.nvim_buf_line_count(bufnr), 0})
+  return {winid, bufnr}
 end
 repl.clear = function()
   local cur_bufnr = vim.api.nvim_get_current_buf()
