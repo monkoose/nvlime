@@ -14,7 +14,7 @@
   (let [last-linenr (vim.api.nvim_buf_line_count bufnr)
         id (psl.second msg)
         coords-list (or (. presentation.pending-coords id) [])]
-    (table.insert coords-list {:begin [last-linenr 1]
+    (table.insert coords-list {:begin [(+ last-linenr 1) 1]
                                :type "PRESENTATION"
                                :id id})
     (tset presentation.pending-coords id coords-list)))

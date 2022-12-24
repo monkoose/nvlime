@@ -1,5 +1,6 @@
 (local buffer (require "nvlime.buffer"))
 (local main (require "nvlime.window.main"))
+(local ut (require "nvlime.utilities"))
 (local presentations (require "nvlime.contrib.presentations"))
 
 (local repl {})
@@ -36,10 +37,12 @@
 
 ;;; string {any} -> [WinID BufNr]
 (fn repl.open [content config]
-  (let [bufnr (buffer.create-if-not-exists
+  (let [lines (ut.text->lines content)
+        bufnr (buffer.create-if-not-exists
                 (buffer.gen-repl-name config.conn-name)
                 false
                 #(buf-callback $))]
+    (buffer.append! bufnr lines)
     [(main.repl:open bufnr config.focus?) bufnr]))
 
 ;;; ->

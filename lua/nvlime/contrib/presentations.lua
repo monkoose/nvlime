@@ -7,7 +7,7 @@ local function set_presentation_begin(bufnr, msg)
   local last_linenr = vim.api.nvim_buf_line_count(bufnr)
   local id = psl.second(msg)
   local coords_list = ((presentation["pending-coords"])[id] or {})
-  table.insert(coords_list, {begin = {last_linenr, 1}, type = "PRESENTATION", id = id})
+  table.insert(coords_list, {begin = {(last_linenr + 1), 1}, type = "PRESENTATION", id = id})
   do end (presentation["pending-coords"])[id] = coords_list
   return nil
 end

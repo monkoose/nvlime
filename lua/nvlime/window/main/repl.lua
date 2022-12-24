@@ -1,5 +1,6 @@
 local buffer = require("nvlime.buffer")
 local main = require("nvlime.window.main")
+local ut = require("nvlime.utilities")
 local presentations = require("nvlime.contrib.presentations")
 local repl = {}
 local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.repl)
@@ -39,11 +40,13 @@ local function buf_callback(bufnr)
   end
 end
 repl.open = function(content, config)
+  local lines = ut["text->lines"](content)
   local bufnr
   local function _4_(_241)
     return buf_callback(_241)
   end
   bufnr = buffer["create-if-not-exists"](buffer["gen-repl-name"](config["conn-name"]), false, _4_)
+  buffer["append!"](bufnr, lines)
   return {(main.repl):open(bufnr, config["focus?"]), bufnr}
 end
 repl.clear = function()

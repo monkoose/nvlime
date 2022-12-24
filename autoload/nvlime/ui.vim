@@ -154,8 +154,7 @@ endfunction
 " ignored.
 function! nvlime#ui#OnWriteString(conn, str, str_type) dict
   let [_, bufnr] = luaeval('require"nvlime.window.main.repl".open(_A[1], _A[2])',
-        \ [[], { 'conn-name': a:conn.cb_data.name }])
-  call nvlime#ui#repl#AppendOutput(bufnr, a:str)
+        \ [a:str, { 'conn-name': a:conn.cb_data.name }])
 endfunction
 
 function! nvlime#ui#OnReadString(conn, thread, ttag) dict
