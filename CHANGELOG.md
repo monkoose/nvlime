@@ -5,6 +5,13 @@ All notable changes to Nvlime plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and does not adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-12-24
+
+### Added
+
+- `g:nvlime_disable_arglist` option to disable automatic pop up of the arglist
+  help window.
+
 ## 2022-12-23 (Birth of the fork)
 
 ### Added

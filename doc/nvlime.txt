@@ -1108,18 +1108,22 @@ g:nvlime_scroll_step                              *g:nvlime_scroll_step*
 
 g:nvlime_enable_cmp                                *g:nvlime_enable_cmp*
     A boolean which enables autocompletion for `nvim-cmp` completion
-    plugin.
+    plugin. Defalut: v:false
+
+g:nvlime_disable_arglist                      *g:nvlime_disable_arglist*
+    A boolean which disables automatic pop up of the arglist window.
+    Default: v:false
 
 g:nvlime_disable_mappings                    *g:nvlime_disable_mappings*
     A boolean which allows to disable all plugin mappings for all
     the windows. You should then provide some custom set of mappings.
-    Default: false
+    Default: v:false
 
 g:nvlime_disable_global_mappings      *g:nvlime_disable_global_mappings*
     A boolean which allows to disable global mappings such as `q`,
     `<Esc>`, `<LocalLeader>ww`, `<F1>`, `<LocalLeader>?`, `<C-n>`
     and `<C-n>` that plugin maps for each of its windows.
-    Default: false
+    Default: v:false
 
 g:nvlime_disable_input_mappings
 g:nvlime_disable_xref_mappings
@@ -1132,7 +1136,7 @@ g:nvlime_disable_server_mappings
 g:nvlime_disable_trace_mappings
 g:nvlime_disable_notes_mappings
     A boolean which allows to disable mappings only for specific
-    plugin window. Default: false
+    plugin window. Default: v:false
 
 
 ======================================================================

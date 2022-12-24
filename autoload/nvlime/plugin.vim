@@ -1232,9 +1232,8 @@ function! nvlime#plugin#CalcCurIndent(shift_width = 2)
   endfunction
 
   function! s:OnOperatorArgListComplete(sym, conn, result)
-    if a:result is v:null
-      return
-    endif
+    if a:result is v:null | return | endif
+
     call luaeval('require"nvlime.window.arglist".show(_A)', a:result)
     let s:last_imode_arglist_op = a:sym
   endfunction
@@ -1465,6 +1464,8 @@ function! nvlime#plugin#CalcCurIndent(shift_width = 2)
   endif
 
   function! s:NeedToShowArgList(op)
+    if get(g:, 'nvlime_disable_arglist') | return | endif
+
     " Note that {op} may be a string or a list
     if len(a:op) > 0
       let arglist_buf = bufnr(nvlime#ui#ArgListBufName())
