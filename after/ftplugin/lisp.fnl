@@ -51,7 +51,7 @@
                           "<CR><C-r>=nvlime#plugin#NvlimeKey('cr')<CR>"
                           "nvlime: Trigger the arglist hint")
 
-        (km.buffer.normal (.. km.leader "I")
+        (km.buffer.normal (.. km.leader "<CR>")
                           "<Cmd>call nvlime#plugin#InteractionMode()<CR>"
                           "nvlime: Toggle interaction mode")
         (km.buffer.normal (.. km.leader "l")

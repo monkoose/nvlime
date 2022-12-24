@@ -45,7 +45,7 @@ if not vim.g.nvlime_disable_mappings then
     km.buffer.normal("q<Esc>", _8_, "Closes last opened floating window")
     km.buffer.insert("<Space>", "<Space><C-r>=nvlime#plugin#NvlimeKey('space')<CR>", "nvlime: Trigger the arglist hint")
     km.buffer.insert("<CR>", "<CR><C-r>=nvlime#plugin#NvlimeKey('cr')<CR>", "nvlime: Trigger the arglist hint")
-    km.buffer.normal((km.leader .. "I"), "<Cmd>call nvlime#plugin#InteractionMode()<CR>", "nvlime: Toggle interaction mode")
+    km.buffer.normal((km.leader .. "<CR>"), "<Cmd>call nvlime#plugin#InteractionMode()<CR>", "nvlime: Toggle interaction mode")
     km.buffer.normal((km.leader .. "l"), "<Cmd>call nvlime#plugin#LoadFile(nvim_buf_get_name(0))<CR>", "nvlime: Load the current file")
     km.buffer.normal((km.leader .. "a"), "<Cmd>call nvlime#plugin#DisassembleForm(nvlime#ui#CurExpr())<CR>", "nvlime: Disassemble the form under the cursor")
     km.buffer.normal((km.leader .. "p"), "<Cmd>call nvlime#plugin#SetPackage()<CR>", "nvlime: Specify the package for the current buffer")
