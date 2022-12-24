@@ -14,8 +14,8 @@ if not (vim.g.nvlime_disable_inspector_mappings or vim.g.nvlime_disable_mappings
   km.buffer.normal("<C-n>", "<Cmd>call nvlime#ui#inspector#NextField(v:true)<CR>", "nvlime: Select the next interactable field/button")
   km.buffer.normal("<S-Tab>", "<Cmd>call nvlime#ui#inspector#NextField(v:false)<CR>", "nvlime: Select the previous interactable field/button")
   km.buffer.normal("<C-p>", "<Cmd>call nvlime#ui#inspector#NextField(v:false)<CR>", "nvlime: Select the previous interactable field/button")
-  km.buffer.normal("p", "<Cmd>call nvlime#ui#inspector#InspectorPop()<CR>", "nvlime: Return to the previous inspected object")
-  km.buffer.normal("n", "<Cmd>call nvlime#ui#inspector#InspectorNext()<CR>", "nvlime: Move to the next inspected object")
+  km.buffer.normal("<C-o>", "<Cmd>call nvlime#ui#inspector#InspectorPop()<CR>", "nvlime: Return to the previous inspected object")
+  km.buffer.normal("<C-i>", "<Cmd>call nvlime#ui#inspector#InspectorNext()<CR>", "nvlime: Move to the next inspected object")
   return km.buffer.normal("R", "<Cmd>call b:nvlime_conn.InspectorReinspect({c, r -> c.ui.OnInspect(c, r, v:null, v:null)})<CR>", "nvlime: Refresh the inspector")
 else
   return nil

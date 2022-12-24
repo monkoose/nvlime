@@ -275,15 +275,14 @@ Note: It's a design decision to make the REPL buffer read-only, since
       and buggy.
 
 When the REPL needs user input, e.g. (read) or (read-line) is being
-evaluated, a dedicated buffer for string input would pop up at the
-bottom. Write the input inside this buffer, and hit <CR> in normal
-mode, then the REPL would receive your text. The input buffer is a
-generic mechanism for the commands that need user input. See
-|nvlime-input-buffer|.
+evaluated, a dedicated window for string input would pop up. Write
+the input inside this buffer, and hit <CR> in normal mode, then the
+REPL would receive your text. The input buffer is a generic mechanism
+for the commands that need user input. See |nvlime-input-buffer|.
 
                                               *nvlime-interaction-mode*
 There's an interaction mode to make sending things to the REPL easier.
-It's enabled via |nvlime-mappings-misc-I| in Common Lisp source
+It's enabled via |nvlime-mappings-misc-<CR>| in Common Lisp source
 buffers. In this mode, simply pressing <CR> will send the s-expression
 under the cursor.
 
@@ -355,9 +354,8 @@ For all available key mappings in the compiler message buffer, see
 ----------------------------------------------------------------------
 3.9 Managing Threads                               *nvlime-thread-list*
 
-For CL implementations that support threads, there's a simple buffer
-that shows all running threads. Use |nvlime-mappings-misc-T| to show
-it.
+For CL implementations that support threads, there's a window that
+shows all running threads. Use |nvlime-mappings-misc-T| to show it.
 
 While in the thread list, you can perform tasks such as killing a
 thread, or activating the debugger in a thread. See
@@ -393,11 +391,11 @@ Note: When connecting to a remote server, relative file paths may
       tries to use absolute paths.
 
 ----------------------------------------------------------------------
-3.11 Input Buffers                                *nvlime-input-buffer*
+3.11 Input Windows                               *nvlime-input-windows*
 
-When Nvlime needs user input, a dedicated input buffer would pop up.
-One can use it as a normal Neovim buffer, to compose any text snippet in
-it, and then press <CR> in normal mode to submit the snippet to Nvlime.
+When Nvlime needs user input, a dedicated input window would pop up.
+One can use it to compose any text snippet in it, and then press <CR>
+in insert or normal mode to submit the snippet to Nvlime.
 
 If the operation that brought up the input buffer can be cancelled,
 submitting an empty snippet would usually cancel that operation.
@@ -501,6 +499,8 @@ Key mappings available in lisp source files:
             View the console output of the current server.
         <LocalLeader>rV
             Show a list of Nvlime servers and view the console output of the chosen one.
+        <LocalLeader>rt
+            Restart the current server.
         <LocalLeader>rs              *nvlime-mappings-invoke-server-rs*
             Stop the current server.
         <LocalLeader>rS
@@ -583,6 +583,8 @@ Key mappings available in lisp source files:
             s-expression under the cursor.
         <LocalLeader>dda
             Show the documentation for the atom under the cursor.
+        K
+            Show the documentation for the atom under the cursor.
         <LocalLeader>ddi
             Show the documentation for the symbol entered in an input
             buffer. See |nvlime-input-buffer|.
@@ -613,6 +615,8 @@ Key mappings available in lisp source files:
             cursor.
         <LocalLeader>ia
             Evaluate and inspect the atom under the cursor.
+        <LocalLeader>is
+            Inspect the symbol under the cursor.
         <LocalLeader>in
             Prompt for the expression to inspect. See
             |nvlime-input-buffer|.
@@ -632,7 +636,7 @@ Key mappings available in lisp source files:
             also trace setf expanders by specifying "(setf <name>)".
 
     Other Stuff                                  *nvlime-mappings-misc*
-        <LocalLeader>I                         *nvlime-mappings-misc-I*
+        <LocalLeader><CR>                   *nvlime-mappings-misc-<CR>*
             Interaction Mode. See |nvlime-interaction-mode|.
         <LocalLeader>l
             Load the current file.
@@ -656,21 +660,23 @@ Key mappings avaialble in the REPL buffer:
 
     CTRL-c
         Interrupt the REPL thread.
-    <LocalLeader>i
+    i
         Inspect the evaluation result under the cursor.
-    <LocalLeader>y                             *nvlime-mappings-repl-y*
+    y                                          *nvlime-mappings-repl-y*
         Yank the evaluation result under the cursor into the default
         register |quotequote|. Note that this yanked value is an
         expression to be evaluated in the same REPL session. It is
         meaningless in other contexts.
-    <LocalLeader>C
+    C
         Clear the REPL buffer.
     <Tab>
         Move the cursor to the next prensented object.
+    <S-Tab>
+        Move the cursor to the previous presented object.
     CTRL-n
         Same as <Tab>.
     CTRL-p
-        Move the cursor to the previous presented object.
+        Same as <S-Tab>.
 
 ......................................................................
 4.1.3 Debugger Mappings                      *nvlime-mappings-debugger*
@@ -678,7 +684,8 @@ Key mappings avaialble in the REPL buffer:
 Key mappings available in the debugger:
 
     <CR>
-        Choose a restart.
+        Choose a restart, toggle a frame info or jump to the
+        source code.
     d
         Show the details (local variables and source location etc.)
         of the frame under the cursor.
@@ -692,7 +699,13 @@ Key mappings available in the debugger:
     CTRL-t
         Like "S", but open the source file in a new tab, if it's not
         yet opened in any window. To always create a new tab, prepend
-        an arbitrary count, such as "1T".
+        an arbitrary count, such as "1<C-t>".
+    CTRL-s
+        Same as CTRL-t but open the source file in a new split.
+    CTRL-v
+        Same as CTRL-t but open the source file in a new vertical split.
+    O
+        Open the source code for a local variable.
     r
         Restart the frame under the cursor.
     s
@@ -736,21 +749,24 @@ Key mappings avaialble in the inspector:
 
     <CR>
         Activate the interactable field/button under the cursor.
-    <Space>
-        Same as <CR>
     s
         Send the value of the field under the cursor to the REPL.
     S
         Send the value being inspected to the REPL.
+    o
+        Open the source code for the value of the field under
+        the cursor.
+    O
+        Open the source code for the value being inspected.
     <Tab>
         Select the next interactable field/button.
     CTRL-n
         Same as <Tab>
     CTRL-p
         Select the previous interactable field/button.
-    p
+    CTRL-o
         Return to the previous inspected object.
-    P
+    CTRL-i
         Move to the next inspected object.
     R
         Refresh the inspector.
@@ -810,10 +826,14 @@ Key mappings avaialble in the server output buffer:
 
 Key mappings avaialble in the input buffer:
 
-    CTRL-p or Shift-Tab
-        Show the previous item in input history.
-    CTRL-n or Tab
-        Show the next item in input history.
+    <CR>
+        Complete the input.
+    <CR>
+        (In insert mode) Complete the input.
+    CTRL-p
+        (In insert mode) Show the previous item in input history.
+    CTRL-n
+        (In insert mode) Show the next item in input history.
 
 ......................................................................
 4.1.9 Trace Dialog Mappings              *nvlime-mappings-trace-dialog*
@@ -1068,6 +1088,52 @@ g:nvlime_autodoc_max_lines                  *g:nvlime_autodoc_max_lines*
     A positive integer specifying how many lines to search, when
     determining the arglist for the autodoc feature. Setting this to a
     smaller value may improve performance. Default: 50
+
+g:nvlime_main_win_pos                            *g:nvlime_main_win_pos*
+    A string which allows to change the placement of the main windows
+    (repl, sldb and compiler notes). Should be one of "top", "bottom",
+    "left" or "right". Default: "right"
+
+g:nvlime_scroll_up                                  *g:nvlime_scroll_up*
+    A string representing key which scrolls Nvlime floating windows up.
+    Default: "<C-p>"
+
+g:nvlime_scroll_down                              *g:nvlime_scroll_down*
+    A string representing key which scrolls Nvlime floating windows
+    down. Default: "<C-n>"
+
+g:nvlime_scroll_step                              *g:nvlime_scroll_step*
+    A positive integer specifying how for many lines to scroll
+    floating windows with one scroll key press. Default: 3
+
+g:nvlime_enable_cmp                                *g:nvlime_enable_cmp*
+    A boolean which enables autocompletion for `nvim-cmp` completion
+    plugin.
+
+g:nvlime_disable_mappings                    *g:nvlime_disable_mappings*
+    A boolean which allows to disable all plugin mappings for all
+    the windows. You should then provide some custom set of mappings.
+    Default: false
+
+g:nvlime_disable_global_mappings      *g:nvlime_disable_global_mappings*
+    A boolean which allows to disable global mappings such as `q`,
+    `<Esc>`, `<LocalLeader>ww`, `<F1>`, `<LocalLeader>?`, `<C-n>`
+    and `<C-n>` that plugin maps for each of its windows.
+    Default: false
+
+g:nvlime_disable_input_mappings
+g:nvlime_disable_xref_mappings
+g:nvlime_disable_apropos_mappings
+g:nvlime_disable_repl_mappings
+g:nvlime_disable_sldb_mappings
+g:nvlime_disable_mrepl_mappings
+g:nvlime_disable_inspector_mappings
+g:nvlime_disable_server_mappings
+g:nvlime_disable_trace_mappings
+g:nvlime_disable_notes_mappings
+    A boolean which allows to disable mappings only for specific
+    plugin window. Default: false
+
 
 ======================================================================
 6. API                                               *nvlime-api-intro*

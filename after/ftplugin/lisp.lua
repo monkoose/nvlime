@@ -102,7 +102,7 @@ if not vim.g.nvlime_disable_mappings then
     km.buffer.normal((km.leader .. "it"), "<Cmd>call nvlime#plugin#Inspect(nvlime#ui#CurTopExpr())<CR>", "nvlime: Evaluate the top-level expression under the cursor and inspect the result")
     km.buffer.normal((km.leader .. "ia"), "<Cmd>call nvlime#plugin#Inspect(nvlime#ui#CurAtom())<CR>", "nvlime: Evaluate the atom under the cursor and inspect the result")
     km.buffer.normal((km.leader .. "is"), "<Cmd>call nvlime#plugin#Inspect(nvlime#ui#CurSymbol())<CR>", "nvlime: Inspect the symbol under the cursor")
-    km.buffer.normal((km.leader .. "iI"), "<Cmd>call nvlime#plugin#Inspect()<CR>", "nvlime: Evaluate a snippet and inspect the result")
+    km.buffer.normal((km.leader .. "in"), "<Cmd>call nvlime#plugin#Inspect()<CR>", "nvlime: Evaluate a snippet and inspect the result")
     km.buffer.visual((km.leader .. "i"), "<Cmd>call nvlime#plugin#Inspect(nvlime#ui#CurSelection())<CR>", "nvlime: Evaluate the current selection and inspect the result")
     km.buffer.normal((km.leader .. "td"), "<Cmd>call nvlime#plugin#OpenTraceDialog()<CR>", "nvlime: Show the trace dialog")
     km.buffer.normal((km.leader .. "tt"), "<Cmd>call nvlime#plugin#DialogToggleTrace(nvlime#ui#CurAtom())<CR>", "nvlime: Trace/untrace the function under the cursor")

@@ -5,13 +5,13 @@ if not (vim.g.nvlime_disable_sldb_mappings or vim.g.nvlime_disable_mappings) the
     km_globals.add(false, false)
   else
   end
-  km.buffer.normal("<CR>", "<Cmd>call nvlime#ui#sldb#ChooseCurRestart()<CR>", "nvlime: Choose a restart")
+  km.buffer.normal("<CR>", "<Cmd>call nvlime#ui#sldb#ChooseCurRestart()<CR>", "nvlime: Choose a restart, toggle a frame or jump to the source code.")
   km.buffer.normal("d", "<Cmd>call nvlime#ui#sldb#ShowFrameDetails()<CR>", "nvlime: Show the details of the frame under the cursor")
   km.buffer.normal("S", "<Cmd>call nvlime#ui#sldb#OpenFrameSource()<CR>", "nvlime: Open the source code for the frame under the cursor")
   km.buffer.normal("<C-s>", "<Cmd>call nvlime#ui#sldb#OpenFrameSource('split')<CR>", "nvlime: Open the source code for the frame under the cursor in a new split")
   km.buffer.normal("<C-v>", "<Cmd>call nvlime#ui#sldb#OpenFrameSource('vsplit')<CR>", "nvlime: Open the source code for the frame under the cursor in a new vertical split")
   km.buffer.normal("<C-t>", "<Cmd>call nvlime#ui#sldb#OpenFrameSource('tabedit')<CR>", "nvlime: Open the source code for the frame under the cursor in a new tabpage")
-  km.buffer.normal("O", "<Cmd>call nvlime#ui#sldb#FindSource()<CR>", "nvlime: Open the source code a local variable")
+  km.buffer.normal("O", "<Cmd>call nvlime#ui#sldb#FindSource()<CR>", "nvlime: Open the source code for a local variable")
   km.buffer.normal("r", "<Cmd>call nvlime#ui#sldb#RestartCurFrame()<CR>", "nvlime: Restart the frame under the cursor")
   km.buffer.normal("s", "<Cmd>call nvlime#ui#sldb#StepCurOrLastFrame('step')<CR>", "nvlime: Start stepping in the frame under the cursor")
   km.buffer.normal("x", "<Cmd>call nvlime#ui#sldb#StepCurOrLastFrame('next')<CR>", "nvlime: Step over the current function call")

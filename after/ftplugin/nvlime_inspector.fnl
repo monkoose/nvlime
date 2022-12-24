@@ -31,10 +31,10 @@
   (km.buffer.normal "<C-p>"
                  "<Cmd>call nvlime#ui#inspector#NextField(v:false)<CR>"
                  "nvlime: Select the previous interactable field/button")
-  (km.buffer.normal "p"
+  (km.buffer.normal "<C-o>"
                  "<Cmd>call nvlime#ui#inspector#InspectorPop()<CR>"
                  "nvlime: Return to the previous inspected object")
-  (km.buffer.normal "n"
+  (km.buffer.normal "<C-i>"
                  "<Cmd>call nvlime#ui#inspector#InspectorNext()<CR>"
                  "nvlime: Move to the next inspected object")
   (km.buffer.normal "R"

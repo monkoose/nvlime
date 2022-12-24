@@ -6,7 +6,7 @@
     (km-globals.add false false))
   (km.buffer.normal "<CR>"
                  "<Cmd>call nvlime#ui#sldb#ChooseCurRestart()<CR>"
-                 "nvlime: Choose a restart")
+                 "nvlime: Choose a restart, toggle a frame or jump to the source code.")
   (km.buffer.normal "d"
                  "<Cmd>call nvlime#ui#sldb#ShowFrameDetails()<CR>"
                  "nvlime: Show the details of the frame under the cursor")
@@ -24,7 +24,7 @@
                  "nvlime: Open the source code for the frame under the cursor in a new tabpage")
   (km.buffer.normal "O"
                  "<Cmd>call nvlime#ui#sldb#FindSource()<CR>"
-                 "nvlime: Open the source code a local variable")
+                 "nvlime: Open the source code for a local variable")
   (km.buffer.normal "r"
                  "<Cmd>call nvlime#ui#sldb#RestartCurFrame()<CR>"
                  "nvlime: Restart the frame under the cursor")

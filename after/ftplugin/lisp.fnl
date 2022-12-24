@@ -220,7 +220,7 @@
         (km.buffer.normal (.. km.leader "is")
                           "<Cmd>call nvlime#plugin#Inspect(nvlime#ui#CurSymbol())<CR>"
                           "nvlime: Inspect the symbol under the cursor")
-        (km.buffer.normal (.. km.leader "iI")
+        (km.buffer.normal (.. km.leader "in")
                           "<Cmd>call nvlime#plugin#Inspect()<CR>"
                           "nvlime: Evaluate a snippet and inspect the result")
         (km.buffer.visual (.. km.leader "i")
