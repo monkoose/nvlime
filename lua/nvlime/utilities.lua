@@ -30,4 +30,7 @@ local function plist__3etable(plist)
   end
   return t
 end
-return {["text->lines"] = text__3elines, ["plist->table"] = plist__3etable, ["calc-lines-size"] = calc_lines_size}
+local function echo(str)
+  return psl.echo({"nvlime: ", "String"}, {str, "WarningMsg"})
+end
+return {["text->lines"] = text__3elines, echo = echo, ["plist->table"] = plist__3etable, ["calc-lines-size"] = calc_lines_size}

@@ -1,7 +1,6 @@
 (import-macros {: return} "nvlime.init-macros")
 (local buffer (require "nvlime.buffer"))
 (local ut (require "nvlime.utilities"))
-(local psl (require "parsley"))
 (local psl-buf (require "parsley.buffer"))
 (local psl-win (require "parsley.window"))
 
@@ -174,7 +173,7 @@
       (window.split *focus-winid*
                     (vim.api.nvim_get_current_buf)
                     cmd)
-      (psl.echo "Can't split this window.")))
+      (ut.echo "Can't split this window.")))
 
 ;;; ========== SCROLLBAR ==========
 

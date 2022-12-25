@@ -24,6 +24,12 @@
       (tset t (. plist i :name) (. plist (+ i 1))))
     t))
 
+;;; string ->
+(fn echo [str]
+  (psl.echo ["nvlime: " "String"]
+            [str "WarningMsg"]))
+
 {: text->lines
+ : echo
  : plist->table
  : calc-lines-size}

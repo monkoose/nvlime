@@ -1,6 +1,5 @@
 local buffer = require("nvlime.buffer")
 local ut = require("nvlime.utilities")
-local psl = require("parsley")
 local psl_buf = require("parsley.buffer")
 local psl_win = require("parsley.window")
 local window = {cursor = {}, center = {}}
@@ -27,7 +26,7 @@ window["set-opts"] = function(winid, opts)
   return nil
 end
 window["set-minimal-style-options"] = function(winid)
-  return window["set-opts"](winid, {wrap = true, signcolumn = "no", number = false, list = false, relativenumber = false, spell = false})
+  return window["set-opts"](winid, {wrap = true, signcolumn = "no", spell = false, list = false, number = false, relativenumber = false})
 end
 window["find-horiz-pos"] = function(req_height, scr_row, scr_height)
   local border_len = 3
@@ -164,7 +163,7 @@ window.split_focus = function(cmd)
   if psl_win["visible?"](_2afocus_winid_2a) then
     return window.split(_2afocus_winid_2a, vim.api.nvim_get_current_buf(), cmd)
   else
-    return psl.echo("Can't split this window.")
+    return ut.echo("Can't split this window.")
   end
 end
 local function create_scrollbar_buffer(icon)
