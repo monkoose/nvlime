@@ -103,9 +103,9 @@ They are listed below and work for all Nvlime windows:
 - `<Esc>` - closes last opened floating window except current one.
 - `<C-n>` and `<C-p>` to scroll last opened floating window. If this keys are
   messing up with your config change them with `g:nvlime_scroll_up` and
-  `g:nvlime_scroll_down`. Example `let g:nvlime_scroll_up = '<C-u>'` or
-  `vim.g.nvlime_scroll_down = '<C-d>'`. You can adjust scroll step with
-  `g:nvlime_scroll_step` variable. It is set to `3` lines by default.
+  `g:nvlime_scroll_down`. Example `let g:nvlime_scroll_up = '<C-u>'`
+  *(vimscript)* or `vim.g.nvlime_scroll_down = '<C-d>'` *(lua)*. You can adjust scroll
+  step with `g:nvlime_scroll_step` variable. It is set to `3` lines by default.
 
 If you need to make some floating window persistent, just make it a normal
 window. You can do it by splitting it into you current window with `<C-w>h`,
