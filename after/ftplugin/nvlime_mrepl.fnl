@@ -13,9 +13,6 @@
   (km.buffer.insert "<C-j>
                  " "<CR><C-r>=nvlime#plugin#NvlimeKey('cr')<CR>"
                  "nvlime: Insert a newline and trigger the arglist hint")
-  (km.buffer.insert "<Tab>
-                 " "<C-r>=nvlime#plugin#NvlimeKey('tab')<CR>"
-                 "nvlime: Trigger omni-completion")
   (km.buffer.insert "<C-c>
                  " "<C-r>=nvlime#ui#mrepl#Interrupt()<CR>"
                  "nvlime: Interrupt the MREPL thread")

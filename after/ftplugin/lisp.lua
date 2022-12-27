@@ -18,8 +18,8 @@ if not vim.g.nvlime_disable_mappings then
       km.buffer.insert("<F1>", _2_, "Show keymaps help")
       km.buffer.insert("<CR>", "<Cmd>call nvlime#ui#input#FromBufferComplete()<CR>", "nvlime: Complete the input")
       km.buffer.normal("<CR>", "<Cmd>call nvlime#ui#input#FromBufferComplete()<CR>", "nvlime: Complete the input")
-      km.buffer.insert("<C-n>", "<Cmd>call nvlime#ui#input#NextHistoryItem()<CR>", "nvlime: Show the previous item in input history")
-      km.buffer.insert("<C-p>", "<Cmd>call nvlime#ui#input#NextHistoryItem(v:false)<CR>", "nvlime: Show the next item in input history")
+      km.buffer.insert("<C-n>", "<Cmd>call nvlime#ui#input#NextHistoryItem()<CR>", "nvlime: Show the next item in input history")
+      km.buffer.insert("<C-p>", "<Cmd>call nvlime#ui#input#NextHistoryItem(v:false)<CR>", "nvlime: Show the previous item in input history")
       local function _3_()
         local _let_4_ = vim.api.nvim_win_get_cursor(0)
         local linenr = _let_4_[1]

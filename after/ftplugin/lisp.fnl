@@ -27,10 +27,10 @@
                             "nvlime: Complete the input")
           (km.buffer.insert "<C-n>"
                             "<Cmd>call nvlime#ui#input#NextHistoryItem()<CR>"
-                            "nvlime: Show the previous item in input history")
+                            "nvlime: Show the next item in input history")
           (km.buffer.insert "<C-p>"
                             "<Cmd>call nvlime#ui#input#NextHistoryItem(v:false)<CR>"
-                            "nvlime: Show the next item in input history")
+                            "nvlime: Show the previous item in input history")
           (km.buffer.insert "<Esc>"
                             #(let [[linenr col] (vim.api.nvim_win_get_cursor 0)]
                                (if (and (= linenr 1) (= col 0))

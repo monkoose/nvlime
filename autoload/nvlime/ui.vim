@@ -1411,21 +1411,6 @@ function! nvlime#ui#IsYesString(str)
   return a:str =~? '^y\(es\)\=$'
 endfunction
 
-function! s:LogSkippedKey(log, mode, key, cmd, reason)
-  if a:log is v:null
-    return
-  endif
-  let buf_type = a:log
-
-  if !exists('g:nvlime_skipped_mappings')
-    let g:nvlime_skipped_mappings = {}
-  endif
-
-  let buf_skipped_keys = get(g:nvlime_skipped_mappings, buf_type, {})
-  let buf_skipped_keys[join([a:mode, a:key], ' ')] = [a:cmd, a:reason]
-  let g:nvlime_skipped_mappings[buf_type] = buf_skipped_keys
-endfunction
-
 function! s:NormalizePackageName(name)
   let pattern1 = '^\(\(#\?:\)\|''\)\(.\+\)'
   let pattern2 = '"\(.\+\)"'

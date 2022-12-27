@@ -955,15 +955,6 @@ Note: If you use symlinks on Windows systems to point to Nvlime, it may
                           \ "--eval", a:nvlime_eval]
           endfunction
 
-g:nvlime_cl_wait_time                            *g:nvlime_cl_wait_time*
-    DEPRECATED: Nvlime now uses async callbacks to handle server
-    start-up/tear-down events. Setting this option has no effect at
-    all.
-
-    An integer specifying the time Nvlime should wait when starting a
-    server via |nvlime-mappings-invoke-server-rr|, or stopping a server
-    via |nvlime-mappings-invoke-server-rs|, in seconds. Default: 10
-
 g:nvlime_address                                      *g:nvlime_address*
     A |list| specifying the default address of the Nvlime server. This
     address will be used as the default host and port values in the
@@ -971,9 +962,8 @@ g:nvlime_address                                      *g:nvlime_address*
 
 g:nvlime_connect_timeout                      *g:nvlime_connect_timeout*
     An integer specifying the time to wait when connecting to the
-    server, in milliseconds. If set to |v:null|, Nvlime would try to
-    use the default timeout values on different platforms. Default:
-    v:null
+    server, in milliseconds. If set to -1, Nvlime would try to
+    use the default timeout values on different platforms. Default: -1
 
 g:nvlime_compiler_policy                      *g:nvlime_compiler_policy*
     A |dict| to hold the compiler policy. Setting this variable would

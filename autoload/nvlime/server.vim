@@ -1,7 +1,3 @@
-if !exists('g:nvlime_cl_wait_time')
-  let g:nvlime_cl_wait_time = 10 " seconds
-endif
-
 if !exists('g:nvlime_cl_wait_interval')
   let g:nvlime_cl_wait_interval = 500 " milliseconds
 endif

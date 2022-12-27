@@ -1086,29 +1086,17 @@ function! nvlime#plugin#CalcCurIndent(shift_width = 2)
   endfunction
 
   ""
-  " @usage [force]
   " @public
   "
   " Set up Nvlime for the current buffer. Do nothing if the current buffer is
   " already initialized. If [force] is present and |TRUE|, always perform the
   " initialization.
-  function! nvlime#plugin#Setup(...)
-    let force = get(a:000, 0, v:false)
-
-    if !force && exists('b:nvlime_setup') && b:nvlime_setup
-      return
+  function! nvlime#plugin#Setup(force = v:false)
+    if !exists('b:nvlime_setup') || force
+      setlocal omnifunc=nvlime#plugin#CompleteFunc
+      setlocal indentexpr=nvlime#plugin#CalcCurIndent()
+      let b:nvlime_setup = v:true
     endif
-    let b:nvlime_setup = v:true
-
-    if exists('g:nvlime_overlay') &&
-          \ type(g:nvlime_overlay) == v:t_string &&
-          \ len(g:nvlime_overlay) > 0
-      let OverlayInitCB = function('nvlime#overlay#' . g:nvlime_overlay . '#Init')
-      call OverlayInitCB()
-    endif
-
-    setlocal omnifunc=nvlime#plugin#CompleteFunc
-    setlocal indentexpr=nvlime#plugin#CalcCurIndent()
   endfunction
 
   ""
