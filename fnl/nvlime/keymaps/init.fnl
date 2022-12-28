@@ -24,8 +24,8 @@
        {:normal {:complete "<CR>"}
         :insert {:keymaps_help "<F1>"
                  :complete "<CR>"
-                 :prev_history "<C-n>"
-                 :next_history "<C-p>"
+                 :next_history "<C-n>"
+                 :prev_history "<C-p>"
                  :leave_insert "<Esc>"}})
 
 (local repl-mappings
@@ -61,6 +61,12 @@
                         :send_expr (with-leader "se")
                         :send_toplevel_expr (with-leader "st")
                         :prompt (with-leader "si")}
+                 :macro {:expand (with-leader "mm")
+                         :expand_once (with-leader "mo")
+                         :expand_all (with-leader "ma")}
+                 :compile {:expr (with-leader "ce")
+                           :toplevel_expr (with-leader "ct")
+                           :file (with-leader "cf")}
                  :xref {:function {:callers (with-leader "xc")
                                    :callees (with-leader "xC")}
                         :symbol {:references (with-leader "xr")
@@ -70,9 +76,6 @@
                         :macro {:callers (with-leader "xe")}
                         :class {:methods (with-leader "xm")}
                         :prompt (with-leader "xi")}
-                 :compile {:expr (with-leader "ce")
-                           :toplevel_expr (with-leader "ct")
-                           :file (with-leader "cf")}
                  :describe {:operator (with-leader "do")
                             :atom (with-leader "da")
                             :prompt (with-leader "di")}
@@ -103,10 +106,10 @@
        {:normal {:action "<CR>"
                  :details "d"
                  :frame {:toggle_details "d"
-                         :source {:open "S"
-                                  :open_split "<C-s>"
-                                  :open_vsplit "<C-v>"
-                                  :open_tab "<C-t>"}
+                         :source "S"
+                         :source_split "<C-s>"
+                         :source_vsplit "<C-v>"
+                         :source_tab "<C-t>"
                          :restart "r"
                          :eval_expr "e"
                          :send_expr "E"
@@ -126,21 +129,21 @@
 
 (local inspector-mappings
        {:normal {:action "<CR>"
-                 :current_value {:send "s"
-                                 :source "o"}
-                 :inspected_value {:send "S"
-                                   :source "O"
-                                   :previous "<C-o>"
-                                   :next "<C-i>"}
+                 :current {:send "s"
+                           :source "o"}
+                 :inspected {:send "S"
+                             :source "O"
+                             :previous "<C-o>"
+                             :next "<C-i>"}
                  :next_field ["<Tab>" "<C-n>"]
                  :prev_field ["<S-Tab>" "<C-p"]
                  :refresh "R"}})
 
 (local notes-mappings
-       {:normal {:source {:open "<CR>"
-                          :open_split "<C-s>"
-                          :open_vsplit "<C-v>"
-                          :open_tab "<C-t>"}}})
+       {:normal {:source "<CR>"
+                 :source_split "<C-s>"
+                 :source_vsplit "<C-v>"
+                 :source_tab "<C-t>"}})
 
 (local server-mappings
        {:normal {:connect (with-leader "c")
@@ -169,10 +172,10 @@
                  :interrupt "<C-c>"}})
 
 (local xref-mappings
-       {:normal {:source {:open "<CR>"
-                          :open_split "<C-s>"
-                          :open_vsplit "<C-v>"
-                          :open_tab "<C-t>"}}})
+       {:normal {:source "<CR>"
+                 :source_split "<C-s>"
+                 :source_vsplit "<C-v>"
+                 :source_tab "<C-t>"}})
 
 (local default-mappings
        {:global global-mappings
