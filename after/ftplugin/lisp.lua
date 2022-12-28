@@ -39,10 +39,6 @@ if not vim.g.nvlime_disable_mappings then
       km_globals.add(false, false)
     else
     end
-    local function _8_()
-      return window.close_last_float()
-    end
-    km.buffer.normal("q<Esc>", _8_, "Closes last opened floating window")
     km.buffer.insert("<Space>", "<Space><C-r>=nvlime#plugin#NvlimeKey('space')<CR>", "nvlime: Trigger the arglist hint")
     km.buffer.insert("<CR>", "<CR><C-r>=nvlime#plugin#NvlimeKey('cr')<CR>", "nvlime: Trigger the arglist hint")
     km.buffer.normal((km.leader .. "<CR>"), "<Cmd>call nvlime#plugin#InteractionMode()<CR>", "nvlime: Toggle interaction mode")
@@ -62,12 +58,12 @@ if not vim.g.nvlime_disable_mappings then
     km.buffer.normal((km.leader .. "rS"), "<Cmd>call nvlime#plugin#StopSelectedServer()<CR>", "nvlime: Show a list of the servers and stop the chosen one")
     km.buffer.normal((km.leader .. "rR"), "<Cmd>call nvlime#plugin#RenameSelectedServer()<CR>", "nvlime: Rename a server")
     km.buffer.normal((km.leader .. "rt"), "<Cmd>call nvlime#plugin#RestartCurrentServer()<CR>", "nvlime: Restart the current server")
-    local function _9_()
+    local function _8_()
       return repl.clear()
     end
-    km.buffer.normal((km.leader .. "rc"), _9_, "nvlime: Clear the REPL buffer")
+    km.buffer.normal((km.leader .. "rc"), _8_, "nvlime: Clear the REPL buffer")
     km.buffer.normal((km.leader .. "ss"), "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurExprOrAtom())<CR>", "nvlime: Send the expression/atom under the cursor to the REPL")
-    km.buffer.normal((km.leader .. "se"), "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurExp())<CR>", "nvlime: Send the expression under the cursor to the REPL")
+    km.buffer.normal((km.leader .. "se"), "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurExpr())<CR>", "nvlime: Send the expression under the cursor to the REPL")
     km.buffer.normal((km.leader .. "st"), "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurTopExpr())<CR>", "nvlime: Send the top-level expression under the cursor to the REPL")
     km.buffer.normal((km.leader .. "sa"), "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurAtom())<CR>", "nvlime: Send the atom under the cursor to the REPL")
     km.buffer.normal((km.leader .. "si"), "<Cmd>call nvlime#plugin#SendToREPL()<CR>", "nvlime: Send a snippet to the REPL")

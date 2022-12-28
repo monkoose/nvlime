@@ -1,8 +1,9 @@
 (local window (require "nvlime.window"))
 (local psl-win (require "parsley.window"))
+(local opts (require "nvlime.config"))
 
 (local main-win-pos
-       (match (?. vim.g :nvlime_main_win :pos)
+       (match opts.main_window.position
          "top" "topleft"
          "left" "vertical topleft"
          "bottom" "botright"
@@ -12,7 +13,7 @@
 ;;; MainWin class
 (local main-win
        {:pos main-win-pos
-        :size (or (?. vim.g :nvlime_main_win :size) "")
+        :size opts.main_window.size
         :vert? (not= nil (and main-win-pos
                               (string.find
                                 main-win-pos "^vertical")))})

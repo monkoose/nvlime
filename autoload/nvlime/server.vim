@@ -158,11 +158,7 @@ function! nvlime#server#BuildServerCommandFor_ccl(nvlime_loader, nvlime_eval)
 endfunction
 
 function! nvlime#server#BuildServerCommand(cl_impl)
-  if a:cl_impl is v:null
-    let cl_impl = exists('g:nvlime_cl_impl') ? g:nvlime_cl_impl : 'sbcl'
-  else
-    let cl_impl = a:cl_impl
-  endif
+  let cl_impl = a:cl_impl is v:null ? g:nvlime_options.implementation : a:cl_impl
   let nvlime_loader = join([s:nvlime_home, 'lisp', 'load-nvlime.lisp'], s:path_sep)
 
   let user_func_name = 'NvlimeBuildServerCommandFor_' . cl_impl

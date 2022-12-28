@@ -1,3 +1,6 @@
+" initialize options
+let g:nvlime_options = luaeval('require"nvlime.config"')
+
 ""
 " @public
 "
@@ -147,10 +150,8 @@ endfunction
 " [name] gives the new connection a name. Omit this argument to use an
 " automatically generated name.
 function! nvlime#plugin#ConnectREPL(...)
-  let [def_host, def_port] = exists('g:nvlime_address') ?
-        \ g:nvlime_address : ['127.0.0.1', 7002]
-  let def_timeout = exists('g:nvlime_connect_timeout') ?
-        \ g:nvlime_connect_timeout : v:null
+  let def_timeout = g:nvlime_options.connect_timeout != -1 ?
+        \ g:nvlime_options.connect_timeout : v:null
 
   let host = get(a:000, 0, v:null)
   let port = get(a:000, 1, v:null)
@@ -159,7 +160,7 @@ function! nvlime#plugin#ConnectREPL(...)
   let name = get(a:000, 4, v:null)
 
   if host is v:null
-    let host = input('Host: ', def_host)
+    let host = input('Host: ', g:nvlime_options.address.host)
     if len(host) <= 0
       call nvlime#ui#ErrMsg('Canceled.')
       return
@@ -167,7 +168,7 @@ function! nvlime#plugin#ConnectREPL(...)
   endif
 
   if port is v:null
-    let port = input('Port: ', def_port)
+    let port = input('Port: ', g:nvlime_options.address.port)
     if len(port) <= 0
       call nvlime#ui#ErrMsg('Canceled.')
       return
@@ -192,18 +193,11 @@ function! nvlime#plugin#ConnectREPL(...)
   let conn.cb_data["remote_host"] = host
   let conn.cb_data["remote_port"] = port
 
-  let contribs = exists('g:nvlime_contribs') ?
-        \ g:nvlime_contribs : [
-        \ 'SWANK-ASDF', 'SWANK-PACKAGE-FU',
-        \ 'SWANK-PRESENTATIONS', 'SWANK-FANCY-INSPECTOR',
-        \ 'SWANK-C-P-C', 'SWANK-ARGLISTS', 'SWANK-REPL',
-        \ 'SWANK-FUZZY']
-
   call s:MaybeSendSecret(conn)
   call nvlime#ChainCallbacks(
         \ function(conn.ConnectionInfo, [v:true]),
         \ function('s:OnConnectionInfoComplete'),
-        \ function(conn.SwankRequire, [contribs]),
+        \ function(conn.SwankRequire, [g:nvlime_options.contribs]),
         \ function('s:OnSwankRequireComplete', [v:false]),
         \ function('nvlime#contrib#CallInitializers', [conn, v:null]),
         \ function('s:OnCallInitializersComplete'))
@@ -214,7 +208,7 @@ endfunction
 " @public
 "
 " Create a new REPL thread using SWANK-MREPL. This function needs the
-" SWANK-MREPL contrib module. See |g:nvlime_contribs| and
+" SWANK-MREPL contrib module. See |g:nvlime_config.contribs| and
 " @function(nvlime#plugin#SwankRequire).
 function! nvlime#plugin#CreateMREPL()
   let conn = nvlime#connection#Get()
@@ -259,14 +253,13 @@ function! nvlime#plugin#SendToREPL(content = v:null, edit = v:false)
 endfunction
 
 ""
-" @usage [content] [policy] [edit]
 " @public
 "
 " Compile [content], with the specified [policy], and show the result in the
 " REPL buffer. If [content] is omitted or v:null, or [edit] is present and
-" |TRUE|, show an input buffer. If [policy] is omitted, try to use
-" |g:nvlime_compiler_policy|. Open the compiler notes window when there are
-" warnings or errors etc.
+" |TRUE|, show an input window. If [policy] is omitted, try to use
+" |g:nvlime_options.compiler_policy|. Open the compiler notes window when
+" there are warnings or errors etc.
 function! nvlime#plugin#Compile(content = v:null, policy = v:null, edit = v:false)
   let conn = nvlime#connection#Get()
   if conn isnot v:null
@@ -311,7 +304,7 @@ endfunction
 " input buffer.
 "
 " This function needs the SWANK-TRACE-DIALOG contrib module. See
-" |g:nvlime_contribs| and @function(nvlime#plugin#SwankRequire).
+" |g:nvlime_config.contribs| and @function(nvlime#plugin#SwankRequire).
 function! nvlime#plugin#DialogToggleTrace(func = v:null, edit = v:false)
   let conn = nvlime#connection#Get()
   if conn is v:null
@@ -356,9 +349,9 @@ endfunction
 " Compile a file named [file_name], with the specified [policy], and show the
 " result in the REPL buffer. If [file_name] is omitted or v:null, or [edit] is
 " present and |TRUE|, prompt for the file name. If [policy] is omitted, try to
-" use |g:nvlime_compiler_policy|. If [load] is present and |FALSE|, do not load
-" the compiled file after successful compilation. Open the compiler notes
-" window when there are warnings or errors etc.
+" use |g:nvlime_options.compiler_policy|. If [load] is present and |FALSE|,
+" do not load the compiled file after successful compilation. Open the compiler
+" notes window when there are warnings or errors etc.
 function! nvlime#plugin#CompileFile(file_name = v:null, policy = v:null,
       \ load = v:true, edit = v:false)
   let conn = nvlime#connection#Get()
@@ -523,8 +516,8 @@ function! nvlime#plugin#CurAutodoc()
 
   if s:ConnHasContrib(conn, 'SWANK-ARGLISTS')
     let raw_form = nvlime#ui#CurRawForm(
-          \ get(g:, 'nvlime_autodoc_max_level', 5),
-          \ get(g:, 'nvlime_autodoc_max_lines', 50))
+          \ g:nvlime_options.autodoc.max_level,
+          \ g:nvlime_options.autodoc.max_lines)
     if s:NeedToShowArgList(raw_form)
       let autodoc_cache = get(s:, 'autodoc_cache', {})
       let cached_result = get(autodoc_cache, string(raw_form), v:null)
@@ -688,7 +681,7 @@ function! nvlime#plugin#AproposList(pattern = v:null, edit = v:false)
 endfunction
 
 function! s:ShowSymbolDocumentation(conn, content)
-    call luaeval('require"nvlime.window.documentation".open(_A)', a:content)
+  call luaeval('require"nvlime.window.documentation".open(_A)', a:content)
 endfunction
 
 ""
@@ -905,7 +898,7 @@ endfunction
 function! nvlime#plugin#NvlimeKey(key)
   let key = tolower(a:key)
   if key == 'space' || key == 'cr'
-    if get(g:, 'nvlime_enable_autodoc', v:false)
+    if g:nvlime_options.autodoc.enabled
       call nvlime#plugin#CurAutodoc()
     else
       let op = nvlime#ui#SurroundingOperator()
@@ -932,57 +925,6 @@ function! nvlime#plugin#NvlimeKey(key)
   return ''
 endfunction
 
-if !exists('g:nvlime_default_indent_keywords')
-  let g:nvlime_default_indent_keywords = {
-        \ 'defun': 2,
-        \ 'defmacro': 2,
-        \ 'defgeneric': 2,
-        \ 'defmethod': 2,
-        \ 'deftype': 2,
-        \ 'lambda': 1,
-        \ 'if': 3,
-        \ 'unless': 1,
-        \ 'when': 1,
-        \ 'case': 1,
-        \ 'ecase': 1,
-        \ 'typecase': 1,
-        \ 'etypecase': 1,
-        \ 'eval-when': 1,
-        \ 'let': 1,
-        \ 'let*': 1,
-        \ 'flet': 1,
-        \ 'labels': 1,
-        \ 'macrolet': 1,
-        \ 'symbol-macrolet': 1,
-        \ 'do': 2,
-        \ 'do*': 2,
-        \ 'do-all-symbols': 1,
-        \ 'do-external-symbols': 1,
-        \ 'do-symbols': 1,
-        \ 'dolist': 1,
-        \ 'dotimes': 1,
-        \ 'destructuring-bind': 2,
-        \ 'multiple-value-bind': 2,
-        \ 'prog1': 1,
-        \ 'progv': 2,
-        \ 'with-input-from-string': 1,
-        \ 'with-output-to-string': 1,
-        \ 'with-open-file': 1,
-        \ 'with-open-stream': 1,
-        \ 'with-package-iterator': 1,
-        \ 'unwind-protect': 1,
-        \ 'handler-bind': 1,
-        \ 'handler-case': 1,
-        \ 'restart-bind': 1,
-        \ 'restart-case': 1,
-        \ 'with-simple-restart': 1,
-        \ 'with-slots': 2,
-        \ 'with-accessors': 2,
-        \ 'print-unreadable-object': 1,
-        \ 'block': 1,
-        \ }
-endif
-
 ""
 " @public
 "
@@ -995,568 +937,553 @@ function! nvlime#plugin#CalcCurIndent(shift_width = 2)
   " Don't indent inside a string
   if s:isInString()
     return indent(line_no)
-    end
-
-    let conn = nvlime#connection#Get(v:true)
-
-    " The deepest special forms this function can handle are FLET/LABELS,
-    " which are of depth 3, thus the magic number "3" here.
-    let op_list = nvlime#ui#ParseOuterOperators(3)
-    if len(op_list) <= 0
-      return lispindent(line_no)
-    endif
-
-    let vs_col = virtcol(op_list[0][2])
-
-    let a_count = v:null
-
-    " 1. Special forms such as FLET
-    let a_count = s:IndentCheckSpecialForms(op_list)
-
-    if a_count is v:null
-      let matches = matchlist(op_list[0][0],
-            \ '\(\([^:|]\+\||[^|]\+|\):\{1,2}\)\?\([^:|]\+\||[^|]\+|\)$')
-      if len(matches) == 0
-        return lispindent(line_no)
-      endif
-      let op = tolower(s:NormalizeIdentifierForIndentInfo(matches[3]))
-    endif
-
-    " 2. User defined indent keywords
-    if a_count is v:null && exists('g:nvlime_indent_keywords')
-      let a_count = get(g:nvlime_indent_keywords, op, v:null)
-    endif
-
-    " 3. Swank-provided indent keywords
-    if a_count is v:null && conn isnot v:null
-      let op_pkg = toupper(s:NormalizeIdentifierForIndentInfo(matches[2]))
-      if len(op_pkg) == 0 && conn isnot v:null
-        let op_pkg = conn.GetCurrentPackage()
-        if type(op_pkg) == v:t_list
-          let op_pkg = op_pkg[0]
-        endif
-      endif
-
-      let indent_info = get(conn.cb_data, 'indent_info', {})
-      if has_key(indent_info, op)
-        if index(indent_info[op][1], op_pkg) >= 0
-          let a_count = indent_info[op][0]
-        else " Set it anyway in case that 'op_pkg' is a nickname
-          let a_count = indent_info[op][0]
-        endif
-      endif
-    endif
-
-    " 4. Default indent keywords
-    if a_count is v:null
-      let a_count = get(g:nvlime_default_indent_keywords, op, v:null)
-    endif
-
-    if type(a_count) == v:t_number
-      if a_count < 0
-        return lispindent(line_no)
-      endif
-
-      let arg_pos = op_list[0][1]
-      if arg_pos > a_count
-        return vs_col + a:shift_width - 1
-      elseif arg_pos > 0
-        return vs_col + a:shift_width * 2 - 1
-      else
-        return lispindent(line_no)
-      endif
-    elseif type(a_count) == v:t_list
-      return vs_col + a_count[1] - 1
-    elseif op =~ '^def' &&
-          \ op !~ '^default' &&
-          \ op !~ '^definition' &&
-          \ op !~ '^definier'
-      return vs_col + 1
-    elseif op =~ '^with-' ||
-          \ op =~ '^without-' ||
-          \ op =~ '^do-'
-      return vs_col + 1
-    else
-      " Indent as a property list if the list starts with a keyword
-      if op_list[-1][0] != 'defpackage' && op_list[0][0] =~ '^:'
-        return vs_col
-      endif
-      return lispindent(line_no)
-    endif
-  endfunction
-
-  ""
-  " @public
-  "
-  " Set up Nvlime for the current buffer. Do nothing if the current buffer is
-  " already initialized. If [force] is present and |TRUE|, always perform the
-  " initialization.
-  function! nvlime#plugin#Setup(force = v:false)
-    if !exists('b:nvlime_setup') || force
-      setlocal omnifunc=nvlime#plugin#CompleteFunc
-      setlocal indentexpr=nvlime#plugin#CalcCurIndent()
-      let b:nvlime_setup = v:true
-    endif
-  endfunction
-
-  ""
-  " @public
-  "
-  " Toggle interaction mode.
-  function! nvlime#plugin#InteractionMode(...)
-    let enable = get(a:000, 0, !getbufvar(bufnr('%'), 'nvlime_interaction_mode', v:false))
-    if enable
-      let b:nvlime_interaction_mode = v:true
-      nnoremap <buffer> <silent> <cr> :call nvlime#plugin#SendToREPL(nvlime#ui#CurExprOrAtom())<cr>
-      vnoremap <buffer> <silent> <cr> :<c-u>call nvlime#plugin#SendToREPL(nvlime#ui#CurSelection())<cr>
-    else
-      let b:nvlime_interaction_mode = v:false
-      nnoremap <buffer> <cr> <cr>
-      vnoremap <buffer> <cr> <cr>
-    endif
-    echom 'Interaction mode ' . (enable ? 'enabled' : 'disabled') . '.'
-  endfunction
-
-  function! s:NormalizeIdentifierForIndentInfo(ident)
-    let ident_len = len(a:ident)
-    if ident_len >= 2 && a:ident[0] == '|' && a:ident[ident_len-1] == '|'
-      return strpart(a:ident, 1, ident_len - 2)
-    else
-      return a:ident
-    endif
-  endfunction
-
-  function! s:CompleteFindStart()
-    let col = col('.') - 1
-    let line = getline('.')
-    while col > 0 && match(line[col-1], '\_s\|[()#;"'']') < 0
-      let col -= 1
-    endwhile
-    return col
-  endfunction
-
-  function! s:ConnHasContrib(conn, contrib)
-    return has_key(a:conn.cb_data, 'contribs') &&
-          \ index(a:conn.cb_data['contribs'], a:contrib) >= 0
-  endfunction
-
-  function! s:OnCallInitializersComplete(conn)
-    echom a:conn.cb_data['name'] .. ' connection established.'
-  endfunction
-
-  function! s:OnSwankRequireComplete(do_init, conn, result)
-    let new_contribs = (a:result is v:null) ? [] : a:result
-    let old_contribs = get(a:conn.cb_data, 'contribs', [])
-    let a:conn.cb_data['contribs'] = new_contribs
-
-    if a:do_init
-      let added = []
-      for co in new_contribs
-        if index(old_contribs, co) < 0
-          call add(added, co)
-        endif
-      endfor
-
-      call nvlime#contrib#CallInitializers(a:conn, added,
-            \ function('s:OnSwankRequireCallInitializersComplete', [added]))
-    endif
-  endfunction
-
-  function! s:OnSwankRequireCallInitializersComplete(added, conn)
-    echom 'Loaded contrib modules: ' . string(a:added)
-  endfunction
-
-  function! s:OnConnectionInfoComplete(conn, result)
-    let a:conn.cb_data['version'] = get(a:result, 'VERSION', '<unknown version>')
-    let a:conn.cb_data['pid'] = get(a:result, 'PID', '<unknown pid>')
-    let features = get(a:result, 'FEATURES', [])
-    if features is v:null
-      let features = []
-    endif
-    let a:conn.cb_data['features'] = copy(features)
-  endfunction
-
-  function! s:OnFuzzyCompletionsComplete(col, cur_pos, conn, result)
-    let cur_pos = [bufnr('%')] + getcurpos()[1:2]
-    if a:cur_pos != cur_pos
-      " The cursor moved, abort.
-      return
-    endif
-
-    let comps = a:result[0]
-    if comps is v:null
-      let comps = []
-    endif
-    let r_comps = []
-    for c in comps
-      let cobj = {'word': c[0],'menu': c[3]}
-      call add(r_comps, cobj)
-    endfor
-
-    try
-      call complete(a:col, r_comps)
-    catch /^Vim\%((\a\+)\)\=:E785/  " complete() can only be used in Insert mode
-      " There's nothing we can do. Just ignore it.
-    endtry
-  endfunction
-
-  function! s:OnSimpleCompletionsComplete(col, cur_pos, conn, result)
-    let cur_pos = [bufnr('%')] + getcurpos()[1:2]
-    if a:cur_pos != cur_pos
-      " The cursor moved, abort.
-      return
-    endif
-
-    let comps = a:result[0]
-    if comps is v:null
-      let comps = []
-    endif
-
-    try
-      call complete(a:col, comps)
-    catch /^Vim\%((\a\+)\)\=:E785/  " complete() can only be used in Insert mode
-      " There's nothing we can do. Just ignore it.
-    endtry
-  endfunction
-
-  function! s:OnOperatorArgListComplete(sym, conn, result)
-    if a:result is v:null | return | endif
-
-    call luaeval('require"nvlime.window.arglist".show(_A)', a:result)
-    let s:last_imode_arglist_op = a:sym
-  endfunction
-
-  function! s:OnCurAutodocComplete(raw_form, conn, result)
-    if type(a:result) == v:t_list && type(a:result[0]) == v:t_string
-      call nvlime#ui#ShowArgList(a:conn, a:result[0])
-      if a:result[1] isnot v:null && a:result[1]
-        let autodoc_cache = get(s:, 'autodoc_cache', {})
-        let cache_limit = 1024
-        if len(autodoc_cache) >= cache_limit
-          let keys = keys(autodoc_cache)
-          while len(keys) >= cache_limit
-            let idx = nvlime#Rand() % len(keys)
-            call remove(cache, remove(keys, idx))
-          endwhile
-        endif
-        let autodoc_cache[string(a:raw_form)] = a:result[0]
-        let s:autodoc_cache = autodoc_cache
-      endif
-      let s:last_imode_arglist_op = a:raw_form
-    endif
-  endfunction
-
-  function! s:OnLoadFileComplete(fname, conn, result)
-    echom 'Loaded: ' . a:fname
-    call s:ResetArgListState()
-  endfunction
-
-  function! s:OnXRefComplete(conn, result)
-    if a:conn.ui isnot v:null
-      call a:conn.ui.OnXRef(a:conn, a:result)
-    endif
-  endfunction
-
-  function! s:OnAproposListComplete(conn, result)
-    if a:result is v:null
-      call nvlime#ui#ErrMsg('No result found.')
-    else
-      call luaeval('require"nvlime.window.apropos".open(_A)', a:result)
-    endif
-  endfunction
-
-  function! s:OnSLDBBreakComplete(conn, result)
-    echom 'Breakpoint set.'
-  endfunction
-
-  function! s:OnCompilationComplete(orig_win, conn, result)
-    let [_msg_type, notes, successp, duration, loadp, faslfile] = a:result
-    if successp
-      echom 'Compilation finished in ' . string(duration) . ' second(s)'
-      if loadp && faslfile isnot v:null
-        call a:conn.LoadFile(faslfile, function('s:OnLoadFileComplete', [faslfile]))
-      endif
-    else
-      call nvlime#ui#ErrMsg('Compilation failed.')
-    endif
-
-    if a:conn.ui isnot v:null
-      call a:conn.ui.OnCompilerNotes(a:conn, notes, a:orig_win)
-    endif
-  endfunction
-
-  function! s:OnListThreadsComplete(conn, result)
-    if a:conn.ui isnot v:null
-      call a:conn.ui.OnThreads(a:conn, a:result)
-    endif
-  endfunction
-
-  function! s:OnUndefineFunctionComplete(conn, result)
-    echom 'Undefined function ' . a:result
-  endfunction
-
-  function! s:OnUninternSymbolComplete(conn, result)
-    echom a:result
-  endfunction
-
-  function! s:OnListenerEvalComplete(conn, result)
-    if type(a:result) == v:t_list && len(a:result) > 0 &&
-          \ type(a:result[0]) == v:t_dict && a:result[0]['name'] == 'VALUES' &&
-          \ a:conn.ui isnot v:null
-      let values = a:result[1:]
-      if len(values) > 0
-        for val in values
-          call a:conn.ui.OnWriteString(
-                \ a:conn,
-                \ val . "\n",
-                \ {'name': 'REPL-RESULT', 'package': 'KEYWORD'})
-        endfor
-      else
-        call a:conn.ui.OnWriteString(
-              \ a:conn,
-              \ "; No value\n",
-              \ {'name': 'REPL-RESULT', 'package': 'KEYWORD'})
-      endif
-    endif
-
-    call s:ResetArgListState()
-  endfunction
-
-  function! s:OpenTraceDialogReportComplete(specs, conn, result)
-    if a:specs is v:null
-      let new_specs = (a:result is v:null) ? [] : a:result
-      call a:conn.ReportTotal(function('s:OpenTraceDialogReportComplete', [new_specs]))
-    else
-      call a:conn.ui.OnTraceDialog(a:conn, a:specs, a:result)
-    endif
-  endfunction
-
-  function! s:OnDialogToggleTraceComplete(conn, result)
-    let trace_visible = v:false
-    let trace_buffer_name = nvlime#ui#TraceDialogBufName(a:conn)
-    let trace_bufnr = bufnr(trace_buffer_name)
-    if trace_bufnr >= 0
-      let trace_visible = len(win_findbuf(trace_bufnr)) > 0
-    endif
-
-    if trace_visible
-      call nvlime#ui#WithBuffer(trace_bufnr,
-            \ function('nvlime#ui#trace_dialog#RefreshSpecs'))
-    endif
-
-    echom a:result
-  endfunction
-
-  function! s:OnCreateMREPLComplete(conn, result)
-    let chan_id = a:result[0]
-    let remote_chan = a:conn['remote_channels'][chan_id]
-    let local_chan = a:conn['local_channels'][remote_chan['mrepl']['peer']]
-    call a:conn.ui.OnMREPLPrompt(a:conn, local_chan)
-    let mrepl_winnr = bufwinnr(nvlime#ui#MREPLBufName(a:conn, local_chan))
-    if mrepl_winnr >= 0
-      execute mrepl_winnr . 'wincmd w'
-      normal! G$
-    endif
-  endfunction
-
-  function! s:ShowAsyncResult(conn, result)
-    call luaeval('require"nvlime.window.macroexpand".open(_A)', a:result)
-  endfunction
-
-  function! s:SendToREPLInputComplete(conn, content)
-    call a:conn.ui.OnWriteString(a:conn, "--\n", {'name': 'REPL-SEP', 'package': 'KEYWORD'})
-    call a:conn.WithThread({'name': 'REPL-THREAD', 'package': 'KEYWORD'},
-          \ function(a:conn.ListenerEval, [a:content, function('s:OnListenerEvalComplete')]))
-  endfunction
-
-  function! s:CompileInputComplete(conn, win, policy, content)
-    if type(a:content) == v:t_list
-      let str = a:content[0]
-      let [str_line, str_col] = a:content[1]
-
-      let buf = bufnr('%')
-      let cur_byte = line2byte(str_line) + str_col - 1
-      let cur_file = expand('%:p')
-    elseif type(a:content) == v:t_string
-      let str = a:content
-    endif
-
-    if a:policy isnot v:null
-      let policy = a:policy
-    elseif exists('g:nvlime_compiler_policy')
-      let policy = g:nvlime_compiler_policy
-    else
-      let policy = v:null
-    endif
-
-    call a:conn.ui.OnWriteString(a:conn, "--\n", {'name': 'REPL-SEP', 'package': 'KEYWORD'})
-
-    if type(a:content) == v:t_string
-      call a:conn.CompileStringForEmacs(
-            \ str, v:null, 1, v:null,
-            \ policy, function('s:OnCompilationComplete', [a:win]))
-    else
-      call a:conn.CompileStringForEmacs(
-            \ str, buf, cur_byte, cur_file,
-            \ policy, function('s:OnCompilationComplete', [a:win]))
-    endif
-  endfunction
-
-  function! s:CompileFileInputComplete(conn, win, policy, load, file_name)
-    if a:policy isnot v:null
-      let policy = a:policy
-    elseif exists('g:nvlime_compiler_policy')
-      let policy = g:nvlime_compiler_policy
-    else
-      let policy = v:null
-    endif
-
-    call a:conn.ui.OnWriteString(a:conn, "--\n", {'name': 'REPL-SEP', 'package': 'KEYWORD'})
-    call a:conn.CompileFileForEmacs(a:file_name, a:load, policy,
-          \ function('s:OnCompilationComplete', [a:win]))
-  endfunction
-
-  function! s:UninternSymbolInputComplete(conn, sym)
-    let matched = matchlist(a:sym, '\(\([^:]\+\)\?::\?\)\?\(\k\+\)')
-    if len(matched) > 0
-      let sym_name = matched[3]
-      let sym_pkg = matched[2]
-      if matched[1] == ':'
-        let sym_pkg = 'KEYWORD'
-      elseif matched[1] == ''
-        " Use the current package
-        let sym_pkg = v:null
-      endif
-      call a:conn.UninternSymbol(sym_name, sym_pkg,
-            \ function('s:OnUninternSymbolComplete'))
-    endif
-  endfunction
-
-  function! s:DialogToggleTraceInputComplete(conn, func_spec)
-    call a:conn.DialogToggleTrace(a:func_spec,
-          \ function('s:OnDialogToggleTraceComplete'))
-  endfunction
-
-  function! s:CleanUpNullBufConnections()
-    let old_buf = bufnr('%')
-    try
-      bufdo! if exists('b:nvlime_conn') && b:nvlime_conn is v:null
-            \ | unlet b:nvlime_conn | endif
-    finally
-      execute 'hide buffer' old_buf
-    endtry
-  endfunction
-
-  if !exists('s:last_imode_arglist_op')
-    let s:last_imode_arglist_op = ''
   endif
 
-  function! s:NeedToShowArgList(op)
-    if get(g:, 'nvlime_disable_arglist') | return | endif
+  let conn = nvlime#connection#Get(v:true)
 
-    " Note that {op} may be a string or a list
-    if len(a:op) > 0
-      let arglist_buf = bufnr(nvlime#ui#ArgListBufName())
-      let arglist_win_nr = bufwinnr(arglist_buf)
-      let arglist_visible = (arglist_win_nr >= 0)
-      if !arglist_visible || type(a:op) != type(s:last_imode_arglist_op) ||
-            \ a:op != s:last_imode_arglist_op
-        return !!v:true
-      else
-        let conn = nvlime#connection#Get(v:true)
-        if conn is v:null
-          " The current buffer doesn't have an active connection.
-          " Close the arglist window explicitly, to avoid confusion.
-          execute arglist_win_nr . 'wincmd c'
-          return !!v:false
-        else
-          " If the current connection is different with the connection
-          " used in arglist_buf, the arglist needs a refresh.
-          let arglist_conn = getbufvar(
-                \ arglist_buf, 'nvlime_conn',
-                \ {'cb_data': {'id': -1}})
-          return conn.cb_data['id'] != arglist_conn.cb_data['id']
-        endif
-      endif
-    else
-      return !!v:false
+  " The deepest special forms this function can handle are FLET/LABELS,
+  " which are of depth 3, thus the magic number "3" here.
+  let op_list = nvlime#ui#ParseOuterOperators(3)
+  if len(op_list) <= 0
+    return lispindent(line_no)
+  endif
+
+  let vs_col = virtcol(op_list[0][2])
+  let a_count = v:null
+
+  " 1. Special forms such as FLET
+  let a_count = s:IndentCheckSpecialForms(op_list)
+  if a_count is v:null
+    let matches = matchlist(op_list[0][0],
+          \ '\(\([^:|]\+\||[^|]\+|\):\{1,2}\)\?\([^:|]\+\||[^|]\+|\)$')
+    if len(matches) == 0
+      return lispindent(line_no)
     endif
-  endfunction
+    let op = tolower(s:NormalizeIdentifierForIndentInfo(matches[3]))
+  endif
 
-  " Clear the cacehd states of the arglist. Should be called after an operation
-  " that potentially changes function signatures, e.g. loading a file or sending
-  " something to the REPL.
-  function! s:ResetArgListState()
-    let s:autodoc_cache = {}
-    let s:last_imode_arglist_op = ''
-  endfunction
+  " 2. Swank-provided indent keywords
+  if a_count is v:null && conn isnot v:null
+    let op_pkg = toupper(s:NormalizeIdentifierForIndentInfo(matches[2]))
+    if len(op_pkg) == 0 && conn isnot v:null
+      let op_pkg = conn.GetCurrentPackage()
+      if type(op_pkg) == v:t_list
+        let op_pkg = op_pkg[0]
+      endif
+    endif
 
-  function! s:GetArgListWinWidth()
+    let indent_info = get(conn.cb_data, 'indent_info', {})
+    if has_key(indent_info, op)
+      if index(indent_info[op][1], op_pkg) >= 0
+        let a_count = indent_info[op][0]
+      else " Set it anyway in case that 'op_pkg' is a nickname
+        let a_count = indent_info[op][0]
+      endif
+    endif
+  endif
+
+  " 3. User defined indent keywords
+  if a_count is v:null
+    let a_count = get(g:nvlime_options.indent_keywords, op, v:null)
+  endif
+
+  if type(a_count) == v:t_number
+    if a_count < 0
+      return lispindent(line_no)
+    endif
+
+    let arg_pos = op_list[0][1]
+    if arg_pos > a_count
+      return vs_col + a:shift_width - 1
+    elseif arg_pos > 0
+      return vs_col + a:shift_width * 2 - 1
+    else
+      return lispindent(line_no)
+    endif
+  elseif type(a_count) == v:t_list
+    return vs_col + a_count[1] - 1
+  elseif op =~ '^def' &&
+        \ op !~ '^default' &&
+        \ op !~ '^definition' &&
+        \ op !~ '^definier'
+    return vs_col + 1
+  elseif op =~ '^with-' ||
+        \ op =~ '^without-' ||
+        \ op =~ '^do-'
+    return vs_col + 1
+  else
+    " Indent as a property list if the list starts with a keyword
+    if op_list[-1][0] != 'defpackage' && op_list[0][0] =~ '^:'
+      return vs_col
+    endif
+    return lispindent(line_no)
+  endif
+endfunction
+
+""
+" @public
+"
+" Set up Nvlime for the current buffer. Do nothing if the current buffer is
+" already initialized. If [force] is present and |TRUE|, always perform the
+" initialization.
+function! nvlime#plugin#Setup(force = v:false)
+  if !exists('b:nvlime_setup') || a:force
+    setlocal omnifunc=nvlime#plugin#CompleteFunc
+    setlocal indentexpr=nvlime#plugin#CalcCurIndent()
+    let b:nvlime_setup = v:true
+  endif
+endfunction
+
+""
+" @public
+"
+" Toggle interaction mode.
+function! nvlime#plugin#InteractionMode(...)
+  let enable = get(a:000, 0, !getbufvar(bufnr('%'), 'nvlime_interaction_mode', v:false))
+  if enable
+    let b:nvlime_interaction_mode = v:true
+    nnoremap <buffer> <silent> <cr> :call nvlime#plugin#SendToREPL(nvlime#ui#CurExprOrAtom())<cr>
+    vnoremap <buffer> <silent> <cr> :<c-u>call nvlime#plugin#SendToREPL(nvlime#ui#CurSelection())<cr>
+  else
+    let b:nvlime_interaction_mode = v:false
+    nnoremap <buffer> <cr> <cr>
+    vnoremap <buffer> <cr> <cr>
+  endif
+  echom 'Interaction mode ' . (enable ? 'enabled' : 'disabled') . '.'
+endfunction
+
+function! s:NormalizeIdentifierForIndentInfo(ident)
+  let ident_len = len(a:ident)
+  if ident_len >= 2 && a:ident[0] == '|' && a:ident[ident_len-1] == '|'
+    return strpart(a:ident, 1, ident_len - 2)
+  else
+    return a:ident
+  endif
+endfunction
+
+function! s:CompleteFindStart()
+  let col = col('.') - 1
+  let line = getline('.')
+  while col > 0 && match(line[col-1], '\_s\|[()#;"'']') < 0
+    let col -= 1
+  endwhile
+  return col
+endfunction
+
+function! s:ConnHasContrib(conn, contrib)
+  return has_key(a:conn.cb_data, 'contribs') &&
+        \ index(a:conn.cb_data['contribs'], a:contrib) >= 0
+endfunction
+
+function! s:OnCallInitializersComplete(conn)
+  echom a:conn.cb_data['name'] .. ' connection established.'
+endfunction
+
+function! s:OnSwankRequireComplete(do_init, conn, result)
+  let new_contribs = (a:result is v:null) ? [] : a:result
+  let old_contribs = get(a:conn.cb_data, 'contribs', [])
+  let a:conn.cb_data['contribs'] = new_contribs
+
+  if a:do_init
+    let added = []
+    for co in new_contribs
+      if index(old_contribs, co) < 0
+        call add(added, co)
+      endif
+    endfor
+
+    call nvlime#contrib#CallInitializers(a:conn, added,
+          \ function('s:OnSwankRequireCallInitializersComplete', [added]))
+  endif
+endfunction
+
+function! s:OnSwankRequireCallInitializersComplete(added, conn)
+  echom 'Loaded contrib modules: ' . string(a:added)
+endfunction
+
+function! s:OnConnectionInfoComplete(conn, result)
+  let a:conn.cb_data['version'] = get(a:result, 'VERSION', '<unknown version>')
+  let a:conn.cb_data['pid'] = get(a:result, 'PID', '<unknown pid>')
+  let features = get(a:result, 'FEATURES', [])
+  if features is v:null
+    let features = []
+  endif
+  let a:conn.cb_data['features'] = copy(features)
+endfunction
+
+function! s:OnFuzzyCompletionsComplete(col, cur_pos, conn, result)
+  let cur_pos = [bufnr('%')] + getcurpos()[1:2]
+  if a:cur_pos != cur_pos
+    " The cursor moved, abort.
+    return
+  endif
+
+  let comps = a:result[0]
+  if comps is v:null
+    let comps = []
+  endif
+  let r_comps = []
+  for c in comps
+    let cobj = {'word': c[0],'menu': c[3]}
+    call add(r_comps, cobj)
+  endfor
+
+  try
+    call complete(a:col, r_comps)
+  catch /^Vim\%((\a\+)\)\=:E785/  " complete() can only be used in Insert mode
+    " There's nothing we can do. Just ignore it.
+  endtry
+endfunction
+
+function! s:OnSimpleCompletionsComplete(col, cur_pos, conn, result)
+  let cur_pos = [bufnr('%')] + getcurpos()[1:2]
+  if a:cur_pos != cur_pos
+    " The cursor moved, abort.
+    return
+  endif
+
+  let comps = a:result[0]
+  if comps is v:null
+    let comps = []
+  endif
+
+  try
+    call complete(a:col, comps)
+  catch /^Vim\%((\a\+)\)\=:E785/  " complete() can only be used in Insert mode
+    " There's nothing we can do. Just ignore it.
+  endtry
+endfunction
+
+function! s:OnOperatorArgListComplete(sym, conn, result)
+  if a:result is v:null | return | endif
+
+  call luaeval('require"nvlime.window.arglist".show(_A)', a:result)
+  let s:last_imode_arglist_op = a:sym
+endfunction
+
+function! s:OnCurAutodocComplete(raw_form, conn, result)
+  if type(a:result) == v:t_list && type(a:result[0]) == v:t_string
+    call nvlime#ui#ShowArgList(a:conn, a:result[0])
+    if a:result[1] isnot v:null && a:result[1]
+      let autodoc_cache = get(s:, 'autodoc_cache', {})
+      let cache_limit = 1024
+      if len(autodoc_cache) >= cache_limit
+        let keys = keys(autodoc_cache)
+        while len(keys) >= cache_limit
+          let idx = nvlime#Rand() % len(keys)
+          call remove(cache, remove(keys, idx))
+        endwhile
+      endif
+      let autodoc_cache[string(a:raw_form)] = a:result[0]
+      let s:autodoc_cache = autodoc_cache
+    endif
+    let s:last_imode_arglist_op = a:raw_form
+  endif
+endfunction
+
+function! s:OnLoadFileComplete(fname, conn, result)
+  echom 'Loaded: ' . a:fname
+  call s:ResetArgListState()
+endfunction
+
+function! s:OnXRefComplete(conn, result)
+  if a:conn.ui isnot v:null
+    call a:conn.ui.OnXRef(a:conn, a:result)
+  endif
+endfunction
+
+function! s:OnAproposListComplete(conn, result)
+  if a:result is v:null
+    call nvlime#ui#ErrMsg('No result found.')
+  else
+    call luaeval('require"nvlime.window.apropos".open(_A)', a:result)
+  endif
+endfunction
+
+function! s:OnSLDBBreakComplete(conn, result)
+  echom 'Breakpoint set.'
+endfunction
+
+function! s:OnCompilationComplete(orig_win, conn, result)
+  let [_msg_type, notes, successp, duration, loadp, faslfile] = a:result
+  if successp
+    echom 'Compilation finished in ' . string(duration) . ' second(s)'
+    if loadp && faslfile isnot v:null
+      call a:conn.LoadFile(faslfile, function('s:OnLoadFileComplete', [faslfile]))
+    endif
+  else
+    call nvlime#ui#ErrMsg('Compilation failed.')
+  endif
+
+  if a:conn.ui isnot v:null
+    call a:conn.ui.OnCompilerNotes(a:conn, notes, a:orig_win)
+  endif
+endfunction
+
+function! s:OnListThreadsComplete(conn, result)
+  if a:conn.ui isnot v:null
+    call a:conn.ui.OnThreads(a:conn, a:result)
+  endif
+endfunction
+
+function! s:OnUndefineFunctionComplete(conn, result)
+  echom 'Undefined function ' . a:result
+endfunction
+
+function! s:OnUninternSymbolComplete(conn, result)
+  echom a:result
+endfunction
+
+function! s:OnListenerEvalComplete(conn, result)
+  if type(a:result) == v:t_list && len(a:result) > 0 &&
+        \ type(a:result[0]) == v:t_dict && a:result[0]['name'] == 'VALUES' &&
+        \ a:conn.ui isnot v:null
+    let values = a:result[1:]
+    if len(values) > 0
+      for val in values
+        call a:conn.ui.OnWriteString(
+              \ a:conn,
+              \ val . "\n",
+              \ {'name': 'REPL-RESULT', 'package': 'KEYWORD'})
+      endfor
+    else
+      call a:conn.ui.OnWriteString(
+            \ a:conn,
+            \ "; No value\n",
+            \ {'name': 'REPL-RESULT', 'package': 'KEYWORD'})
+    endif
+  endif
+
+  call s:ResetArgListState()
+endfunction
+
+function! s:OpenTraceDialogReportComplete(specs, conn, result)
+  if a:specs is v:null
+    let new_specs = (a:result is v:null) ? [] : a:result
+    call a:conn.ReportTotal(function('s:OpenTraceDialogReportComplete', [new_specs]))
+  else
+    call a:conn.ui.OnTraceDialog(a:conn, a:specs, a:result)
+  endif
+endfunction
+
+function! s:OnDialogToggleTraceComplete(conn, result)
+  let trace_visible = v:false
+  let trace_buffer_name = nvlime#ui#TraceDialogBufName(a:conn)
+  let trace_bufnr = bufnr(trace_buffer_name)
+  if trace_bufnr >= 0
+    let trace_visible = len(win_findbuf(trace_bufnr)) > 0
+  endif
+
+  if trace_visible
+    call nvlime#ui#WithBuffer(trace_bufnr,
+          \ function('nvlime#ui#trace_dialog#RefreshSpecs'))
+  endif
+
+  echom a:result
+endfunction
+
+function! s:OnCreateMREPLComplete(conn, result)
+  let chan_id = a:result[0]
+  let remote_chan = a:conn['remote_channels'][chan_id]
+  let local_chan = a:conn['local_channels'][remote_chan['mrepl']['peer']]
+  call a:conn.ui.OnMREPLPrompt(a:conn, local_chan)
+  let mrepl_winnr = bufwinnr(nvlime#ui#MREPLBufName(a:conn, local_chan))
+  if mrepl_winnr >= 0
+    execute mrepl_winnr . 'wincmd w'
+    normal! G$
+  endif
+endfunction
+
+function! s:ShowAsyncResult(conn, result)
+  call luaeval('require"nvlime.window.macroexpand".open(_A)', a:result)
+endfunction
+
+function! s:SendToREPLInputComplete(conn, content)
+  call a:conn.ui.OnWriteString(a:conn, "--\n", {'name': 'REPL-SEP', 'package': 'KEYWORD'})
+  call a:conn.WithThread({'name': 'REPL-THREAD', 'package': 'KEYWORD'},
+        \ function(a:conn.ListenerEval, [a:content, function('s:OnListenerEvalComplete')]))
+endfunction
+
+function! s:CompileInputComplete(conn, win, policy, content)
+  if type(a:content) == v:t_list
+    let str = a:content[0]
+    let [str_line, str_col] = a:content[1]
+
+    let buf = bufnr('%')
+    let cur_byte = line2byte(str_line) + str_col - 1
+    let cur_file = expand('%:p')
+  elseif type(a:content) == v:t_string
+    let str = a:content
+  endif
+
+  let policy = a:policy isnot v:null ? a:policy :
+        \ get(g:nvlime_options, 'compiler_policy', v:null)
+
+  call a:conn.ui.OnWriteString(a:conn, "--\n", {'name': 'REPL-SEP', 'package': 'KEYWORD'})
+
+  if type(a:content) == v:t_string
+    call a:conn.CompileStringForEmacs(
+          \ str, v:null, 1, v:null,
+          \ policy, function('s:OnCompilationComplete', [a:win]))
+  else
+    call a:conn.CompileStringForEmacs(
+          \ str, buf, cur_byte, cur_file,
+          \ policy, function('s:OnCompilationComplete', [a:win]))
+  endif
+endfunction
+
+function! s:CompileFileInputComplete(conn, win, policy, load, file_name)
+  let policy = a:policy isnot v:null ? a:policy :
+        \ get(g:nvlime_options, 'compiler_policy', v:null)
+
+  call a:conn.ui.OnWriteString(a:conn, "--\n", {'name': 'REPL-SEP', 'package': 'KEYWORD'})
+  call a:conn.CompileFileForEmacs(a:file_name, a:load, policy,
+        \ function('s:OnCompilationComplete', [a:win]))
+endfunction
+
+function! s:UninternSymbolInputComplete(conn, sym)
+  let matched = matchlist(a:sym, '\(\([^:]\+\)\?::\?\)\?\(\k\+\)')
+  if len(matched) > 0
+    let sym_name = matched[3]
+    let sym_pkg = matched[2]
+    if matched[1] == ':'
+      let sym_pkg = 'KEYWORD'
+    elseif matched[1] == ''
+      " Use the current package
+      let sym_pkg = v:null
+    endif
+    call a:conn.UninternSymbol(sym_name, sym_pkg,
+          \ function('s:OnUninternSymbolComplete'))
+  endif
+endfunction
+
+function! s:DialogToggleTraceInputComplete(conn, func_spec)
+  call a:conn.DialogToggleTrace(a:func_spec,
+        \ function('s:OnDialogToggleTraceComplete'))
+endfunction
+
+function! s:CleanUpNullBufConnections()
+  let old_buf = bufnr('%')
+  try
+    bufdo! if exists('b:nvlime_conn') && b:nvlime_conn is v:null
+          \ | unlet b:nvlime_conn | endif
+  finally
+    execute 'hide buffer' old_buf
+  endtry
+endfunction
+
+if !exists('s:last_imode_arglist_op')
+  let s:last_imode_arglist_op = ''
+endif
+
+function! s:NeedToShowArgList(op)
+  if !g:nvlime_options.arglist.enabled
+    return
+  endif
+
+  " Note that {op} may be a string or a list
+  if len(a:op) > 0
     let arglist_buf = bufnr(nvlime#ui#ArgListBufName())
     let arglist_win_nr = bufwinnr(arglist_buf)
-    if arglist_win_nr >= 0
-      return winwidth(arglist_win_nr)
+    let arglist_visible = (arglist_win_nr >= 0)
+    if !arglist_visible || type(a:op) != type(s:last_imode_arglist_op) ||
+          \ a:op != s:last_imode_arglist_op
+      return !!v:true
     else
-      return v:null
+      let conn = nvlime#connection#Get(v:true)
+      if conn is v:null
+        " The current buffer doesn't have an active connection.
+        " Close the arglist window explicitly, to avoid confusion.
+        execute arglist_win_nr . 'wincmd c'
+        return !!v:false
+      else
+        " If the current connection is different with the connection
+        " used in arglist_buf, the arglist needs a refresh.
+        let arglist_conn = getbufvar(
+              \ arglist_buf, 'nvlime_conn',
+              \ {'cb_data': {'id': -1}})
+        return conn.cb_data['id'] != arglist_conn.cb_data['id']
+      endif
     endif
-  endfunction
+  else
+    return !!v:false
+  endif
+endfunction
 
-  function! s:MaybeSendSecret(conn)
-    if exists('g:nvlime_secret_file')
-      let secret_file = g:nvlime_secret_file
-    else
-      let script_path = expand('<sfile>:p')
-      let script_dir = fnamemodify(script_path, ':h')
-      let path_sep = script_path[len(script_dir)]
-      let secret_file = join([$HOME, '.slime-secret'], path_sep)
-    endif
+" Clear the cacehd states of the arglist. Should be called after an operation
+" that potentially changes function signatures, e.g. loading a file or sending
+" something to the REPL.
+function! s:ResetArgListState()
+  let s:autodoc_cache = {}
+  let s:last_imode_arglist_op = ''
+endfunction
 
-    if filereadable(secret_file)
-      let content = readfile(secret_file, '', 1)
-      let secret = len(content) > 0 ? content[0] : ''
-      call a:conn.Send([nvlime#KW('NVLIME-RAW-MSG'), secret])
-    endif
-  endfunction
+function! s:GetArgListWinWidth()
+  let arglist_buf = bufnr(nvlime#ui#ArgListBufName())
+  let arglist_win_nr = bufwinnr(arglist_buf)
+  if arglist_win_nr >= 0
+    return winwidth(arglist_win_nr)
+  else
+    return v:null
+  endif
+endfunction
 
-  function! s:InputCheckEditFlag(edit, text)
-    return a:edit ? [v:null, a:text] : [a:text, v:null]
-  endfunction
+function! s:MaybeSendSecret(conn)
+  if exists('g:nvlime_secret_file')
+    let secret_file = g:nvlime_secret_file
+  else
+    let script_path = expand('<sfile>:p')
+    let script_dir = fnamemodify(script_path, ':h')
+    let path_sep = script_path[len(script_dir)]
+    let secret_file = join([$HOME, '.slime-secret'], path_sep)
+  endif
 
-  let s:local_func_op_list = ['flet', 'labels', 'macrolet']
-  let s:handler_macro_op_list = ['handler-case', 'restart-case']
+  if filereadable(secret_file)
+    let content = readfile(secret_file, '', 1)
+    let secret = len(content) > 0 ? content[0] : ''
+    call a:conn.Send([nvlime#KW('NVLIME-RAW-MSG'), secret])
+  endif
+endfunction
 
-  function! s:IndentCheckSpecialForms(op_list)
-    if len(a:op_list) >= 3 &&
-          \ a:op_list[1][0] == '' &&
-          \ index(s:local_func_op_list, a:op_list[2][0], 0, v:true) >= 0 &&
-          \ a:op_list[2][1] == 1
-      " function definitions in FLET etc.
-      return 1
-    elseif len(a:op_list) >= 2 &&
-          \ tolower(a:op_list[0][0]) == ':method' &&
-          \ tolower(a:op_list[1][0]) == 'defgeneric' &&
-          \ a:op_list[1][1] >= 3
-      " method definitions in DEFGENERIC
-      return 1
-    elseif len(a:op_list) >= 2 &&
-          \ index(s:handler_macro_op_list, a:op_list[1][0], 0, v:true) >= 0 &&
-          \ a:op_list[1][1] >= 2
-      " condition clauses in HANDLER-CASE etc.
-      return 1
-    elseif len(a:op_list) >= 2 &&
-          \ tolower(a:op_list[1][0]) == 'cond' &&
-          \ len(a:op_list[0][0]) > 0 &&
-          \ a:op_list[0][1] == 1
-      " COND clauses with atomic test forms, such as (t ...)
-      return ['rel', 1]
-    else
-      return v:null
-    endif
-  endfunction
+function! s:InputCheckEditFlag(edit, text)
+  return a:edit ? [v:null, a:text] : [a:text, v:null]
+endfunction
 
-  function! s:isInString()
-    let syntax = map(synstack(line('.'), max([col('.')-1, 0])), 'synIDattr(v:val, "name")')
-    return index(syntax, 'lispString') >= 0
-  endfunc
+let s:local_func_op_list = ['flet', 'labels', 'macrolet']
+let s:handler_macro_op_list = ['handler-case', 'restart-case']
+
+function! s:IndentCheckSpecialForms(op_list)
+  if len(a:op_list) >= 3 &&
+        \ a:op_list[1][0] == '' &&
+        \ index(s:local_func_op_list, a:op_list[2][0], 0, v:true) >= 0 &&
+        \ a:op_list[2][1] == 1
+    " function definitions in FLET etc.
+    return 1
+  elseif len(a:op_list) >= 2 &&
+        \ tolower(a:op_list[0][0]) == ':method' &&
+        \ tolower(a:op_list[1][0]) == 'defgeneric' &&
+        \ a:op_list[1][1] >= 3
+    " method definitions in DEFGENERIC
+    return 1
+  elseif len(a:op_list) >= 2 &&
+        \ index(s:handler_macro_op_list, a:op_list[1][0], 0, v:true) >= 0 &&
+        \ a:op_list[1][1] >= 2
+    " condition clauses in HANDLER-CASE etc.
+    return 1
+  elseif len(a:op_list) >= 2 &&
+        \ tolower(a:op_list[1][0]) == 'cond' &&
+        \ len(a:op_list[0][0]) > 0 &&
+        \ a:op_list[0][1] == 1
+    " COND clauses with atomic test forms, such as (t ...)
+    return ['rel', 1]
+  else
+    return v:null
+  endif
+endfunction
+
+function! s:isInString()
+  let syntax = map(synstack(line('.'), max([col('.')-1, 0])), 'synIDattr(v:val, "name")')
+  return index(syntax, 'lispString') >= 0
+endfunc
 
 " vim: sw=2

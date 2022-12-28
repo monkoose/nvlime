@@ -19,7 +19,7 @@ function! TestCallInitializers()
     let conn['cb_data'] = {'contribs': ["DUMMY-CONTRIB"]}
     let g:nvlime_contrib_initializers['DUMMY-CONTRIB'] =
                 \ function('s:DummyContribInitializer')
-    let g:nvlime_user_contrib_initializers =
+    let g:nvlime_options.user_contrib_initializers =
                 \ {'DUMMY-CONTRIB': function('s:DummyUserContribInitializer')}
     let b:nvlime_test_dummy_contrib_initializer_called = v:false
     let b:nvlime_test_dummy_user_contrib_initializer_called = v:false

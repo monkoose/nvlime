@@ -1,12 +1,13 @@
 local lsp_types = require("cmp.types.lsp")
 local buffer = require("nvlime.buffer")
+local opts = require("nvlime.config")
 local psl = require("parsley")
 require("cmp.types.cmp")
 local _2bfuzzy_3f_2b
 local function _1_(_241)
   return ("SWANK-FUZZY" == _241)
 end
-_2bfuzzy_3f_2b = (psl["null?"](vim.g.nvlime_contribs) or not psl["empty?"](psl.filter(_1_, vim.g.nvlime_contribs)))
+_2bfuzzy_3f_2b = not psl["empty?"](psl.filter(_1_, opts.contribs))
 local flag_kind = {b = lsp_types.CompletionItemKind.Variable, f = lsp_types.CompletionItemKind.Function, g = lsp_types.CompletionItemKind.Method, c = lsp_types.CompletionItemKind.Class, t = lsp_types.CompletionItemKind.Class, m = lsp_types.CompletionItemKind.Operator, s = lsp_types.CompletionItemKind.Operator, p = lsp_types.CompletionItemKind.Module}
 local kind_precedence = {lsp_types.CompletionItemKind.Module, lsp_types.CompletionItemKind.Class, lsp_types.CompletionItemKind.Operator, lsp_types.CompletionItemKind.Method, lsp_types.CompletionItemKind.Function, lsp_types.CompletionItemKind.Variable}
 local function flags__3ekind(flags)

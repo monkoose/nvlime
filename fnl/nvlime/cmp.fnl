@@ -1,13 +1,14 @@
 (import-macros {: return} "nvlime.init-macros")
 (local lsp-types (require "cmp.types.lsp"))
 (local buffer (require "nvlime.buffer"))
+(local opts (require "nvlime.config"))
 (local psl (require "parsley"))
 (require "cmp.types.cmp")
 
-(local +fuzzy?+ (or (psl.null? vim.g.nvlime_contribs)
-                    (not (psl.empty? (psl.filter
-                                      #(= "SWANK-FUZZY" $)
-                                      vim.g.nvlime_contribs)))))
+(local +fuzzy?+ (not (psl.empty?
+                       (psl.filter
+                         #(= "SWANK-FUZZY" $)
+                         opts.contribs))))
 
 (local flag-kind
        {:b lsp-types.CompletionItemKind.Variable

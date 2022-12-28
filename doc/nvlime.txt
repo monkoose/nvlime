@@ -970,7 +970,7 @@ g:nvlime_compiler_policy                      *g:nvlime_compiler_policy*
     affect the subsequent compiling operations. For example, a value
     of {"DEBUG": 3, "SPEED": 0} means no optimization in runtime
     speed, and maximum debug info. Note that the keys are
-    case-sensitive. Please use only uppercase. Default: {}
+    case-sensitive. Please use only uppercase. Default: nil
 
 g:nvlime_indent_keywords                      *g:nvlime_indent_keywords*
     A |dict| specifying indent rules for operators. The keys should be
@@ -1002,7 +1002,7 @@ g:nvlime_indent_keywords                      *g:nvlime_indent_keywords*
 
     To see the default operator indent settings,
 
-        :echo g:nvlime_default_indent_keywords
+        :echo g:nvlime_options.indent_keywords
 
 g:nvlime_input_history_limit              *g:nvlime_input_history_limit*
     An integer to specify how many input history items to store. A
@@ -1060,7 +1060,7 @@ g:nvlime_user_contrib_initializers  *g:nvlime_user_contrib_initializers*
     keys should be contrib module names (usually in uppercase). If
     your Swank contrib module needs special initialization, add an
     initializer function here. See autoload/nvlime/contrib.vim for
-    examples. Default: {}
+    examples. Default: nil
 
 g:nvlime_enable_autodoc                        *g:nvlime_enable_autodoc*
     A boolean value specifying whether to enable the autodoc feature
@@ -1084,9 +1084,13 @@ g:nvlime_main_win_pos                            *g:nvlime_main_win_pos*
     (repl, sldb and compiler notes). Should be one of "top", "bottom",
     "left" or "right". Default: "right"
 
+g:nvlime_main_win_size                            *g:nvlime_main_win_pos*
+
 g:nvlime_scroll_up                                  *g:nvlime_scroll_up*
     A string representing key which scrolls Nvlime floating windows up.
     Default: "<C-p>"
+
+g:nvlime_floating_window_border
 
 g:nvlime_scroll_down                              *g:nvlime_scroll_down*
     A string representing key which scrolls Nvlime floating windows
@@ -1108,26 +1112,6 @@ g:nvlime_disable_mappings                    *g:nvlime_disable_mappings*
     A boolean which allows to disable all plugin mappings for all
     the windows. You should then provide some custom set of mappings.
     Default: v:false
-
-g:nvlime_disable_global_mappings      *g:nvlime_disable_global_mappings*
-    A boolean which allows to disable global mappings such as `q`,
-    `<Esc>`, `<LocalLeader>ww`, `<F1>`, `<LocalLeader>?`, `<C-n>`
-    and `<C-n>` that plugin maps for each of its windows.
-    Default: v:false
-
-g:nvlime_disable_input_mappings
-g:nvlime_disable_xref_mappings
-g:nvlime_disable_apropos_mappings
-g:nvlime_disable_repl_mappings
-g:nvlime_disable_sldb_mappings
-g:nvlime_disable_mrepl_mappings
-g:nvlime_disable_inspector_mappings
-g:nvlime_disable_server_mappings
-g:nvlime_disable_trace_mappings
-g:nvlime_disable_notes_mappings
-    A boolean which allows to disable mappings only for specific
-    plugin window. Default: v:false
-
 
 ======================================================================
 6. API                                               *nvlime-api-intro*

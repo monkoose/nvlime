@@ -60,7 +60,7 @@ function! nvlime#ui#input#FromBufferComplete()
 endfunction
 
 function! nvlime#ui#input#SaveHistory(text)
-  let max_items = get(g:, 'nvlime_input_history_limit', 100)
+  let max_items = g:nvlime_options.input_history_limit
   let history = g:nvlime_input_history
 
   if len(history) > 0 && history[-1] == a:text

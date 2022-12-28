@@ -2,8 +2,8 @@ local buffer = require("nvlime.buffer")
 local ut = require("nvlime.utilities")
 local psl_buf = require("parsley.buffer")
 local psl_win = require("parsley.window")
+local options = require("nvlime.config")
 local window = {cursor = {}, center = {}}
-local _2bfloat_border_2b = (vim.g.nvlime_border or "single")
 local _2bscrollbar_bufname_2b = buffer["gen-name"]("scrollbar")
 local _2afocus_winid_2a = 1000
 local function visible_ft_3f(filetypes)
@@ -26,7 +26,7 @@ window["set-opts"] = function(winid, opts)
   return nil
 end
 window["set-minimal-style-options"] = function(winid)
-  return window["set-opts"](winid, {wrap = true, signcolumn = "no", list = false, spell = false, number = false, relativenumber = false})
+  return window["set-opts"](winid, {wrap = true, signcolumn = "no", number = false, relativenumber = false, spell = false, list = false})
 end
 window["find-horiz-pos"] = function(req_height, scr_row, scr_height)
   local border_len = 3
@@ -274,7 +274,7 @@ window["open-float"] = function(bufnr, opts, close_on_leave_3f, focus_3f, _3fcal
       zindex = nil
     end
   end
-  local winid = vim.api.nvim_open_win(bufnr, focus_3f, vim.tbl_extend("keep", opts, {style = "minimal", border = _2bfloat_border_2b, zindex = zindex}))
+  local winid = vim.api.nvim_open_win(bufnr, focus_3f, vim.tbl_extend("keep", opts, {style = "minimal", border = options.floating_window.border, zindex = zindex}))
   add_scrollbar(psl_win["get-info"](winid), psl_win["get-zindex"](winid))
   if close_on_leave_3f then
     local function _36_()

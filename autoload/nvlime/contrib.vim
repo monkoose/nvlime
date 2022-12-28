@@ -16,8 +16,9 @@ function! nvlime#contrib#CallInitializers(conn, contribs = v:null, Callback = v:
         \ a:contribs
   for c in contribs
     let InitFunc = get(g:nvlime_contrib_initializers, c, v:null)
-    if type(InitFunc) != v:t_func && exists('g:nvlime_user_contrib_initializers')
-      let InitFunc = get(g:nvlime_user_contrib_initializers, c, v:null)
+    if type(InitFunc) != v:t_func && exists('g:nvlime_options.user_contrib_initializers')
+      " Because it is funcref it doesn't work for now
+      " let InitFunc = get(g:nvlime_user_contrib_initializers, c, v:null)
     endif
     if type(InitFunc) == v:t_func
       call call(InitFunc, [a:conn])

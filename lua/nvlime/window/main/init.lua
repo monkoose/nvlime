@@ -1,20 +1,9 @@
 local window = require("nvlime.window")
 local psl_win = require("parsley.window")
+local opts = require("nvlime.config")
 local main_win_pos
 do
-  local _1_
-  do
-    local t_2_ = vim.g
-    if (nil ~= t_2_) then
-      t_2_ = (t_2_).nvlime_main_win
-    else
-    end
-    if (nil ~= t_2_) then
-      t_2_ = (t_2_).pos
-    else
-    end
-    _1_ = t_2_
-  end
+  local _1_ = opts.main_window.position
   if (_1_ == "top") then
     main_win_pos = "topleft"
   elseif (_1_ == "left") then
@@ -30,39 +19,26 @@ do
     main_win_pos = nil
   end
 end
-local main_win
-local function _6_(...)
-  local t_7_ = vim.g
-  if (nil ~= t_7_) then
-    t_7_ = (t_7_).nvlime_main_win
-  else
-  end
-  if (nil ~= t_7_) then
-    t_7_ = (t_7_).size
-  else
-  end
-  return t_7_
-end
-main_win = {pos = main_win_pos, size = (_6_(...) or ""), ["vert?"] = (nil ~= (main_win_pos and string.find(main_win_pos, "^vertical")))}
+local main_win = {pos = main_win_pos, size = opts.main_window.size, ["vert?"] = (nil ~= (main_win_pos and string.find(main_win_pos, "^vertical")))}
 main_win.new = function(cmd, size, opposite)
   local self = setmetatable({}, {__index = main_win})
   local vert_3f = main_win["vert?"]
   self["id"] = nil
   self["buffers"] = {}
-  local _10_
+  local _3_
   if vert_3f then
-    _10_ = cmd
+    _3_ = cmd
   else
-    _10_ = ("vertical " .. cmd)
+    _3_ = ("vertical " .. cmd)
   end
-  self["cmd"] = _10_
-  local _12_
+  self["cmd"] = _3_
+  local _5_
   if vert_3f then
-    _12_ = size
+    _5_ = size
   else
-    _12_ = nil
+    _5_ = nil
   end
-  self["size"] = _12_
+  self["size"] = _5_
   self["opposite"] = opposite
   return self
 end

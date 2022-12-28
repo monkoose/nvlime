@@ -3,10 +3,10 @@
 (local ut (require "nvlime.utilities"))
 (local psl-buf (require "parsley.buffer"))
 (local psl-win (require "parsley.window"))
+(local options (require "nvlime.config"))
 
 (local window {:cursor {} :center {}})
 
-(local +float-border+ (or vim.g.nvlime_border "single"))
 (local +scrollbar-bufname+ (buffer.gen-name "scrollbar"))
 (var *focus-winid* 1000)
 
@@ -307,7 +307,7 @@
                   (vim.tbl_extend
                     "keep" opts
                     {:style "minimal"
-                     :border +float-border+
+                     :border options.floating_window.border
                      :zindex zindex}))]
       (add-scrollbar (psl-win.get-info winid)
                      (psl-win.get-zindex winid))

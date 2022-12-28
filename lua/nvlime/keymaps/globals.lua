@@ -1,75 +1,88 @@
 local window = require("nvlime.window")
 local km = require("nvlime.keymaps")
+local gm = km.mappings.global
 local km_window = require("nvlime.window.keymaps")
+local psl = require("parsley")
+local opts = require("nvlime.config")
 local globals = {}
-local _2bscroll_step_2b = (vim.g.nvlime_scroll_step or 3)
-local _2bscroll_up_2b = (vim.g.nvlime_scroll_up or "<C-p>")
-local _2bscroll_down_2b = (vim.g.nvlime_scroll_down or "<C-n>")
 local function del_buffer_keymaps(bufnr, mode, maps)
   for _, map in ipairs(maps) do
     pcall(vim.api.nvim_buf_del_keymap, bufnr, mode, map)
   end
   return nil
 end
+local split_keys = {}
+for _, keys in ipairs({gm.normal.slit_left, gm.normal.split_right, gm.normal.split_above, gm.normal.split_below}) do
+  if psl["string?"](keys) then
+    table.insert(split_keys, keys)
+  else
+    local tbl_17_auto = split_keys
+    local i_18_auto = #tbl_17_auto
+    for _0, key in ipairs(keys) do
+      local val_19_auto = key
+      if (nil ~= val_19_auto) then
+        i_18_auto = (i_18_auto + 1)
+        do end (tbl_17_auto)[i_18_auto] = val_19_auto
+      else
+      end
+    end
+  end
+end
 local function split_focus(cmd, key)
-  local function _1_()
+  local function _3_()
     if window.split_focus(cmd) then
-      return del_buffer_keymaps(0, "n", {"<C-w>h", "<C-w>j", "<C-w>k", "<C-w>l"})
+      return del_buffer_keymaps(0, "n", split_keys)
     else
       return nil
     end
   end
-  return km.buffer.normal(key, _1_, "Split into last non-floating window")
+  return km.buffer.normal(key, _3_, "Split into last non-floating window")
 end
 globals.add = function(add_close_3f, add_split_3f)
   if add_close_3f then
-    local function _3_()
+    local function _5_()
       return vim.api.nvim_win_close(0, true)
     end
-    km.buffer.normal("q", _3_, "Close current window")
+    km.buffer.normal(gm.normal.close_current_window, _5_, "Close current window")
   else
   end
-  local function _5_()
-    return km_window.toggle()
-  end
-  km.buffer.normal((km.leader .. "?"), _5_, "Show keymaps help")
-  local function _6_()
-    return km_window.toggle()
-  end
-  km.buffer.normal("<F1>", _6_, "Show keymaps help")
   local function _7_()
+    return km_window.toggle()
+  end
+  km.buffer.normal(gm.normal.keymaps_help, _7_, "Show keymaps help")
+  local function _8_()
     return window.close_all_except_main()
   end
-  km.buffer.normal((km.leader .. "ww"), _7_, "Close all nvlime windows except main ones")
-  local function _8_()
+  km.buffer.normal(gm.normal.close_nvlime_windows, _8_, "Close all nvlime windows except main ones")
+  local function _9_()
     if not window.close_last_float() then
       return km.feedkeys("<Esc>")
     else
       return nil
     end
   end
-  km.buffer.normal("<Esc>", _8_, "Close last opened floating window")
-  local function _10_()
-    if not window.scroll_float(_2bscroll_step_2b, true) then
-      return km.feedkeys(_2bscroll_up_2b)
+  km.buffer.normal(gm.normal.close_floating_window, _9_, "Close last opened floating window")
+  local function _11_()
+    if not window.scroll_float(opts.floating_window.scroll_step, true) then
+      return km.feedkeys(gm.normal.scroll_up)
     else
       return nil
     end
   end
-  km.buffer.normal(_2bscroll_up_2b, _10_, "Scroll up last opened floating window")
-  local function _12_()
-    if not window.scroll_float(_2bscroll_step_2b) then
-      return km.feedkeys(_2bscroll_down_2b)
+  km.buffer.normal(gm.normal.scroll_up, _11_, "Scroll up last opened floating window")
+  local function _13_()
+    if not window.scroll_float(opts.floating_window.scroll_step) then
+      return km.feedkeys(gm.normal.scroll_down)
     else
       return nil
     end
   end
-  km.buffer.normal(_2bscroll_down_2b, _12_, "Scroll down last opened floating window")
+  km.buffer.normal(gm.normal.scroll_down, _13_, "Scroll down last opened floating window")
   if add_split_3f then
-    split_focus("vertical leftabove split", "<C-w>h")
-    split_focus("vertical rightbelow split", "<C-w>l")
-    split_focus("leftabove split", "<C-w>k")
-    return split_focus("rightbelow split", "<C-w>j")
+    split_focus("vertical leftabove split", gm.normal.split_left)
+    split_focus("vertical rightbelow split", gm.normal.split_right)
+    split_focus("leftabove split", gm.normal.split_above)
+    return split_focus("rightbelow split", gm.normal.split_below)
   else
     return nil
   end

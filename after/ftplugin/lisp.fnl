@@ -41,9 +41,6 @@
       (do
         (when (not vim.g.nvlime_disable_global_mappings)
           (km-globals.add false false))
-        (km.buffer.normal "q<Esc>"
-                          #(window.close_last_float)
-                          "Closes last opened floating window")
         (km.buffer.insert "<Space>"
                           "<Space><C-r>=nvlime#plugin#NvlimeKey('space')<CR>"
                           "nvlime: Trigger the arglist hint")
@@ -111,7 +108,7 @@
                           "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurExprOrAtom())<CR>"
                           "nvlime: Send the expression/atom under the cursor to the REPL")
         (km.buffer.normal (.. km.leader "se")
-                          "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurExp())<CR>"
+                          "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurExpr())<CR>"
                           "nvlime: Send the expression under the cursor to the REPL")
         (km.buffer.normal (.. km.leader "st")
                           "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurTopExpr())<CR>"
