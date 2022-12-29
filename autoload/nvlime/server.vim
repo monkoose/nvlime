@@ -161,16 +161,16 @@ function! nvlime#server#BuildServerCommand(cl_impl)
   let cl_impl = a:cl_impl is v:null ? g:nvlime_options.implementation : a:cl_impl
   let nvlime_loader = join([s:nvlime_home, 'lisp', 'load-nvlime.lisp'], s:path_sep)
 
-  let user_func_name = 'NvlimeBuildServerCommandFor_' . cl_impl
-  let default_func_name = 'nvlime#server#BuildServerCommandFor_' . cl_impl
+  let user_func_name = 'NvlimeBuildServerCommandFor_' .. cl_impl
+  let default_func_name = 'nvlime#server#BuildServerCommandFor_' .. cl_impl
 
-  if exists('*' . user_func_name)
+  if exists('*' .. user_func_name)
     let Builder = function(user_func_name)
-  elseif exists('*' . default_func_name)
+  elseif exists('*' .. default_func_name)
     let Builder = function(default_func_name)
   else
-    throw 'nvlime#server#BuildServerCommand: implementation ' .
-          \ string(cl_impl) . ' not supported'
+    throw 'nvlime#server#BuildServerCommand: implementation ' ..
+          \ string(cl_impl) .. ' not supported'
   endif
 
   return Builder(nvlime_loader, '(nvlime:main)')

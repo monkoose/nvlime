@@ -27,7 +27,8 @@ features. Check `CHANGELOG.md` to find out what have changed.
 
 ## Current State
 
-Nvlime is currently in beta state. MREPLs currently do not work.
+Nvlime is currently in beta state and in active development. So expect some
+changes to configuration, UI or behavior. MREPLs currently do not work.
 Please beware of bugs, and file an issue if you find anything weird/unexpected.
 
 ## Dependencies
@@ -90,9 +91,9 @@ server.
 You can also let Neovim start the server for you - `<leader>rr`. See `:help
 nvlime-start-up` for more info.
 
-All Nvlime keymaps starts with the "leader", so change `g:nvlime_leader` to key
-that is convenient for you (by default it is mapped to `\`). Suggested keys are
-`,` or `<Space>`.
+All Nvlime keymaps starts with the "leader", so you are free to change
+`g:nvlime_nvlime.leader` to a key that is convenient for you (by default it is
+mapped to `\`). Suggested keys are `,` or `<Space>`.
 
 To find out all plugin mappings for the current window type `<leader>?` or
 `<F1>`. There are a set of global mappings, which do not show in the help window.
@@ -102,25 +103,24 @@ They are listed below and work for all Nvlime windows:
 - `<leader>ww` - closes all plugin windows except main windows.
 - `<Esc>` - closes last opened floating window except current one.
 - `<C-n>` and `<C-p>` to scroll last opened floating window. If this keys are
-  messing up with your config change them with `g:nvlime_scroll_up` and
-  `g:nvlime_scroll_down`. Example `let g:nvlime_scroll_up = '<C-u>'`
-  *(vimscript)* or `vim.g.nvlime_scroll_down = '<C-d>'` *(lua)*. You can adjust scroll
-  step with `g:nvlime_scroll_step` variable. It is set to `3` lines by default.
+  messing up with your config change them with `g:nvlime_mappings` directory:
+  `global.normal.scroll_up` and `global.normal.scroll_down`. You can adjust
+  scroll step with `g:nvlime_config.floating_window.scroll_step` variable. It
+  is set to `3` lines by default.
 
-If you need to make some floating window persistent, just make it a normal
-window. You can do it by splitting it into you current window with `<C-w>h`,
-`<C-w>j`, `<C-w>k`, `<C-w>l` or split the whole Neovim screen with `<C-w>H`,
-`<C-w>J`, `<C-w>K` or `<C-w>L`.
+If you need to make some floating window to be persistent, just turn it into a
+normal window. You can do it by splitting it into you current window with
+`<C-w>h`, `<C-w>j`, `<C-w>k`, `<C-w>l` or split the whole Neovim screen with
+`<C-w>H`, `<C-w>J`, `<C-w>K` or `<C-w>L`.
 
 Main windows (repl, sbcl and compiler notes) aren't floating and by default
 placed on the right side of the screen. You can change this behavior with
-`g:nvlime_main_win` variable, which can accept one position from `"top"`,
-`"bottom"`, `"left"` or `"right"`.
+`g:nvlime_config.main_window` variable, which can accept a `position` key
+one of `"top"`, `"bottom"`, `"left"` or `"right"` and `size` key.
 
-To enable autocompletion with [nvim-cmp][nvim-cmp], first set `let
-g:nvlime_enable_cmp = v:true`.
-Additionally you need to register the source for nvim-cmp, read its
-documentation for more information:
+To enable autocompletion with [nvim-cmp][nvim-cmp], first set
+`vim.g.nvlime_config.cmp.enabled = true`. Additionally you need to register the
+source for nvim-cmp, read its documentation for more information:
 
 ```lua
 require('cmp').setup.filetype({'lisp'}, {

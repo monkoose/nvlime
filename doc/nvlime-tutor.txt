@@ -114,7 +114,7 @@ Nvlime has good REPL integration, but it's different from other Lisp
 environments, in that Nvlime's REPL buffer is dedicated for output,
 i.e. you can not type and evaluate an expression directly in the REPL
 buffer. To evaluate something in the REPL, you send it using key
-mappings listed in |nvlime-mappings-send|.
+mappings listed in |nvlime-acitons-source|.
 
 Let's go to ad-hoc.lisp, the file we created in |nvlime-tutor-connect|,
 and write a simple expression in it:
@@ -296,7 +296,7 @@ description of the REVERSE function:
      Return a new sequence containing the same elements but in reverse order.
 
 This information varies between Common Lisp implementations, but is
-generally helpful. See |nvlime-mappings-describe| for more operations
+generally helpful. See |nvlime-actions-source| for more operations
 on describing symbols.
 
 Now keep the cursor inside the word "reverse", and type "\xc" (without
@@ -314,14 +314,14 @@ will pop up with some content like this:
 
 Note: Depending on how your Common Lisp implementation was built, you
       may get the "No xref found" error message instead. Don't worry.
-      You can try other xrefs listed in |nvlime-mappings-invoke-xref|,
+      You can try other xrefs listed in |nvlime-actions-source|,
       or skip this operation and proceed to the next section.
 
 These are the locations where the REVERSE function is called. Press
 <CR> on one of them and Nvlime will take you directly to the referenced
 location, provided the source code is readable. Use |CTRL-O| to go
 back to previous cursor locations. There are other kinds of cross
-references, see |nvlime-mappings-invoke-xref|.
+references, see |nvlime-actions-source|.
 
 Before proceeding to the next section, you can close all Nvlime windows
 in the current tab page by typing "\ww" (without the quote marks) in
@@ -369,7 +369,7 @@ should say:
     No message from the compiler.
 
 We will see whether the GENERATE function can work as expected in
-|nvlime-tutor-debug|. See |nvlime-mappings-compile| for other compiling
+|nvlime-tutor-debug|. See |nvlime-actions-source| for other compiling
 operations.
 
 You can close the notes window before proceeding to the next section.
@@ -441,10 +441,10 @@ indicate the evaluation was aborted:
 There's an option in Nvlime to tell the compiler our preference. Let's
 use it now to preserve all available debug info:
 
-    :let g:nvlime_compiler_policy = {"DEBUG": 3}
+    :let g:nvlime_config = #{ compiler_policy: #{DEBUG: 3}}
 
-See |g:nvlime_compiler_policy| for a detailed description of this
-variable.
+See |g:nvlime_config.compiler_policy| for a detailed description of
+this variable.
 
 With the compiler policy set, we compile fibonacci.lisp and call
 FIBONACCI:GENERATE in the REPL again. Of course the debugger will
@@ -500,7 +500,7 @@ in fact a strange cons struct.
 To make it more challenging, I'll let you use what you learnt to
 figure out what's wrong with our program. Don't worry if you can't
 make it right. There is a corrected version of fibonacci.lisp in the
-next section. See |nvlime-mappings-debugger| for all available debugger
+next section. See |nvlime-actions-debugger| for all available debugger
 operations.
 
 ======================================================================
@@ -705,7 +705,7 @@ And the REPL window shows:
 
 The inspector can also look inside lists, vectors, hashtables, and
 packages. You can try to create some of these data structures and peek
-inside. See |nvlime-mappings-inspector| for all available operations in
+inside. See |nvlime-actions-inspector| for all available operations in
 the inspector.
 
 You can simply close the inspector window when you've done playing

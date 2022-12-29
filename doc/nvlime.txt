@@ -16,30 +16,29 @@ CONTENTS                                              *nvlime-contents*
         3.8 Compiler Messages ............... |nvlime-compiler-msg|
         3.9 Managing Threads ................. |nvlime-thread-list|
         3.10 Remote Servers ................ |nvlime-remote-server|
-        3.11 Input Buffers .................. |nvlime-input-buffer|
+        3.11 Input Windows ................. |nvlime-input-windows|
         3.12 Trace Dialog ................... |nvlime-trace-dialog|
         3.13 Multiple REPLs ........................ |nvlime-mrepl|
-    4. Mappings ................................. |nvlime-mappings|
-        4.1 List of Key Mappings ........... |nvlime-mappings-list|
-            4.1.1 CL Source File Mappings  |nvlime-mappings-source|
-            4.1.2 REPL Buffer Mappings ..... |nvlime-mappings-repl|
-            4.1.3 Debugger Mappings .... |nvlime-mappings-debugger|
-            4.1.4 Inspector Mappings .. |nvlime-mappings-inspector|
-            4.1.5 XRef List & Compiler Notes Mappings ..........
-                  .......................... |nvlime-mappings-xref|
-            4.1.6 Thread List Mappings .........................
-                  ................... |nvlime-mappings-thread-list|
-            4.1.7 Server Output Buffer Mappings ................
-                  ........................ |nvlime-mappings-server|
-            4.1.8 Input Buffer Mappings ... |nvlime-mappings-input|
-            4.1.9 Trace Dialog Mappings ........................
-                  .................. |nvlime-mappings-trace-dialog|
-            4.1.10 MREPL buffer Mappings .. |nvlime-mappings-mrepl|
-    5. Configuration .............................. |nvlime-config|
-    6. API ..................................... |nvlime-api-intro|
-    7. License ................................... |nvlime-license|
-    8. Bugs ......................................... |nvlime-bugs|
-    9. Contributing .............................. |nvlime-contrib|
+    4. Configuration .............................. |nvlime-config|
+    5. Key Mappings ............................. |nvlime-mappings|
+    6. Key Actions ............................... |nvlime-actions|
+        6.1 Global Actions ................ |nvlime-actions-global|
+        6.2 CL Source File Actions ........ |nvlime-actions-source|
+        6.3 Input Window Actions ........... |nvlime-actions-input|
+        6.4 REPL Actions .................... |nvlime-actions-repl|
+        6.5 Debugger Actions ............ |nvlime-actions-debugger|
+        6.6 Apropos Actions .............  |nvlime-actions-apropos|
+        6.7 Inspector Actions .......... |nvlime-actions-inspector|
+        6.8 Compiler Notes Actions ......... |nvlime-actions-notes|
+        6.9 Server Window Actions ......... |nvlime-actions-server|
+        6.10 Thread List Actions ......... |nvlime-actions-threads|
+        6.11 Trace Dialog Actions ... |nvlime-actions-trace-dialog|
+        6.12 XRef List Actions .............. |nvlime-actions-xref|
+        6.13 MREPL Window Actions .......... |nvlime-actions-mrepl|
+    7. API ..................................... |nvlime-api-intro|
+    8. License ................................... |nvlime-license|
+    9. Bugs ......................................... |nvlime-bugs|
+    10. Contributing ............................. |nvlime-contrib|
 
 ======================================================================
 1. Introduction                                          *nvlime-intro*
@@ -70,22 +69,23 @@ These Common Lisp implementations are supported:
 Connection                                          *nvlime-connection*
     A connection between Neovim and a Nvlime server. Most of Nvlime's
     functionalities need an active connection to work. Each Neovim
-    process can have multiple connections. See |nvlime-mappings-conn|
-    for available operations regarding connections.
+    process can have multiple connections.
+    See `g:nvlime_mappings.lisp.normal.connection` for available
+    operations regarding connections.
 
 The Current Connection                      *nvlime-current-connection*
     A connection (|nvlime-connection|) that's bound to the current
     Neovim buffer. All Nvlime operations in the current buffer will use
     this connection. Nvlime will try to choose and remember an open
     connection for a buffer automatically, but it's also possible to
-    select one via |nvlime-mappings-conn-cs|.
+    select one via `g:nvlime_mappings.lisp.normal.connection.switch`.
 
 The Current Package                            *nvlime-current-package*
     A Common Lisp package that's bound to the current Neovim buffer. All
     Nvlime operations that concern about the Common Lisp package, such
     as omni-completions, will use this value. Nvlime will try to figure
     out the current package automatically, but it's also possible to
-    specify a package via |nvlime-mappings-misc-p|.
+    specify a package via `g:nvlime_mappings.lisp.normal.set_package`.
 
 ======================================================================
 3. Usage                                                 *nvlime-usage*
@@ -97,7 +97,7 @@ If you have sbcl in your $PATH, Nvlime can start a server for you:
 
     1. Set up Quicklisp properly.
     2. Start editing a Common Lisp source file, and use
-       |nvlime-mappings-invoke-server-rr| to run a server.
+       `g:nvlime_mappings.lisp.normal.server.new` to run a server.
     3. Wait for the server. Nvlime will automatically connect to it
        when it's ready, and become fully operational.
 
@@ -105,14 +105,14 @@ Note: If it's your first time running the server, Nvlime will try to
       install it's dependencies via Quicklisp. This may take some
       time.
 
-See |nvlime-mappings-invoke-server| for more operations on Nvlime
-servers, and |nvlime-mappings-server| for operations available in the
-server output buffer. See |nvlime-mappings| for all available Nvlime
+See |nvlime-actions-source| for more operations on Nvlime servers,
+and |nvlime-actions-server| for operations available in the server
+output buffer. See |nvlime-mappings| for all available Nvlime
 operations.
 
 When you need to use some other Common Lisp implementation, run an
 instance of sbcl in arbitrary locations, or pass special arguments to
-the server, use the |g:nvlime_cl_impl| option.
+the server, use the |g:nvlime_config.implementation| option.
 
                                              *nvlime-start-up-manually*
 You may also start the server manually:
@@ -123,8 +123,8 @@ You may also start the server manually:
         sbcl --load <nvlime repo>/lisp/start-nvlime.lisp
 
     3. Start editing a Common Lisp source file, and use
-       |nvlime-mappings-conn-cc| to create a new
-       connection.
+       `g:nvlime_mappings.lisp.normal.connection.new` to
+       create a new connection.
     4. Nvlime shoud now be fully operational.
 
                                      *nvlime-start-up-in-running-image*
@@ -259,7 +259,7 @@ a call to it will be indented this way:
       (do-other-thing))
 
 You can control how an operator and its arguments are indented using
-|g:nvlime_indent_keywords|.
+|g:nvlime_config.indent_keywords|.
 
 ----------------------------------------------------------------------
 3.4 REPL                                                  *nvlime-repl*
@@ -267,8 +267,8 @@ You can control how an operator and its arguments are indented using
 The REPL integration is different from other Lisp environments, in
 that Nvlime's REPL buffer is read-only. One can send expressions to the
 REPL from any lisp source buffer using normal mode commands such as
-|nvlime-mappings-send-ss|, instead of typing the input directly in the
-REPL buffer.
+`g:nvlime_mappings.lisp.normal.repl.send_atom_expr`, instead of typing
+the input directly in the REPL buffer.
 
 Note: It's a design decision to make the REPL buffer read-only, since
       emulating a command line in Neovim buffers is often complicated
@@ -278,16 +278,16 @@ When the REPL needs user input, e.g. (read) or (read-line) is being
 evaluated, a dedicated window for string input would pop up. Write
 the input inside this buffer, and hit <CR> in normal mode, then the
 REPL would receive your text. The input buffer is a generic mechanism
-for the commands that need user input. See |nvlime-input-buffer|.
+for the commands that need user input. See |nvlime-input-windows|.
 
                                               *nvlime-interaction-mode*
 There's an interaction mode to make sending things to the REPL easier.
-It's enabled via |nvlime-mappings-misc-<CR>| in Common Lisp source
-buffers. In this mode, simply pressing <CR> will send the s-expression
-under the cursor.
+It's enabled via `g:nvlime_mappings.lisp.normal.interaction_mode` in
+Common Lisp source buffers. In this mode, simply pressing <CR> will
+send the s-expression under the cursor.
 
 One can inspect the evaluation results right from the REPL buffer. See
-|nvlime-mappings-repl| for key mappings.
+|nvlime-actions-repl| for avaialble operations.
 
 ----------------------------------------------------------------------
 3.5 Debugger                                          *nvlime-debugger*
@@ -300,7 +300,7 @@ The debugger can also do single-stepping, examine the local variables,
 restart frames, evaluate expressions in frames, etc., provided the
 Common Lisp implementation Nvlime server is running on supports these.
 For more available operations in the debugger buffer, see
-|nvlime-mappings-debugger|.
+|nvlime-actions-debugger|.
 
 Note: Some debugger features are not supported by some Common Lisp
       implementations. These unsupported operations will most likely
@@ -313,53 +313,53 @@ The inspector can be used to examine the slot values of instances,
 the members of structs, the items of hashtables, etc. It's a very
 handy tool in many circumstances.
 
-There're multiple ways to invoke the inspector, but the most
-convenient one is using |nvlime-mappings-invoke-inspector-ii| on an
-expression.
+There're multiple ways to invoke the inspector, but the most convenient
+one is using `g:nvlime_mappings.lisp.normal.inspect.atom_expr`
+on an expression.
 
 The content shown in the inspector buffer usually contains multiple
 interactable fields and buttons. Pressing <Tab> will move the cursor
 between theses fields/buttons, and <CR> interact with them. If the
 interaction needs extra user input, an input buffer would pop up. See
-|nvlime-input-buffer|.
+|nvlime-input-windows|.
 
-For more available operations in the inspector buffer, see
-|nvlime-mappings-inspector|.
+For more available operations in the inspector window, see
+|nvlime-actions-inspector|.
 
 ----------------------------------------------------------------------
 3.7 Cross References                                      *nvlime-xref*
 
 The cross references (a.k.a xref) buffer shows where a symbol is
-referenced. For example, use |nvlime-mappings-invoke-xref-xc| on a
-function name to see where the function is called. Pressing <CR> on an
-entry inside the xref buffer will take you directly to the reference
-location.
+referenced. For example, use
+`g:nvlime_mappings.lisp.normal.xref.function.callers` on a function
+name to see where the function is called. Pressing <CR> on an entry
+inside the xref buffer will take you directly to the reference location.
 
-For more xref types and key mappings, see
-|nvlime-mappings-invoke-xref|. For all available key mappings in the
-xref buffer, see |nvlime-mappings-xref|.
+For more xref types and key mappings, see |nvlime-actions-source|.
+For all available operations in the xref window, see
+|nvlime-actions-xref|.
 
 ----------------------------------------------------------------------
 3.8 Compiler Messages                             *nvlime-compiler-msg*
 
 When issuing compilation commands specified in
-|nvlime-mappings-compile|, any message (warnings and errors etc.)
-emitted by the compiler would pop up in a dedicated buffer. Just
+|nvlime-actions-source|, any message (warnings and errors etc.)
+emitted by the compiler would pop up in a dedicated window. Just
 select a message by pressing <CR>, and Nvlime will take you to the
 referenced source location.
 
-For all available key mappings in the compiler message buffer, see
-|nvlime-mappings-compiler-notes|.
+For all available operations in the compiler message window, see
+|nvlime-actions-notes|.
 
 ----------------------------------------------------------------------
 3.9 Managing Threads                               *nvlime-thread-list*
 
 For CL implementations that support threads, there's a window that
-shows all running threads. Use |nvlime-mappings-misc-T| to show it.
-
+shows all running threads. Use
+`g:nvlime_mappings.lisp.normal.show_threads` to show it.
 While in the thread list, you can perform tasks such as killing a
 thread, or activating the debugger in a thread. See
-|nvlime-mappings-thread-list| for a full list of available operations.
+|nvlime-actions-threads| for a full list of available operations.
 
 ----------------------------------------------------------------------
 3.10 Remote Servers                              *nvlime-remote-server*
@@ -402,18 +402,18 @@ submitting an empty snippet would usually cancel that operation.
 
 Submitted text snippets are remembered as a linear input history. You
 can move to the previous/next item in history with <C-p>/<C-n>. See
-|nvlime-mappings-input|.
+|nvlime-actions-input|.
 
 ----------------------------------------------------------------------
 3.12 Trace Dialog                                 *nvlime-trace-dialog*
 
 Note: This feature needs the SWANK-TRACE-DIALOG contrib module. See
-      |g:nvlime_contribs| and |nvlime#plugin#SwankRequire()|.
+      |g:nvlime_config.contribs| and |nvlime#plugin#SwankRequire()|.
 
 Nvlime can trace functions and show the results in a dedicated window
 for you. It's called the trace dialog, named after the similar
 component in SLIME. One can use
-|nvlime-mappings-invoke-trace-dialog-td| to have it open.
+`g:nvlime_mappings.lisp.normal.trace.show` to have it open.
 
 The trace dialog will show two kinds of info: a list of traced
 functions, and the trace results. It also contains multiple
@@ -424,15 +424,15 @@ Nested trace entries are folded by default. Use standard
 |fold-commands| to handle the |folds|.
 
 For more available operations for the trace dialog, see
-|nvlime-mappings-trace-dialog|, and
-|nvlime-mappings-invoke-trace-dialog|.
+|nvlime-actions-trace-dialog|, and |nvlime-actions-source|.
 
 ----------------------------------------------------------------------
 3.13 Multiple REPLs                                      *nvlime-mrepl*
 
 Note: This feature needs the SWANK-MREPL contrib module. See
-      |g:nvlime_contribs| and |nvlime#plugin#SwankRequire()|. And it
-      works best on CL implementations with multithreading support.
+      |g:nvlime_config.contribs| and |nvlime#plugin#SwankRequire()|.
+      And it works best on CL implementations with multithreading
+      support.
 
 Nvlime usually creates a single REPL upon connection. If this REPL were
 blocked by a time-consuming operation, the server may seem
@@ -446,462 +446,75 @@ the command line is somewhat fragile, in that it is implemented by
 simply extracting the text between the last prompt string and EOF.
 Modifying text outside this range may cause unexpected bahavior.
 
-See |nvlime-mappings-mrepl| for all available operations in the MREPL
-buffer.
+See |nvlime-actions-mrepl| for all available operations in the MREPL
+windows.
 
 ======================================================================
-4. Mappings                                           *nvlime-mappings*
+4. Configuration                                        *nvlime-config*
 
-Most normal mode and visual mode mappings in Nvlime starts with
-|<LocalLeader>|, which defaults to the backslash "\". If you feel
-uncomfortable reaching out for the backslash key, you may change it by
-adding this line to your |init.vim| file, to use the comma instead:
+Nvlime configuration is done using two dictionaries `g:nvlime_config`
+and `g:nvlime_mappings` (which is described in the next section).
+Currently some options which require |Funcref|s can be configured
+only with vimscript. Lua config:
+>lua
+    vim.g.nvlime_config = {
+        leader = "<LocalLeader>",
+        implementation = "sbcl",
+        address = {
+            host = "127.0.0.1",
+            port = 7002
+        },
+        connect_timeout = -1,
+        compiler_policy = nil,
+        -- full table of indent keywords is provided in the
+        -- options description section
+        indent_keywords = { defun = 2, ... },
+        input_history_limit = 100,
+        -- full list of contribs is provided in the
+        -- options description section
+        contribs = ["SWANK-ARGLISTS", ...],
+        -- configured with vimscript
+        user_contrib_initializers = nil,
+        autodoc = {
+            enabled = false,
+            max_level = 5,
+            max_lines = 50
+        },
+        main_window = {
+            position = "right",
+            size = ""
+        },
+        floating_window = {
+            border = "single",
+            scroll_step = 3
+        },
+        cmp = { enabled = false },
+        arglist = { enabled = true }
+    }
+<
 
-    let maplocalleader = ","
+leader                                         *g:nvlime_config.leader*
+    `string`
+    Default: "<LocalLeader>"
+    Sets the leader key used in Nvlime key mappings. This supersedes
+    |maplocalleader|. Please use key notations for special keys, as
+    described in |key-notation|. For example, setting this variable
+    to "<Space>" would instruct Nvlime to use the space key as the
+    leader. Also see |nvlime-mappings|.
 
-Or, if you don't want to change your |<LocalLeader>|, set
-|g:nvlime_leader| instead:
-
-    let g:nvlime_leader = ","
-
-You can type "<LocalLeader>?" (without the quote marks) in most of
-Nvlime buffers, including Common Lisp source files, to see a quick
-reference for the exact mappings defined in those buffers.
-
-----------------------------------------------------------------------
-4.1 List of Key Mappings                         *nvlime-mappings-list*
-
-All the mappings listed below are defined in normal mode, unless
-specified otherwise.
-
-......................................................................
-4.1.1 CL Source File Mappings                  *nvlime-mappings-source*
-
-Key mappings available in lisp source files:
-
-    Connection Management                        *nvlime-mappings-conn*
-        <LocalLeader>cc                       *nvlime-mappings-conn-cc*
-            Connect to Nvlime server.
-        <LocalLeader>cs                       *nvlime-mappings-conn-cs*
-            Switch Nvlime connections. This command shows a list of
-            connections, and the current connection will be marked
-            with an asterisk "*" at the end.
-        <LocalLeader>cd
-            Disconnect.
-        <LocalLeader>cR
-            Rename the current connection.
-
-    Server Management                   *nvlime-mappings-invoke-server*
-        <LocalLeader>rr              *nvlime-mappings-invoke-server-rr*
-            Run a new Nvlime server and connect to it. To customize the
-            server, see |g:nvlime_cl_impl|.
-        <LocalLeader>rv
-            View the console output of the current server.
-        <LocalLeader>rV
-            Show a list of Nvlime servers and view the console output of the chosen one.
-        <LocalLeader>rt
-            Restart the current server.
-        <LocalLeader>rs              *nvlime-mappings-invoke-server-rs*
-            Stop the current server.
-        <LocalLeader>rS
-            Show a list of Nvlime servers and stop the chosen one.
-        <LocalLeader>rR
-            Rename a server.
-
-    Sending Stuff To The REPL                    *nvlime-mappings-send*
-        <LocalLeader>ss                       *nvlime-mappings-send-ss*
-            If there's an s-expression under the cursor, send it to
-            the REPL, else send the atom under the cursor, if any.
-        <LocalLeader>se
-            Send the s-expression under the cursor to the REPL.
-        <LocalLeader>st
-            Send the top-level s-expression under the cursor to the
-            REPL.
-        <LocalLeader>sa
-            Send the atom under the cursor to the REPL.
-        <LocalLeader>si
-            Open an input buffer and compose a snippet to send to the
-            REPL. See |nvlime-input-buffer|.
-        <LocalLeader>s
-            (In visual mode) Send the current selection to the REPL.
-
-    Expanding Macros                    *nvlime-mappings-expand-macros*
-        <LocalLeader>mm
-            Expand the macro under the cursor.
-        <LocalLeader>m1
-            Expand the macro under the cursor once.
-        <LocalLeader>ma
-            Expand the macro under the cursor and all nested macros.
-
-    Compiling                                 *nvlime-mappings-compile*
-        <LocalLeader>ce
-            Compile the form under the cursor.
-        <LocalLeader>ct
-            Compile the top-level form under the cursor.
-        <LocalLeader>cf
-            Compile the current file.
-        <LocalLeader>c
-            (In visual mode) Compile the current selection.
-
-    Cross References (xref)               *nvlime-mappings-invoke-xref*
-        <LocalLeader>xc                *nvlime-mappings-invoke-xref-xc*
-            Show callers of the function under the cursor.
-        <LocalLeader>xC
-            Show callees of the function under the cursor.
-        <LocalLeader>xr
-            Show references of the variable under the cursor.
-        <LocalLeader>xb
-            Show bindings of the variable under the cursor.
-        <LocalLeader>xs
-            Show who sets the value of the variable under the cursor.
-        <LocalLeader>xe
-            Show who expands the macro under the cursor.
-        <LocalLeader>xm
-            Show specialized methods for the class under the cursor.
-        <LocalLeader>xd
-            Show the definition for the name under the cursor.
-        <LocalLeader>xi
-            Interactively prompt for the symbol to search. A menu will
-            pop up, to let you choose from xref types. You can prepend
-            a count to skip this menu, e.g. "8<LocalLeader>xi" would
-            look for definitions. See |nvlime-input-buffer|.
-
-    Describing Things                        *nvlime-mappings-describe*
-        <LocalLeader>do
-            Describe the "operator" of the s-expression under the
-            cursor.
-        <LocalLeader>da
-            Describe the atom under the cursor.
-        <LocalLeader>di
-            Prompt for the symbol to describe. See
-            |nvlime-input-buffer|.
-        <LocalLeader>ds
-            Apropos search. An input buffer would pop up, prompting
-            for the search pattern. See |nvlime-input-buffer|.
-        <LocalLeader>ddo
-            Show the documentation for the "operator" of the
-            s-expression under the cursor.
-        <LocalLeader>dda
-            Show the documentation for the atom under the cursor.
-        K
-            Show the documentation for the atom under the cursor.
-        <LocalLeader>ddi
-            Show the documentation for the symbol entered in an input
-            buffer. See |nvlime-input-buffer|.
-        <LocalLeader>dr
-            Show the arglist for the s-expression under the cursor.
-
-    Undefining Things
-        <LocalLeader>uf
-            Undefine the function under the cursor.
-        <LocalLeader>us
-            Unintern the symbol under the cursor.
-        <LocalLeader>ui
-            Interactively prompt for the function/symbol to
-            undefine/unintern. A menu will pop up, to let you choose
-            what to do. You can prepend a count to skip this menu,
-            e.g. "2<LocalLeader>ui" would unintern a symbol. See
-            |nvlime-input-buffer|.
-
-    Inspection                       *nvlime-mappings-invoke-inspector*
-        <LocalLeader>ii           *nvlime-mappings-invoke-inspector-ii*
-            If there's an s-expression under the cursor, evaluate it,
-            else evaluate the atom under the cursor, if any. The
-            evaluation result is then shown in the inspector.
-        <LocalLeader>ie
-            Evaluate and inspect the s-expression under the cursor.
-        <LocalLeader>it
-            Evaluate and inspect the top-level s-expression under the
-            cursor.
-        <LocalLeader>ia
-            Evaluate and inspect the atom under the cursor.
-        <LocalLeader>is
-            Inspect the symbol under the cursor.
-        <LocalLeader>in
-            Prompt for the expression to inspect. See
-            |nvlime-input-buffer|.
-        <LocalLeader>i
-            (In visual mode) Evaluate and inspect the current
-            selection.
-
-    Invoking The Trace Dialog     *nvlime-mappings-invoke-trace-dialog*
-        <LocalLeader>td        *nvlime-mappings-invoke-trace-dialog-td*
-            Show the trace dialog.
-        <LocalLeader>tt
-            Toggle the traced state of the function name under the
-            cursor.
-        <LocalLeader>ti
-            Show an input buffer, and prompt for the name of the
-            function to be traced. See |nvlime-input-buffer|. You can
-            also trace setf expanders by specifying "(setf <name>)".
-
-    Other Stuff                                  *nvlime-mappings-misc*
-        <LocalLeader><CR>                   *nvlime-mappings-misc-<CR>*
-            Interaction Mode. See |nvlime-interaction-mode|.
-        <LocalLeader>l
-            Load the current file.
-        <LocalLeader>a
-            Disassemble the form under the cursor.
-        <LocalLeader>p                         *nvlime-mappings-misc-p*
-            Specify the package for the current buffer. An input
-            buffer would pop up for this. See |nvlime-input-buffer|.
-        <LocalLeader>b
-            Set a breakpoint at entry to a function. An input buffer
-            would pop up, prompting for the function name. See
-            |nvlime-input-buffer|.
-        <LocalLeader>T                         *nvlime-mappings-misc-T*
-            Show a list of the running threads. See
-            |nvlime-thread-list|.
-
-......................................................................
-4.1.2 REPL Buffer Mappings                       *nvlime-mappings-repl*
-
-Key mappings avaialble in the REPL buffer:
-
-    CTRL-c
-        Interrupt the REPL thread.
-    i
-        Inspect the evaluation result under the cursor.
-    y                                          *nvlime-mappings-repl-y*
-        Yank the evaluation result under the cursor into the default
-        register |quotequote|. Note that this yanked value is an
-        expression to be evaluated in the same REPL session. It is
-        meaningless in other contexts.
-    C
-        Clear the REPL buffer.
-    <Tab>
-        Move the cursor to the next prensented object.
-    <S-Tab>
-        Move the cursor to the previous presented object.
-    CTRL-n
-        Same as <Tab>.
-    CTRL-p
-        Same as <S-Tab>.
-
-......................................................................
-4.1.3 Debugger Mappings                      *nvlime-mappings-debugger*
-
-Key mappings available in the debugger:
-
-    <CR>
-        Choose a restart, toggle a frame info or jump to the
-        source code.
-    d
-        Show the details (local variables and source location etc.)
-        of the frame under the cursor.
-    S
-        Jump to the source code for the frame under the cursor. If the
-        source file is already opened in a window, simply move the
-        cursor to that window. Otherwise, this command opens the
-        source file in the current window by default. A count can be
-        prepended to specify which window to use. For example, "2S"
-        would open the source file in the second visible window.
-    CTRL-t
-        Like "S", but open the source file in a new tab, if it's not
-        yet opened in any window. To always create a new tab, prepend
-        an arbitrary count, such as "1<C-t>".
-    CTRL-s
-        Same as CTRL-t but open the source file in a new split.
-    CTRL-v
-        Same as CTRL-t but open the source file in a new vertical split.
-    O
-        Open the source code for a local variable.
-    r
-        Restart the frame under the cursor.
-    s
-        Start stepping in the frame under the cursor.
-    x
-        Step over the current function call.
-    o
-        Step out of the current function.
-    c
-        Invoke the restart labeled CONTINUE.
-    a
-        Invoke the restart labeled ABORT.
-    C
-        Inspect the current condition object.
-    i                                      *nvlime-mappings-debugger-i*
-        Evaluate and inspect an expression in the frame under the
-        cursor. An input buffer would pop up, prompting for the
-        expression. See |nvlime-input-buffer|.
-    e
-        Evaluate an expression in the frame under the cursor. An input
-        buffer would pop up, prompting for the expression. See
-        |nvlime-input-buffer|.
-    E
-        Evaluate an expression in the frame under the cursor, and then
-        send the result to the REPL, so that you can yank the value
-        with |nvlime-mappings-repl-y| and further manipulate it. An
-        input buffer would pop up, prompting for the expression. See
-        |nvlime-input-buffer|.
-    D
-        Disassemble the frame under the cursor.
-    R
-        Return a manually specified result from the frame under the
-        cursor. An input buffer would pop up, prompting for the
-        expression that would generate the result. See
-        |nvlime-input-buffer|.
-
-......................................................................
-4.1.4 Inspector Mappings                    *nvlime-mappings-inspector*
-
-Key mappings avaialble in the inspector:
-
-    <CR>
-        Activate the interactable field/button under the cursor.
-    s
-        Send the value of the field under the cursor to the REPL.
-    S
-        Send the value being inspected to the REPL.
-    o
-        Open the source code for the value of the field under
-        the cursor.
-    O
-        Open the source code for the value being inspected.
-    <Tab>
-        Select the next interactable field/button.
-    CTRL-n
-        Same as <Tab>
-    CTRL-p
-        Select the previous interactable field/button.
-    CTRL-o
-        Return to the previous inspected object.
-    CTRL-i
-        Move to the next inspected object.
-    R
-        Refresh the inspector.
-
-......................................................................
-4.1.5 XRef List & Compiler Notes Mappings
-                                                 *nvlime-mappings-xref*
-                                       *nvlime-mappings-compiler-notes*
-
-Key mappings avaialble in the cross reference list and the compiler
-notes window:
-
-    <CR>
-        Jump to the selected source location. If the source file is
-        already opened, simply move the cursor to the window
-        containing that file. Otherwise, open the source file in the
-        window where the xref command was initiated. A count can be
-        prepended to specify which window to use. For example, "2<CR>"
-        would show the source file in the second visible window.
-    CTRL-t
-        Like <CR>, but open the source file in a new tab, if it's not
-        yet opened in any window.
-    CTRL-s
-        Open the selected source location in a horizontal split
-        window. A count can be prepended to specify which window to
-        split.
-    CTRL-v
-        Like "CTRL-s", but open a vertical split window.
-
-......................................................................
-4.1.6 Thread List Mappings                *nvlime-mappings-thread-list*
-
-Key mappings avaialble in the thread list:
-
-    CTRL-c
-        Interrupt the thread under the cursor. The debugger will be
-        activated.
-    K
-        Kill the thread under the cursor.
-    D
-        Invoke the debugger in the thread under the cursor.
-    r
-        Refresh the thread list.
-
-......................................................................
-4.1.7 Server Output Buffer Mappings            *nvlime-mappings-server*
-
-Key mappings avaialble in the server output buffer:
-
-    <LocalLeader>c                           *nvlime-mappings-server-c*
-        Connect to this server.
-    <LocalLeader>s
-        Stop this server.
-
-......................................................................
-4.1.8 Input Buffer Mappings                     *nvlime-mappings-input*
-
-Key mappings avaialble in the input buffer:
-
-    <CR>
-        Complete the input.
-    <CR>
-        (In insert mode) Complete the input.
-    CTRL-p
-        (In insert mode) Show the previous item in input history.
-    CTRL-n
-        (In insert mode) Show the next item in input history.
-
-......................................................................
-4.1.9 Trace Dialog Mappings              *nvlime-mappings-trace-dialog*
-
-Key mappings avaialble in the trace dialog:
-
-    <CR>
-        Activate the interactable field/button under the cursor.
-    <Space>
-        Same as <CR>.
-    s
-        Send the value of the field under the cursor to the REPL.
-    i
-        Inspect the value of the field under the cursor.
-    <Tab>
-        Select the next interactable field/button.
-    CTRL-n
-        Same as <Tab>.
-    CTRL-p
-        Select the previous interactable field/button.
-    R
-        Refresh the trace dialog.
-
-......................................................................
-4.1.10 MREPL Buffer Mappings                    *nvlime-mappings-mrepl*
-
-Key mappings avaialble in the MREPL buffer:
-
-    <CR>
-        (In insert mode) Submit the text snippet between the last
-        prompt and EOF to the REPL.
-    CTRL-j
-        (In insert mode) Insert a newline.
-    <Tab>
-        (In insert mode) Trigger omni-completion.
-    CTRL-c
-        (In insert mode) Interrupt the MREPL thread.
-    <LocalLeader>C
-        Clear the MREPL buffer.
-    <LocalLeader>D
-        Disconnect from this REPL.
-
-======================================================================
-5. Configuration                                        *nvlime-config*
-
-These variables can be set in |init.vim|, to affect the behavior of
-Nvlime:
-
-g:nvlime_leader                                        *g:nvlime_leader*
-    A |string| to override the leader key used in Nvlime key mappings.
-    This supersedes |maplocalleader|. Please use key notations for
-    special keys, as described in |key-notation|. For example, setting
-    this variable to "<Space>" would instruct Nvlime to use the space
-    key as the leader. Also see |nvlime-mappings|. Default:
-    "<LocalLeader>"
-
-g:nvlime_cl_impl                                      *g:nvlime_cl_impl*
-    A |string| to designate the CL implementation to use when starting
-    a server via |nvlime-mappings-invoke-server-rr|. This option has no
+implementation                         *g:nvlime_config.implementation*
+    `string`
+    Default: "sbcl"
+    Sets the CL implementation to use when starting a server via
+    `g:nvlime_mappings.lisp.normal.server.new`. This option has no
     effect when connecting to an existing server via
-    |nvlime-mappings-conn-cc|. Default: "sbcl"
+    `g:nvlime_mappings.lisp.normal.connection.new`.
 
     You can define a function named
     "NvlimeBuildServerCommandFor_<impl>" to build a command line for
     your implementation. For maximum compatibility, this function
     should return a list containing all the command line components.
-    See |job_start()| in Neovim or |jobstart()| in Neovim for detailed
-    explanation on command lines.
+    See |jobstart()| for detailed explanation on command lines.
 
     For example, to use a custom SBCL and a custom Quicklisp setup,
     add these to your |init.vim|:
@@ -930,7 +543,7 @@ g:nvlime_cl_impl                                      *g:nvlime_cl_impl*
 
     The command returned by nvlime#server#BuildServerCommand() will be
     executed to start a Nvlime server when the
-    |nvlime-mappings-invoke-server-rr| command is invoked.
+    `g:nvlime_mappings.lisp.normal.server.new` command is invoked.
 
     Nvlime has these builder functions predefined:
 
@@ -955,30 +568,38 @@ Note: If you use symlinks on Windows systems to point to Nvlime, it may
                           \ "--eval", a:nvlime_eval]
           endfunction
 
-g:nvlime_address                                      *g:nvlime_address*
-    A |list| specifying the default address of the Nvlime server. This
-    address will be used as the default host and port values in the
-    |nvlime-mappings-conn-cc| command. Default: ["127.0.0.1", 7002]
+address                                        *g:nvlime_config.address*
+    `dictionary`
+    Default: { host = "127.0.0.1", port = 7002 }
+    Sets the default address of the Nvlime server. This address will
+    be used as the default host and port values in the
+    `g:nvlime_mappings.lisp.normal.connection.new` command.
 
-g:nvlime_connect_timeout                      *g:nvlime_connect_timeout*
+connect_timeout                        *g:nvlime_config.connect_timeout*
+    `integer`
+    Default: -1
     An integer specifying the time to wait when connecting to the
     server, in milliseconds. If set to -1, Nvlime would try to
-    use the default timeout values on different platforms. Default: -1
+    use the default timeout values on different platforms.
 
-g:nvlime_compiler_policy                      *g:nvlime_compiler_policy*
-    A |dict| to hold the compiler policy. Setting this variable would
-    affect the subsequent compiling operations. For example, a value
-    of {"DEBUG": 3, "SPEED": 0} means no optimization in runtime
-    speed, and maximum debug info. Note that the keys are
-    case-sensitive. Please use only uppercase. Default: nil
+compiler_policy                        *g:nvlime_config.compiler_policy*
+    `dictionary`
+    Default: nil
+    Sets the compiler policy. Setting this variable would affect
+    the subsequent compiling operations. For example, a value of
+    { DEBUG = 3, SPEED = 0 } means no optimization in runtime speed,
+    and maximum debug info. Note that the keys are case-sensitive.
+    Please use only uppercase.
 
-g:nvlime_indent_keywords                      *g:nvlime_indent_keywords*
-    A |dict| specifying indent rules for operators. The keys should be
-    operator names in lowercase, and the values should be the number
-    of arguments before "&BODY", or other numbers that you prefer.
-    Also see |nvlime-auto-indent|. For example,
+indent_keywords                        *g:nvlime_config.indent_keywords*
+    `dictionary`
+    Default: Check `:echo g:nvlime_options.indent_keywords`
+    Specifies indent rules for operators. The keys should be operator
+    names in lowercase, and the values should be the number of
+    arguments before "&BODY", or other numbers that you prefer. Also
+    see |nvlime-auto-indent|. For example,
 
-        let g:nvlime_indent_keywords = {"dummy-op": 1}
+        vim.g.nvlime_config.indent_keywords = { dummy-op = 1 }
 
     Will cause a DUMMY-OP expression to be indented this way:
 
@@ -990,7 +611,7 @@ g:nvlime_indent_keywords                      *g:nvlime_indent_keywords*
 
     And
 
-        let g:nvlime_indent_keywords = {"dummy-op": 2}
+        vim.g.nvlime_config.indent_keywords = { dummy-op = 2 }
 
     Will cause the same expression to be indented this way:
 
@@ -1000,21 +621,20 @@ g:nvlime_indent_keywords                      *g:nvlime_indent_keywords*
           expr3
           ...)
 
-    To see the default operator indent settings,
+input_history_limit                *g:nvlime_config.input_history_limit*
+    `integer`
+    Default: 100
+    How many input history items to store. A non-positive
+    value disables input history. See |nvlime-input-windows|.
 
-        :echo g:nvlime_options.indent_keywords
-
-g:nvlime_input_history_limit              *g:nvlime_input_history_limit*
-    An integer to specify how many input history items to store. A
-    non-positive value disables input history. See
-    |nvlime-input-buffer|. Default: 100
-
-g:nvlime_contribs                                    *g:nvlime_contribs*
-    A |list| of Swank contribs to load when initializing a Nvlime
-    connection. Note that the names are case-sensitive. Please use
-    only uppercase. Default: ["SWANK-ASDF", "SWANK-PACKAGE-FU",
-    "SWANK-PRESENTATIONS", "SWANK-FANCY-INSPECTOR", "SWANK-C-P-C",
-    "SWANK-ARGLISTS", "SWANK-REPL", "SWANK-FUZZY"]
+contribs                                      *g:nvlime_config.contribs*
+    `list`
+    Default: ["SWANK-ASDF", "SWANK-PACKAGE-FU",
+              "SWANK-PRESENTATIONS", "SWANK-FANCY-INSPECTOR",
+              "SWANK-C-P-C", "SWANK-ARGLISTS",
+              "SWANK-REPL", "SWANK-FUZZY"]
+    Swank contribs to load when initializing a Nvlime connection.
+    Note that the names are case-sensitive. Please use only uppercase.
 
     Some contrib modules will just work once they are loaded, but
     others may need specialized support on the client side. Nvlime
@@ -1034,13 +654,13 @@ g:nvlime_contribs                                    *g:nvlime_contribs*
         SWANK-PRESENTATION-STREAMS
             Enable presentations on the standard output stream, and
             other similar streams, so that you can use
-            |nvlime-mappings-repl-y| and similar mappings on printed
-            objects.
+            `g:nvlime_mappings.repl.normal.yank` and similar mappings
+            on printed objects.
 
         SWANK-PRESENTATIONS
             Turn evaluation results in the REPL into presentations,
-            so that you can use |nvlime-mappings-repl-y| and similar
-            mappings on the results.
+            so that you can use `g:nvlime_mappings.repl.normal.yank`
+            and similar mappings on the results.
 
         SWANK-REPL
             The default REPL implementation.
@@ -1055,66 +675,979 @@ g:nvlime_contribs                                    *g:nvlime_contribs*
     Alternatively, you can call |nvlime#plugin#SwankRequire()| to load
     contrib modules.
 
-g:nvlime_user_contrib_initializers  *g:nvlime_user_contrib_initializers*
-    A |dict| of |Funcref|s for initializing user contrib modules. The
-    keys should be contrib module names (usually in uppercase). If
-    your Swank contrib module needs special initialization, add an
-    initializer function here. See autoload/nvlime/contrib.vim for
-    examples. Default: nil
+user_contrib_initializers   *g:nvlime_config.user_contrib_initializers*
+    `dictionary`
+    Default: nil
+    |Funcref|s for initializing user contrib modules. The keys should
+    be contrib module names (usually in uppercase). If your Swank
+    contrib module needs special initialization, add an initializer
+    function here. See autoload/nvlime/contrib.vim for examples.
+    Can be configured only with vimscript.
 
-g:nvlime_enable_autodoc                        *g:nvlime_enable_autodoc*
-    A boolean value specifying whether to enable the autodoc feature
-    or not. If enabled, the current argument will be marked in the
-    arglist, when typing parentheses-enclosed expressions. Default:
-    v:false
+autodoc                                       *g:nvlime_config.autodoc*
+    `dictionary`
 
-g:nvlime_autodoc_max_level                  *g:nvlime_autodoc_max_level*
-    A positive integer specifying how many levels of enclosing
-    parentheses should Nvlime search for, when determining the arglist
-    for the autodoc feature. Setting this to a smaller value may
-    improve performance. Default: 5
+    enabled
+        `boolean`
+        Default: false
+        Specifies whether to enable the autodoc feature or not.
+        If enabled, the current argument will be marked in the
+        arglist, when typing parentheses-enclosed expressions.
 
-g:nvlime_autodoc_max_lines                  *g:nvlime_autodoc_max_lines*
-    A positive integer specifying how many lines to search, when
-    determining the arglist for the autodoc feature. Setting this to a
-    smaller value may improve performance. Default: 50
+    max_level
+        `integer`
+        Default: 5
+        A positive integer specifying how many levels of enclosing
+        parentheses should Nvlime search for, when determining the
+        arglist for the autodoc feature. Setting this to a smaller
+        value may improve performance.
 
-g:nvlime_main_win_pos                            *g:nvlime_main_win_pos*
-    A string which allows to change the placement of the main windows
-    (repl, sldb and compiler notes). Should be one of "top", "bottom",
-    "left" or "right". Default: "right"
+    max_lines
+        `integer`
+        Default: 50
+        A positive integer specifying how many lines to search, when
+        determining the arglist for the autodoc feature. Setting this
+        to a smaller value may improve performance.
 
-g:nvlime_main_win_size                            *g:nvlime_main_win_pos*
+main_window                                *g:nvlime_config.main_window*
+    `dictionary`
 
-g:nvlime_scroll_up                                  *g:nvlime_scroll_up*
-    A string representing key which scrolls Nvlime floating windows up.
-    Default: "<C-p>"
+    position
+        `string`
+        Default: "right"
+        Specifies the placement of the main windows
+        (repl, sldb and compiler notes). Should be one of "top",
+        "bottom", "left" or "right".
 
-g:nvlime_floating_window_border
+    size
+        `string|integer`
+        Default: ""
+        Specifies the size of the main window split. For vertical
+        splits size in columns and for horizontal split size in rows.
+        Blank string uses neovim default split sizes.
 
-g:nvlime_scroll_down                              *g:nvlime_scroll_down*
-    A string representing key which scrolls Nvlime floating windows
-    down. Default: "<C-n>"
+floating_window                        *g:nvlime_config.floating_window*
+    `dictionary`
 
-g:nvlime_scroll_step                              *g:nvlime_scroll_step*
-    A positive integer specifying how for many lines to scroll
-    floating windows with one scroll key press. Default: 3
+    border
+        `string|list`
+        Default: "single"
+        Specifies look of the floating windows border. Check
+        |nvim_open_win()| documentation for available options.
 
-g:nvlime_enable_cmp                                *g:nvlime_enable_cmp*
-    A boolean which enables autocompletion for `nvim-cmp` completion
-    plugin. Defalut: v:false
+    scroll_step
+        `integer`
+        Default: 3
+        A positive integer specifying how for many lines to scroll
+        floating windows with one scroll key press. Default: 3
 
-g:nvlime_disable_arglist                      *g:nvlime_disable_arglist*
-    A boolean which disables automatic pop up of the arglist window.
-    Default: v:false
+enable_cmp                                         *g:nvlime_config.cmp*
+    `dictionary`
 
-g:nvlime_disable_mappings                    *g:nvlime_disable_mappings*
-    A boolean which allows to disable all plugin mappings for all
-    the windows. You should then provide some custom set of mappings.
-    Default: v:false
+    enabled
+        `boolean`
+        Default: false
+        Specifies whether to enable `nvim-cmp` autocompletion source.
+
+arglist                                        *g:nvlime_config.arglist*
+    `dictionary`
+
+    enabled
+        `boolean`
+        Default: true
+        Specifies whether to enable automatic pop up of the
+        arglist window.
 
 ======================================================================
-6. API                                               *nvlime-api-intro*
+5. Mappings                                           *nvlime-mappings*
+
+Most normal mode and visual mode mappings in Nvlime starts with
+|<LocalLeader>|, which defaults to the backslash "\". If you feel
+uncomfortable reaching out for the backslash key, you may change it by
+adding this line to your |init.vim| file, to use the comma instead:
+
+    vim.g.maplocalleader = ","
+
+Or, if you don't want to change your |<LocalLeader>|, set
+|g:nvlime_config.leader| instead:
+
+    vim.g.nvlime_config.leader = ","
+
+You can type "<LocalLeader>?" (without the quote marks) in most of
+Nvlime buffers, including Common Lisp source files, to see a quick
+reference for the exact mappings defined for those windows.
+
+The mappings configured with `g:nvlime_mappings` dictionary. Where
+key is some predefined name for an action and value is a string
+representing a keymap. Value could be an empty string `""` to
+completely disable this action, could be some keymap (as example
+"<C-p>") or it could be a list of keymaps all of which would be
+mapped to this action (as example {"<Space>", "<LocalLeader>cc"})
+is provided below and the description for each `action` in the next
+section.
+>lua
+    vim.g.nvlime_mappings = {
+        global = {
+            normal = {
+                close_current_window = "q",
+                keymaps_help = {"<F1>", "<LocalLeader>?"},
+                close_nvlime_windows = "<LocalLeader>ww",
+                close_floating_window = "<Esc>",
+                scroll_up = "<C-p>",
+                scroll_down = "<C-n>",
+                split_left = "<C-w>h",
+                split_right = "<C-w>l",
+                split_above = "<C-w>k",
+                split_below = "<C-w>j"
+            }
+        },
+        lisp = {
+            normal = {
+                interaction_mode = "<LocalLeader><CR>",
+                load_file = "<LocalLeader>l",
+                disassemble = "<LocalLeader>a",
+                set_package = "<LocalLeader>p",
+                set_breakpoint = "<LocalLeader>b",
+                show_threads = "<LocalLeader>T",
+                connection = {
+                    new = "<LocalLeader>cc",
+                    switch = "<LocalLeader>cs",
+                    rename = "<LocalLeader>cR",
+                    close = "<LocalLeader>cd"
+                },
+                server = {
+                    new = "<LocalLeader>rr",
+                    show = "<LocalLeader>rv",
+                    show_selected = "<LocalLeader>rV",
+                    stop = "<LocalLeader>rs",
+                    stop_selected = "<LocalLeader>rS",
+                    rename = "<LocalLeader>rR",
+                    restart = "<LocalLeader>rt"
+                },
+                repl = {
+                    show = "<LocalLeader>so",
+                    clear = "<LocalLeader>sC",
+                    send_atom_expr = "<LocalLeader>ss",
+                    send_atom = "<LocalLeader>sa",
+                    send_expr = "<LocalLeader>se",
+                    send_toplevel_expr = "<LocalLeader>st",
+                    prompt = "<LocalLeader>si"
+                },
+                macro = {
+                    expand = "<LocalLeader>mm",
+                    expand_once = "<LocalLeader>mo",
+                    expand_all = "<LocalLeader>ma"
+                },
+                compile = {
+                    expr = "<LocalLeader>ce",
+                    toplevel_expr = "<LocalLeader>ct",
+                    file = "<LocalLeader>cf"
+                },
+                xref = {
+                    function = {
+                        callers = "<LocalLeader>xc",
+                        callees = "<LocalLeader>xC"
+                    },
+                    symbol = {
+                        references = "<LocalLeader>xr",
+                        bindings = "<LocalLeader>xb",
+                        definition = "<LocalLeader>xd",
+                        set_locations = "<LocalLeader>xs"
+                    },
+                    macro = { callers = "<LocalLeader>xe" },
+                    class = { methods = "<LocalLeader>xm" },
+                    prompt = "<LocalLeader>xi"
+                },
+                describe = {
+                    operator = "<LocalLeader>do",
+                    atom = "<LocalLeader>da",
+                    prompt = "<LocalLeader>di"
+                },
+                apropos = {prompt = "<LocalLeader>ds"},
+                arglist = {show = "<LocalLeader>dr"},
+                documentation = {
+                    operator = "<LocalLeader>ddo",
+                    atom = ["K" "<LocalLeader>dda"],
+                    prompt = "<LocalLeader>ddi"
+                },
+                inspect = {
+                    atom_expr = "<LocalLeader>ii",
+                    atom = "<LocalLeader>ia",
+                    expr = "<LocalLeader>ie",
+                    toplevel_expr = "<LocalLeader>it",
+                    symbol = "<LocalLeader>is",
+                    prompt = "<LocalLeader>in"
+                },
+                trace = {
+                    show = "<LocalLeader>td",
+                    toggle = "<LocalLeader>tt",
+                    prompt = "<LocalLeader>ti"
+                },
+                undefine = {
+                    function = "<LocalLeader>uf",
+                    symbol = "<LocalLeader>us",
+                    prompt = "<LocalLeader>ui"
+                }
+            },
+            insert = {
+                space_arglist = "<Space>",
+                cr_arglist = "<CR>"
+            },
+            visual = {
+                repl = { send_selection = "<LocalLeader>s" },
+                compile { selection = "<LocalLeader>c" },
+                inspect { selection = "<LocalLeader>i" }
+            }
+        },
+        input = {
+            normal = { complete = "<CR>" },
+            insert = {
+                keymaps_help = "<F1>",
+                complete = "<CR>",
+                next_history = "<C-n>",
+                prev_history = "<C-p>",
+                leave_insert = "<Esc>"
+            }
+        },
+        repl = {
+            normal = {
+                interrupt = "<C-c>",
+                clear = "C",
+                inspect_result = "i",
+                yank_result = "y",
+                next_result = { "<Tab>", "<C-n>" },
+                prev_result = { "<S-Tab>", "<C-p>" }
+            }
+        },
+        sldb = {
+            normal = {
+                action = "<CR>",
+                details = "d",
+                frame = {
+                    toggle_details = "d",
+                    source = "S",
+                    source_split = "<C-s>",
+                    source_vsplit = "<C-v>",
+                    source_tab = "<C-t>",
+                    restart = "r",
+                    eval_expr = "e",
+                    send_expr = "E",
+                    disassemble = "D",
+                    return_result = "R",
+                    step = "s"
+                },
+                local_var = {
+                    source "O",
+                    inspect = "i"
+                },
+                step_over = "x",
+                step_out = "o",
+                abort = "a",
+                continue = "c",
+                inspect_condition = "C"
+            }
+        },
+        apropos = { normal = { inspect = "i" } },
+        inspector = {
+            normal = {
+                action = "<CR>",
+                current = {
+                    send = "s",
+                    source = "o"
+                },
+                inspected = {
+                    send = "S",
+                    source = "O",
+                    previous = "<C-o>",
+                    next = "<C-i>"
+                },
+                next_field = { "<Tab>", "<C-n>" },
+                prev_field = { "<S-Tab>", "<C-p" },
+                refresh = "R"
+            }
+        },
+        notes = {
+            normal = {
+                source = "<CR>",
+                source_split = "<C-s>",
+                source_vsplit = "<C-v>",
+                source_tab = "<C-t>"
+            }
+        },
+        server = {
+            normal = {
+                connect = "<LocalLeader>c",
+                stop = "<LocalLeader>s"
+            }
+        },
+        threads = {
+            normal = {
+                interrupt = "<C-c>",
+                kill = "K",
+                invoke_debugger = "D",
+                refresh = "r"
+            }
+        },
+        trace = {
+            normal = {
+                action = "<CR>",
+                refresh = "R",
+                inspect_value = "i",
+                send_value = "s",
+                next_field = { "<Tab>", "<C-n>" },
+                prev_field = { "<S-Tab>", "<C-p" }
+            }
+        },
+        xref = {
+            normal = {
+                source = "<CR>",
+                source_split = "<C-s>",
+                source_vsplit = "<C-v>",
+                source_tab = "<C-t>"
+            }
+        },
+        mrepl = {
+            normal = {
+                clear = "<LocalLeader>C",
+                disconnect = "<LocalLeader>D"
+            },
+            insert = {
+                space_arglist = "<Space>",
+                cr_arglist = "<C-j>",
+                submit = "<CR>",
+                interrupt = "<C-c>"
+            }
+        },
+    }
+<
+
+----------------------------------------------------------------------
+6. List of Key Actions                            *nvlime-actions-list*
+
+......................................................................
+6.1 Global Actions                               *nvlime-actions-global*
+
+Key actions available in all Nvlime windows:
+
+global
+    normal
+        close_current_window
+            Closes current window. Doesn't work in cl source files and
+            in the sldb window it behaves differently.
+
+        keymaps_help
+            Opens floating window which describes Nvlime local keymaps.
+
+        close_nvlime_windows
+            Closes all Nvlime windows except repl, sldb and compiler
+            notes.
+
+        close_floating_window
+            Closes last opened plugin floating window.
+
+        scroll_up
+            Scrolls up last opened floating window.
+
+        scroll_down
+            Scrolls down last opened floating window.
+
+        split_left (only for floating windows)
+            Vertically splits to the left side current floating window
+            into the last focused non-floating window.
+
+        split_right (only for floating windows)
+            Vertically splits to the right side current floating window
+            into the last focused non-floating window.
+
+        split_above (only for floating windows)
+            Splits to the top side current floating window into the
+            last focused non-floating window.
+
+        split_below (only for floating windows)
+            Splits to the bottom side current floating window into the
+            last focused non-floating window.
+
+......................................................................
+6.2 CL Source File Actions                       *nvlime-actions-source*
+
+Key actions available in lisp source files:
+
+lisp
+    normal
+        interaction_mode
+            Interaction Mode. See |nvlime-interaction-mode|.
+
+        load_file
+            Load the current file.
+
+        disassemble
+            Disassemble the form under the cursor.
+
+        set_package
+            Specify the package for the current buffer. An input
+            buffer would pop up for this. See |nvlime-input-windows|.
+
+        set_breakpoint
+            Set a breakpoint at entry to a function. An input buffer
+            would pop up, prompting for the function name. See
+            |nvlime-input-windows|.
+
+        show_threads
+            Show a list of the running threads. See
+            |nvlime-thread-list|.
+
+    insert
+        space_arglist
+            Insert space character and triggers the arglist hint.
+
+        cr_arglist
+            Starts new line and triggers the arglist hint.
+
+    normal
+        connection
+            new
+                Connect to Nvlime server.
+
+            switch
+                Switch Nvlime connections. This command shows a list of
+                connections, and the current connection will be marked
+                with an asterisk "*" at the end.
+
+            rename
+                Rename the current connection.
+
+            close
+                Disconnect from Nvlime server.
+
+    normal
+        server
+            new
+                Run a new Nvlime server and connect to it. To customize
+                the server, see |g:nvlime_config.implementation|.
+
+            show
+                View the console output of the current server.
+
+            show_selected
+                Show a list of Nvlime servers and view the console output
+                of the chosen one.
+
+            stop
+                Stop the current server.
+
+            stop_selected
+                Show a list of Nvlime servers and stop the chosen one.
+
+            rename
+                Rename a server.
+
+            restart
+                Restart the current server.
+
+    normal
+        repl
+            send_atom_expr
+                If there's an s-expression under the cursor, send it to
+                the REPL, else send the atom under the cursor, if any.
+
+            send_atom
+                Send the atom under the cursor to the REPL.
+
+            send_expr
+                Send the s-expression under the cursor to the REPL.
+
+            send_toplevel_expr
+                Send the top-level s-expression under the cursor to the
+                REPL.
+            prompt
+                Open an input buffer and compose a snippet to send to the
+                REPL. See |nvlime-input-windows|.
+
+    visual
+        repl
+            send_selection
+                Send the current selection to the REPL.
+
+    normal
+        macro
+            expand
+                Expand the macro under the cursor.
+
+            expand_once
+                Expand the macro under the cursor once.
+
+            expand_all
+                Expand the macro under the cursor and all nested macros.
+
+    normal
+        compile
+            expr
+                Compile the form under the cursor.
+
+            toplevel_expr
+                Compile the top-level form under the cursor.
+
+            file
+                Compile the current file.
+
+    visual
+        compile
+            selection
+                Compile the current selection.
+
+    normal
+        xref
+            function
+                callers
+                    Show callers of the function under the cursor.
+
+                callees
+                    Show callees of the function under the cursor.
+
+            symbol
+                references
+                    Show references of the variable under the cursor.
+
+                bindings
+                    Show bindings of the variable under the cursor.
+
+                definition
+                    Show the definition for the name under the cursor.
+
+                set_locations
+                    Show who sets the value of the variable under the cursor.
+
+            macro
+                callers
+                    Show who expands the macro under the cursor.
+
+            class
+                methods
+                    Show specialized methods for the class under the cursor.
+
+            prompt
+                Interactively prompt for the symbol to search. A menu will
+                pop up, to let you choose from xref types. You can prepend
+                a count to skip this menu, e.g. "8<LocalLeader>xi" would
+                look for definitions. See |nvlime-input-windows|.
+
+    normal
+        describe
+            operator
+                Describe the "operator" of the s-expression under the
+                cursor.
+
+            atom
+                Describe the atom under the cursor.
+
+            prompt
+                Prompt for the symbol to describe. See
+                |nvlime-input-windows|.
+
+        apropos
+            prompt
+                Apropos search. An input buffer would pop up, prompting
+                for the search pattern. See |nvlime-input-windows|.
+
+        arglist
+            show
+                Show the arglist for the s-expression under the cursor.
+
+        documentation
+            operator
+                Show the documentation for the "operator" of the
+                s-expression under the cursor.
+
+            atom
+                Show the documentation for the atom under the cursor.
+
+            prompt
+                Show the documentation for the symbol entered in an input
+                buffer. See |nvlime-input-windows|.
+
+    normal
+        inspect
+            atom_expr
+                If there's an s-expression under the cursor, evaluate it,
+                else evaluate the atom under the cursor, if any. The
+                evaluation result is then shown in the inspector.
+
+            atom
+                Evaluate and inspect the atom under the cursor.
+
+            expr
+                Evaluate and inspect the s-expression under the cursor.
+
+            toplevel_expr
+                Evaluate and inspect the top-level s-expression under the
+                cursor.
+
+            symbol
+                Inspect the symbol under the cursor.
+
+            prompt
+                Prompt for the expression to inspect. See
+                |nvlime-input-windows|.
+
+    visual
+        inspect
+            selection
+                Evaluate and inspect the current selection.
+
+    normal
+        trace
+            show
+                Show the trace dialog.
+            toggle
+                Toggle the traced state of the function name under the
+                cursor.
+            prompt
+                Show an input buffer, and prompt for the name of the
+                function to be traced. See |nvlime-input-windows|. You can
+                also trace setf expanders by specifying "(setf <name>)".
+
+    normal
+        undefine
+            function
+                Undefine the function under the cursor.
+            symbol
+                Unintern the symbol under the cursor.
+            prompt
+                Interactively prompt for the function/symbol to
+                undefine/unintern. A menu will pop up, to let you choose
+                what to do. You can prepend a count to skip this menu,
+                e.g. "2<LocalLeader>ui" would unintern a symbol. See
+                |nvlime-input-windows|.
+
+......................................................................
+6.3 Input Window Actions                          *nvlime-actions-input*
+
+Key actions avaialble in the input window:
+
+input
+    normal
+        complete
+            Complete the input.
+
+    insert
+        keymaps_help
+            Show keymaps help.
+
+        complete
+            Complete the input.
+
+        next_history
+            Show the next item in input history.
+
+        prev_history
+            Show the previous item in input history.
+
+        leave_insert
+            Closes the input window when cursor is on the
+            first line and first column. Otherwise just
+            returns into normal mode.
+
+......................................................................
+6.4 REPL Actions                                   *nvlime-actions-repl*
+
+Key actions avaialble in the REPL buffer:
+
+repl
+    normal
+        interrupt
+            Interrupt the REPL thread.
+
+        clear
+            Clear the REPL buffer.
+
+        inspect_result
+            Inspect the evaluation result under the cursor.
+
+        yank_kesult
+            Yank the evaluation result under the cursor into the default
+            register |quotequote|. Note that this yanked value is an
+            expression to be evaluated in the same REPL session. It is
+            meaningless in other contexts.
+
+        next_result
+            Move the cursor to the next prensented object.
+
+        previous
+            Move the cursor to the previous presented object.
+
+......................................................................
+6.5 Debugger Actions                         *nvlime-actions-debugger*
+
+Key actions available in the debugger:
+
+sldb
+    normal
+        action
+            Choose a restart, toggle a frame details or jump to the
+            source code.
+
+        frame
+            toggle_details
+                Show the details (local variables and source location etc.)
+                of the frame under the cursor.
+
+            source
+                Jump to the source code for the frame under the cursor. If the
+                source file is already opened in a window, simply move the
+                cursor to that window. Otherwise, this command opens the
+                source file in the current window by default. A count can be
+                prepended to specify which window to use. For example, "2S"
+                would open the source file in the second visible window.
+
+            source_split
+                Same as `source` but open the source file in a new split.
+
+            source_vsplit
+                Same as `source` but open the source file in a new vertical split.
+
+            source_tab
+                Like `source`, but open the source file in a new tab, if it's not
+                yet opened in any window.
+
+            restart
+                Restart the frame under the cursor.
+
+            eval_expr
+                Evaluate an expression in the frame under the cursor. An input
+                buffer would pop up, prompting for the expression. See
+                |nvlime-input-windows|.
+
+            send_expr
+                Evaluate an expression in the frame under the cursor, and then
+                send the result to the REPL, so that you can yank the value
+                with `repl.normal.yank` and further manipulate it. An
+                input buffer would pop up, prompting for the expression. See
+                |nvlime-input-windows|.
+
+            disassemble
+                Disassemble the frame under the cursor.
+
+            return_result
+                Return a manually specified result from the frame under the
+                cursor. An input buffer would pop up, prompting for the
+                expression that would generate the result. See
+                |nvlime-input-windows|.
+            step
+                Start stepping in the frame under the cursor.
+
+        local_var
+            source
+                Open the source code for a local variable.
+
+            inspect
+                Evaluate and inspect local variable in the frame under the
+                cursor. An input window would pop up, prompting for the
+                expression if was invoked not on some particular
+                variable. See |nvlime-input-windows|.
+
+        step_over
+            Step over the current function call.
+
+        step_out
+            Step out of the current function.
+
+        abort
+            Invoke the restart labeled ABORT.
+
+        continue
+            Invoke the restart labeled CONTINUE.
+
+        inspect_condition
+            Inspect the current condition object.
+
+
+......................................................................
+6.6 Apropos Actions                             *nvlime-actions-apropos*
+
+Key actions avaialble in the apropos window:
+
+apropos
+    normal
+        inspect
+            Inspect current symbol.
+
+......................................................................
+6.7 Inspector Actions                         *nvlime-actions-inspector*
+
+Key actions avaialble in the inspector:
+
+inspector
+    normal
+        action
+            Activate the interactable field/button under the cursor.
+
+        current
+            send
+                Send the value of the field under the cursor to the REPL.
+
+            source
+                Open the source code for the value of the field under
+                the cursor.
+
+        inspected
+            send
+                Send the value being inspected to the REPL.
+
+            source
+                Open the source code for the value being inspected.
+
+            previous
+                Return to the previous inspected object.
+
+            next
+                Move to the next inspected object.
+
+        next_field
+            Select the next interactable field/button.
+
+        prev_field
+            Select the previous interactable field/button.
+
+        refresh
+            Refresh the inspector.
+
+......................................................................
+6.8 Compiler Notes Actions                        *nvlime-actions-notes*
+
+notes
+    normal
+        source
+            Jump to the selected source location. If the source file is
+            already opened, simply move the cursor to the window
+            containing that file. Otherwise, open the source file in the
+            window where the command was initiated. A count can be
+            prepended to specify which window to use. For example, "2<CR>"
+            would show the source file in the second visible window.
+
+        source_split
+            Open the selected source location in a horizontal split
+            window.
+
+        source_vsplit
+            Like `source_split`, but open a vertical split window.
+
+        source_tab
+            Like `source`, but open the source file in a new tab, if
+            it's not yet opened in any window.
+
+......................................................................
+6.9 Server Window Actions                        *nvlime-actions-server*
+
+Key mappings avaialble in the server output window:
+
+server
+    normal
+        connect
+            Connect to this server.
+
+        stop
+            Stop this server.
+
+......................................................................
+6.10 Thread List Actions                        *nvlime-actions-threads*
+
+Key mappings avaialble in the thread list:
+
+threads
+    normal
+        interrupt
+            Interrupt the thread under the cursor. The debugger will be
+            activated.
+
+        kill
+            Kill the thread under the cursor.
+
+        invoke_debugger
+            Invoke the debugger in the thread under the cursor.
+
+        refresh
+            Refresh the thread list.
+
+......................................................................
+6.11 Trace Dialog Mappings                 *nvlime-actions-trace-dialog*
+
+Key mappings avaialble in the trace dialog:
+
+trace
+    normal
+        action
+            Activate the interactable field/button under the cursor.
+
+        refresh
+            Refresh the trace dialog.
+
+        inspect_value
+            Inspect the value of the field under the cursor.
+
+        send_value
+            Send the value of the field under the cursor to the REPL.
+
+        next_field
+            Select the next interactable field/button.
+
+        prev_field
+            Select the previous interactable field/button.
+
+......................................................................
+6.12 XRef List Actions                             *nvlime-actions-xref*
+
+Key mappings avaialble in the cross reference list window:
+
+xref
+    normal
+        source
+            Jump to the selected source location. If the source file is
+            already opened, simply move the cursor to the window
+            containing that file. Otherwise, open the source file in the
+            window where the xref command was initiated. A count can be
+            prepended to specify which window to use. For example, "2<CR>"
+            would show the source file in the second visible window.
+
+        source_split
+            Open the selected source location in a horizontal split
+            window.
+
+        source_vsplit
+            Like `source_split`, but open a vertical split window.
+
+        source_tab
+            Like `source`, but open the source file in a new tab, if
+            it's not yet opened in any window.
+
+......................................................................
+6.13 MREPL Window Actions                         *nvlime-actions-mrepl*
+
+Key mappings avaialble in the MREPL window:
+
+mrepl
+    normal
+        clear
+            Clear the MREPL buffer.
+
+        disconnect
+            Disconnect from this REPL.
+
+    insert
+        space_arglist
+            Insert space character and show arglist hint.
+
+        cr_arglist
+            Insert a newline and show arglist hint.
+
+        submit
+            Submit the text snippet between the last prompt and EOF
+            to the REPL.
+
+        interrupt
+            Interrupt the MREPL thread.
+
+======================================================================
+7. API                                               *nvlime-api-intro*
 
 Nvlime's source code on the Neovim side is roughly organized into these
 groups, and some of them are exported to be user-callable APIs:
@@ -1157,13 +1690,13 @@ use the source. And please file an issue if you find any mistake in it
 (see |nvlime-contrib|).
 
 ======================================================================
-7. License                                             *nvlime-license*
+8. License                                             *nvlime-license*
 
 This plugin is licensed under the terms of the MIT license. See
 LICENSE.txt for details.
 
 ======================================================================
-8. Bugs                                                   *nvlime-bugs*
+9. Bugs                                                   *nvlime-bugs*
 
 * Nvlime is asynchronous. When the server takes too much time to
   process a request, you can still invoke other commands or input
@@ -1177,7 +1710,7 @@ Please file an issue on https://github.com/monkoose/nvlime/issues if
 you find any other problem.
 
 ======================================================================
-9. Contributing                                        *nvlime-contrib*
+10. Contributing                                        *nvlime-contrib*
 
 The source repo for Nvlime is hosted on GitHub:
 

@@ -5,6 +5,18 @@ All notable changes to Nvlime plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and does not adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-12-29 (Configuration overhaul)
+
+### Added
+
+- `g:nvlime_mappings` config variable to change and remove default keymaps, or
+to add new ones.
+
+### Changed
+
+- Instead of multiple `g:nvlime_..` config variables, there is now one dictionary
+variable `g:nvlime_config`.
+
 ## 2022-12-24
 
 ### Added

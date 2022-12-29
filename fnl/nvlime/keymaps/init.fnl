@@ -1,5 +1,5 @@
-(local psl (require "parsley"))
 (local opts (require "nvlime.config"))
+(local psl (require "parsley"))
 
 (local keymaps
        {:leader opts.leader
@@ -19,22 +19,6 @@
                  :split_right "<C-w>l"
                  :split_above "<C-w>k"
                  :split_below "<C-w>j"}})
-
-(local input-mappings
-       {:normal {:complete "<CR>"}
-        :insert {:keymaps_help "<F1>"
-                 :complete "<CR>"
-                 :next_history "<C-n>"
-                 :prev_history "<C-p>"
-                 :leave_insert "<Esc>"}})
-
-(local repl-mappings
-       {:normal {:interrupt "<C-c>"
-                 :clear "C"
-                 :inspect_result "i"
-                 :yank_result "y"
-                 :next_result ["<Tab>" "<C-n>"]
-                 :prev_result ["<S-Tab>" "<C-p>"]}})
 
 (local lisp-mappings
        {:normal {:interaction_mode (with-leader "<CR>")
@@ -102,6 +86,22 @@
                  :compile {:selection (with-leader "c")}
                  :inspect {:selection (with-leader "i")}}})
 
+(local input-mappings
+       {:normal {:complete "<CR>"}
+        :insert {:keymaps_help "<F1>"
+                 :complete "<CR>"
+                 :next_history "<C-n>"
+                 :prev_history "<C-p>"
+                 :leave_insert "<Esc>"}})
+
+(local repl-mappings
+       {:normal {:interrupt "<C-c>"
+                 :clear "C"
+                 :inspect_result "i"
+                 :yank_result "y"
+                 :next_result ["<Tab>" "<C-n>"]
+                 :prev_result ["<S-Tab>" "<C-p>"]}})
+
 (local sldb-mappings
        {:normal {:action "<CR>"
                  :details "d"
@@ -163,6 +163,12 @@
                  :next_field ["<Tab>" "<C-n>"]
                  :prev_field ["<S-Tab>" "<C-p"]}})
 
+(local xref-mappings
+       {:normal {:source "<CR>"
+                 :source_split "<C-s>"
+                 :source_vsplit "<C-v>"
+                 :source_tab "<C-t>"}})
+
 (local mrepl-mappings
        {:normal {:clear (with-leader "C")
                  :disconnect (with-leader "D")}
@@ -170,12 +176,6 @@
                  :cr_arglist "<C-j>"
                  :submit "<CR>"
                  :interrupt "<C-c>"}})
-
-(local xref-mappings
-       {:normal {:source "<CR>"
-                 :source_split "<C-s>"
-                 :source_vsplit "<C-v>"
-                 :source_tab "<C-t>"}})
 
 (local default-mappings
        {:global global-mappings
