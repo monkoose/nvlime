@@ -22,9 +22,9 @@
 
 ;;; BufNr ->
 (fn clear-repl* [bufnr conn]
-  (buffer.set-vars
-    bufnr {:nvlime_repl_coords []})
+  (tset presentations :coords {})
   (buffer.fill! bufnr (repl-banner conn))
+  ;; remove all leftover highlight extmarks for presentations
   (vim.api.nvim_buf_clear_namespace
     bufnr presentations.namespace 0 -1))
 

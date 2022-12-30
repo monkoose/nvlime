@@ -4,20 +4,22 @@
 (local psl-buf (require "parsley.buffer"))
 
 (local presentation
-       {:pending-coords {}
+       {:coords {}
         :namespace (vim.api.nvim_create_namespace
-                     "nvlime_presentations")})
+                      "nvlime_presentations")})
+
 (var *repl-bufnr* nil)
+(var *pending-coords* {})
 
 ;;; BufNr string ->
 (fn set-presentation-begin [bufnr msg]
   (let [last-linenr (vim.api.nvim_buf_line_count bufnr)
         id (psl.second msg)
-        coords-list (or (. presentation.pending-coords id) [])]
+        coords-list (or (. *pending-coords* id) [])]
     (table.insert coords-list {:begin [(+ last-linenr 1) 1]
                                :type "PRESENTATION"
                                :id id})
-    (tset presentation.pending-coords id coords-list)))
+    (tset *pending-coords* id coords-list)))
 
 ;;; BufNr {any} ->
 (fn set-presentation-end [bufnr coord]
@@ -56,16 +58,15 @@
 (fn presentation.on_end [_ msg]
   (when *repl-bufnr*
     (let [id (psl.second msg)
-          coords-list (or (. presentation.pending-coords id) [])
+          coords-list (or (. *pending-coords* id) [])
           (pending-coord idx) (get-pending-coord coords-list)]
       (when pending-coord
         (set-presentation-end *repl-bufnr* pending-coord)
         (table.remove coords-list idx)
         (when (<= (length coords-list) 0)
-          (tset presentation.pending-coords id nil))
-        (let [repl-coords (psl-buf.get-var! *repl-bufnr* "nvlime_repl_coords" [])]
-          (table.insert repl-coords pending-coord)
-          (buffer.set-vars *repl-bufnr* {:nvlime_repl_coords repl-coords}))
+          (tset *pending-coords* id nil))
+        (let [startline (. pending-coord :begin 1)]
+          (tset presentation.coords startline pending-coord))
         (highlight-presentation *repl-bufnr* pending-coord))))
   nil)
 

@@ -1,14 +1,15 @@
 local buffer = require("nvlime.buffer")
 local psl = require("parsley")
 local psl_buf = require("parsley.buffer")
-local presentation = {["pending-coords"] = {}, namespace = vim.api.nvim_create_namespace("nvlime_presentations")}
+local presentation = {coords = {}, namespace = vim.api.nvim_create_namespace("nvlime_presentations")}
 local _2arepl_bufnr_2a = nil
+local _2apending_coords_2a = {}
 local function set_presentation_begin(bufnr, msg)
   local last_linenr = vim.api.nvim_buf_line_count(bufnr)
   local id = psl.second(msg)
-  local coords_list = ((presentation["pending-coords"])[id] or {})
+  local coords_list = ((_2apending_coords_2a)[id] or {})
   table.insert(coords_list, {begin = {(last_linenr + 1), 1}, type = "PRESENTATION", id = id})
-  do end (presentation["pending-coords"])[id] = coords_list
+  do end (_2apending_coords_2a)[id] = coords_list
   return nil
 end
 local function set_presentation_end(bufnr, coord)
@@ -46,19 +47,18 @@ end
 presentation.on_end = function(_, msg)
   if _2arepl_bufnr_2a then
     local id = psl.second(msg)
-    local coords_list = ((presentation["pending-coords"])[id] or {})
+    local coords_list = ((_2apending_coords_2a)[id] or {})
     local pending_coord, idx = get_pending_coord(coords_list)
     if pending_coord then
       set_presentation_end(_2arepl_bufnr_2a, pending_coord)
       table.remove(coords_list, idx)
       if (#coords_list <= 0) then
-        presentation["pending-coords"][id] = nil
+        _2apending_coords_2a[id] = nil
       else
       end
       do
-        local repl_coords = psl_buf["get-var!"](_2arepl_bufnr_2a, "nvlime_repl_coords", {})
-        table.insert(repl_coords, pending_coord)
-        buffer["set-vars"](_2arepl_bufnr_2a, {nvlime_repl_coords = repl_coords})
+        local startline = pending_coord.begin[1]
+        presentation.coords[startline] = pending_coord
       end
       highlight_presentation(_2arepl_bufnr_2a, pending_coord)
     else

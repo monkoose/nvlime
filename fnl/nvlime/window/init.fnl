@@ -173,7 +173,7 @@
       (window.split *focus-winid*
                     (vim.api.nvim_get_current_buf)
                     cmd)
-      (ut.echo "Can't split this window.")))
+      (ut.echo-warning "Can't split this window.")))
 
 ;;; ========== SCROLLBAR ==========
 

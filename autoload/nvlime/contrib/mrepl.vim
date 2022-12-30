@@ -27,7 +27,7 @@ endfunction
 function! nvlime#contrib#mrepl#OnMREPLWriteString(conn, chan_obj, content) dict
   let mrepl_buf = nvlime#ui#mrepl#InitMREPLBuf(a:conn, a:chan_obj)
   call s:EnsureBufferOpen(mrepl_buf, 'mrepl')
-  call nvlime#ui#repl#AppendOutput(mrepl_buf, a:content)
+  call s:AppendOutput(mrepl_buf, a:content)
 endfunction
 
 function! nvlime#contrib#mrepl#OnMREPLPrompt(conn, chan_obj) dict
@@ -47,6 +47,15 @@ function! nvlime#contrib#mrepl#Init(conn)
   let ui['OnMREPLWriteResult'] = function('nvlime#contrib#mrepl#OnMREPLWriteResult')
   let ui['OnMREPLWriteString'] = function('nvlime#contrib#mrepl#OnMREPLWriteString')
   let ui['OnMREPLPrompt'] = function('nvlime#contrib#mrepl#OnMREPLPrompt')
+endfunction
+
+function! s:AppendOutput(repl_buf, str)
+  call setbufvar(a:repl_buf, '&modifiable', 1)
+  try
+    call nvlime#ui#WithBuffer(a:repl_buf, function('nvlime#ui#AppendString', [a:str]))
+  finally
+    call setbufvar(a:repl_buf, '&modifiable', 0)
+  endtry
 endfunction
 
 function! s:CreateMREPL_CB(conn, Callback, local_chan, chan, msg)

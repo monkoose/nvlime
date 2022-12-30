@@ -26,7 +26,7 @@ local function repl_banner(conn)
   return {banner, border, ""}
 end
 local function clear_repl_2a(bufnr, conn)
-  buffer["set-vars"](bufnr, {nvlime_repl_coords = {}})
+  presentations["coords"] = {}
   buffer["fill!"](bufnr, repl_banner(conn))
   return vim.api.nvim_buf_clear_namespace(bufnr, presentations.namespace, 0, -1)
 end
