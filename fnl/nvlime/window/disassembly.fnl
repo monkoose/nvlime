@@ -1,3 +1,4 @@
+(import-macros {: return} "nvlime.init-macros")
 (local window (require "nvlime.window"))
 (local buffer (require "nvlime.buffer"))
 (local ut (require "nvlime.utilities"))
@@ -6,6 +7,12 @@
 
 (local +bufname+ (buffer.gen-name buffer.names.disassembly))
 (local +filetype+ (buffer.gen-filetype buffer.names.disassembly))
+
+;;; [string] -> integer
+(fn find-banner-endline [lines]
+  (for [idx 3 (length lines)]
+    (when (string.find (. lines idx) "^%s*%x+:")
+      (return idx))))
 
 ;;; string -> {..}
 (fn content->lines [content]
@@ -18,7 +25,7 @@
         (when (> line-width width)
           (set width line-width))
         (tset lines idx (string.gsub line "^[; ]" "" 1))))
-    (table.insert lines 3
+    (table.insert lines (find-banner-endline lines)
                   (string.rep vim.g.nvlime_horiz_sep width))
     {: lines : height : width}))
 

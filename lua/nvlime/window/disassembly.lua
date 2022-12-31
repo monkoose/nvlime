@@ -4,6 +4,15 @@ local ut = require("nvlime.utilities")
 local disassembly = {}
 local _2bbufname_2b = buffer["gen-name"](buffer.names.disassembly)
 local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.disassembly)
+local function find_banner_endline(lines)
+  for idx = 3, #lines do
+    if string.find(lines[idx], "^%s*%x+:") then
+      return idx
+    else
+    end
+  end
+  return nil
+end
 local function content__3elines(content)
   local lines = ut["text->lines"](content)
   local height = 1
@@ -17,7 +26,7 @@ local function content__3elines(content)
     end
     lines[idx] = string.gsub(line, "^[; ]", "", 1)
   end
-  table.insert(lines, 3, string.rep(vim.g.nvlime_horiz_sep, width))
+  table.insert(lines, find_banner_endline(lines), string.rep(vim.g.nvlime_horiz_sep, width))
   return {lines = lines, height = height, width = width}
 end
 disassembly.open = function(content)

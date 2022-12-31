@@ -2,7 +2,7 @@ if exists('b:current_syntax')
     finish
 endif
 
-syntax match nvlime_disassemblyLine "\m\%>3l.*" contains=nvlime_disassemblyComment,nvlime_disassemblyLabel,
+syntax match nvlime_disassemblyLine "\m^\s*[[:xdigit:]]\+:.*" contains=nvlime_disassemblyComment,nvlime_disassemblyLabel,
       \ nvlime_disassemblyAddress,@CodeInstruction
 syntax match nvlime_disassemblyAddress "\m\%>3l^\s*[[:xdigit:]]\+\ze:\s" contained
 syntax match nvlime_disassemblyLabel "\m\%>3l:\s\+\zsL\d*\ze:\s" contained
@@ -12,6 +12,8 @@ syntax cluster CodeInstruction contains=nvlime_disassemblyInstruction,nvlime_dis
 
 syntax match nvlime_disassemblyComment "\m\s\zs;\s.\{-}$" contained
 syntax match nvlime_disassemblyComment "\m\s\zs;\s.\{-}$"
+" all lines which start with big indentation should be comments
+syntax match nvlime_disassemblyComment "\m^\s\{10}\s*\zs.\{-}$"
 
 syntax match nvlime_disassemblyBold "\m\%2lSize:\s\d\+" contains=nvlime_disassemblySize
 syntax match nvlime_disassemblySize "\m\%2l\d\+" contained
