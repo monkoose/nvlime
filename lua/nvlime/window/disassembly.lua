@@ -15,7 +15,7 @@ local function content__3elines(content)
       width = line_width
     else
     end
-    lines[idx] = string.gsub(line, "^%s*;", "", 1)
+    lines[idx] = string.gsub(line, "^[; ]", "", 1)
   end
   table.insert(lines, 3, string.rep(vim.g.nvlime_horiz_sep, width))
   return {lines = lines, height = height, width = width}

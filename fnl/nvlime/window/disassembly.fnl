@@ -17,7 +17,7 @@
       (let [line-width (vim.fn.strdisplaywidth line)]
         (when (> line-width width)
           (set width line-width))
-        (tset lines idx (string.gsub line "^%s*;" "" 1))))
+        (tset lines idx (string.gsub line "^[; ]" "" 1))))
     (table.insert lines 3
                   (string.rep vim.g.nvlime_horiz_sep width))
     {: lines : height : width}))
