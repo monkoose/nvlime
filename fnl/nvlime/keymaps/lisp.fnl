@@ -18,8 +18,11 @@
   (km.buffer.normal lm.normal.load_file
                     "<Cmd>call nvlime#plugin#LoadFile(nvim_buf_get_name(0))<CR>"
                     "nvlime: Load the current file")
-  (km.buffer.normal lm.normal.disassemble
+  (km.buffer.normal lm.normal.disassemble.expr
                     "<Cmd>call nvlime#plugin#DisassembleForm(nvlime#ui#CurExpr())<CR>"
+                    "nvlime: Disassemble the form under the cursor")
+  (km.buffer.normal lm.normal.disassemble.symbol
+                    "<Cmd>call nvlime#plugin#DisassembleForm(nvlime#ui#CurSymbol())<CR>"
                     "nvlime: Disassemble the form under the cursor")
   (km.buffer.normal lm.normal.set_package
                     "<Cmd>call nvlime#plugin#SetPackage()<CR>"

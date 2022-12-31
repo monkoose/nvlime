@@ -23,7 +23,8 @@
 (local lisp-mappings
        {:normal {:interaction_mode (with-leader "<CR>")
                  :load_file (with-leader "l")
-                 :disassemble (with-leader "a")
+                 :disassemble {:expr (with-leader "aa")
+                               :symbol (with-leader "as")}
                  :set_package (with-leader "p")
                  :set_breakpoint (with-leader "b")
                  :show_threads (with-leader "T")

@@ -805,7 +805,10 @@ section.
             normal = {
                 interaction_mode = "<LocalLeader><CR>",
                 load_file = "<LocalLeader>l",
-                disassemble = "<LocalLeader>a",
+                disassemble = {
+                    expr = "<LocalLeader>aa",
+                    symbol = "<LocalLeader>as",
+                },
                 set_package = "<LocalLeader>p",
                 set_breakpoint = "<LocalLeader>b",
                 show_threads = "<LocalLeader>T",
@@ -1081,7 +1084,11 @@ lisp
             Load the current file.
 
         disassemble
-            Disassemble the form under the cursor.
+            expr
+                Disassemble the form under the cursor.
+
+            symbol
+                Disassemble the symbol under the cursor.
 
         set_package
             Specify the package for the current buffer. An input

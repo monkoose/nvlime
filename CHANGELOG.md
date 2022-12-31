@@ -5,6 +5,14 @@ All notable changes to Nvlime plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and does not adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-12-31
+
+### Changed
+
+- Instead of a single disassemble action in cl source files (for current form:
+  default keymap "<LocalLeader>a"), there are two now: for current form
+  ("<LocalLeader>aa") and current symbol ("<LocalLeader>as").
+
 ## 2022-12-29 (Configuration overhaul)
 
 ### Added
