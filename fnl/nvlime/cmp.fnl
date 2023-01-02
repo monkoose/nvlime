@@ -1,4 +1,4 @@
-(import-macros {: return} "nvlime.init-macros")
+(import-macros {: return} "parsley.macros")
 (local lsp-types (require "cmp.types.lsp"))
 (local buffer (require "nvlime.buffer"))
 (local opts (require "nvlime.config"))

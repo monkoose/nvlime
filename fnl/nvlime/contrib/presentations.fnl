@@ -1,4 +1,4 @@
-(import-macros {: return} "nvlime.init-macros")
+(import-macros {: return} "parsley.macros")
 (local buffer (require "nvlime.buffer"))
 (local psl (require "parsley"))
 (local psl-buf (require "parsley.buffer"))
