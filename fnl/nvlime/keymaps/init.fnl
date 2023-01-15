@@ -136,7 +136,7 @@
                              :source "O"
                              :previous "<C-o>"
                              :next "<C-i>"}
-                 :next_field ["<Tab>" "<C-n>"]
+                 :next_field "<C-n>"
                  :prev_field ["<S-Tab>" "<C-p>"]
                  :refresh "R"}})
 
