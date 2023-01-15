@@ -10,11 +10,11 @@ local input_mappings = {normal = {complete = "<CR>"}, insert = {keymaps_help = "
 local repl_mappings = {normal = {interrupt = "<C-c>", clear = "C", inspect_result = "i", yank_result = "y", next_result = {"<Tab>", "<C-n>"}, prev_result = {"<S-Tab>", "<C-p>"}}}
 local sldb_mappings = {normal = {action = "<CR>", details = "d", frame = {toggle_details = "d", source = "S", source_split = "<C-s>", source_vsplit = "<C-v>", source_tab = "<C-t>", restart = "r", eval_expr = "e", send_expr = "E", disassemble = "D", return_result = "R", step = "s"}, local_var = {source = "O", inspect = "i"}, step_over = "x", step_out = "o", abort = "a", continue = "c", inspect_condition = "C"}}
 local apropos_mappings = {normal = {inspect = "i"}}
-local inspector_mappings = {normal = {action = "<CR>", current = {send = "s", source = "o"}, inspected = {send = "S", source = "O", previous = "<C-o>", next = "<C-i>"}, next_field = {"<Tab>", "<C-n>"}, prev_field = {"<S-Tab>", "<C-p"}, refresh = "R"}}
+local inspector_mappings = {normal = {action = "<CR>", current = {send = "s", source = "o"}, inspected = {send = "S", source = "O", previous = "<C-o>", next = "<C-i>"}, next_field = {"<Tab>", "<C-n>"}, prev_field = {"<S-Tab>", "<C-p>"}, refresh = "R"}}
 local notes_mappings = {normal = {source = "<CR>", source_split = "<C-s>", source_vsplit = "<C-v>", source_tab = "<C-t>"}}
 local server_mappings = {normal = {connect = with_leader("c"), stop = with_leader("s")}}
 local threads_mappings = {normal = {interrupt = "<C-c>", kill = "K", invoke_debugger = "D", refresh = "r"}}
-local trace_mappings = {normal = {action = "<CR>", refresh = "R", inspect_value = "i", send_value = "s", next_field = {"<Tab>", "<C-n>"}, prev_field = {"<S-Tab>", "<C-p"}}}
+local trace_mappings = {normal = {action = "<CR>", refresh = "R", inspect_value = "i", send_value = "s", next_field = {"<Tab>", "<C-n>"}, prev_field = {"<S-Tab>", "<C-p>"}}}
 local xref_mappings = {normal = {source = "<CR>", source_split = "<C-s>", source_vsplit = "<C-v>", source_tab = "<C-t>"}}
 local mrepl_mappings = {normal = {clear = with_leader("C"), disconnect = with_leader("D")}, insert = {space_arglist = "<Space>", cr_arglist = "<C-j>", submit = "<CR>", interrupt = "<C-c>"}}
 local default_mappings = {global = global_mappings, lisp = lisp_mappings, input = input_mappings, repl = repl_mappings, sldb = sldb_mappings, apropos = apropos_mappings, inspector = inspector_mappings, notes = notes_mappings, server = server_mappings, threads = threads_mappings, trace = trace_mappings, xref = xref_mappings, mrepl = mrepl_mappings}

@@ -137,7 +137,7 @@
                              :previous "<C-o>"
                              :next "<C-i>"}
                  :next_field ["<Tab>" "<C-n>"]
-                 :prev_field ["<S-Tab>" "<C-p"]
+                 :prev_field ["<S-Tab>" "<C-p>"]
                  :refresh "R"}})
 
 (local notes-mappings
@@ -162,7 +162,7 @@
                  :inspect_value "i"
                  :send_value "s"
                  :next_field ["<Tab>" "<C-n>"]
-                 :prev_field ["<S-Tab>" "<C-p"]}})
+                 :prev_field ["<S-Tab>" "<C-p>"]}})
 
 (local xref-mappings
        {:normal {:source "<CR>"
