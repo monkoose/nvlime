@@ -122,11 +122,16 @@ local function add_coords_highlight(bufnr)
 end
 local function content__3elines(content)
   local content_2a = ut["plist->table"](content)
-  local content_data = (content_2a).CONTENT
-  local title = {(content_2a).TITLE, "\n", "\n"}
+  local lookup_content
+  local function _16_(key)
+    return ((content_2a)[key] or (content_2a)[string.lower(key)])
+  end
+  lookup_content = _16_
+  local content_data = lookup_content("CONTENT")
+  local title = lookup_content("TITLE")
   local range_buttons = make_range_buttons(content_data)
-  local lines = content__3elines_2a(psl_list.concat(title, content_data[1], range_buttons))
-  _2acontent_title_2a = (content_2a).TITLE
+  local lines = content__3elines_2a(psl_list.concat({title, "\n", "\n"}, content_data[1], range_buttons))
+  _2acontent_title_2a = title
   return lines
 end
 local function buf_callback(bufnr)
@@ -137,10 +142,10 @@ inspector.open = function(content)
   _2acoords_2a = {}
   local lines = content__3elines(content)
   local bufnr
-  local function _16_(_241)
+  local function _17_(_241)
     return buf_callback(_241)
   end
-  bufnr = buffer["create-if-not-exists"](_2bbufname_2b, false, _16_)
+  bufnr = buffer["create-if-not-exists"](_2bbufname_2b, false, _17_)
   local winid = window.center.open(bufnr, lines, {height = 12, width = 80, title = buffer.names.inspector})
   add_coords_highlight(bufnr)
   buffer["set-vars"](bufnr, {nvlime_inspector_title = _2acontent_title_2a, nvlime_inspector_coords = _2acoords_2a, nvlime_inspector_content_start = _2acontent_start_2a, nvlime_inspector_content_end = _2acontent_end_2a})

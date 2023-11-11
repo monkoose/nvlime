@@ -95,13 +95,18 @@
 ;;; [..] -> [string]
 (fn content->lines [content]
   (let [content* (ut.plist->table content)
-        content-data (. content* "CONTENT")
-        title [(. content* "TITLE") "\n" "\n"]
+        lookup-content (fn [key]
+                         (or (. content* key)
+                             (. content* (string.lower key))))
+        content-data (lookup-content "CONTENT")
+        title (lookup-content "TITLE")
         range-buttons (make-range-buttons content-data)
         lines (content->lines*
                 (psl-list.concat
-                  title (. content-data 1) range-buttons))]
-    (set *content-title* (. content* :TITLE))
+                  [title "\n" "\n"]
+                  (. content-data 1)
+                  range-buttons))]
+    (set *content-title* title)
     lines))
 
 ;;; BufNr ->

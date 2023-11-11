@@ -1102,9 +1102,9 @@ function! s:OnSwankRequireCallInitializersComplete(added, conn)
 endfunction
 
 function! s:OnConnectionInfoComplete(conn, result)
-  let a:conn.cb_data['version'] = get(a:result, 'VERSION', '<unknown version>')
-  let a:conn.cb_data['pid'] = get(a:result, 'PID', '<unknown pid>')
-  let features = get(a:result, 'FEATURES', [])
+  let a:conn.cb_data['version'] = nvlime#Get(a:result, 'VERSION', '<unknown version>')
+  let a:conn.cb_data['pid'] = nvlime#Get(a:result, 'PID', '<unknown pid>')
+  let features = nvlime#Get(a:result, 'FEATURES', [])
   if features is v:null
     let features = []
   endif

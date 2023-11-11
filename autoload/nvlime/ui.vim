@@ -152,9 +152,13 @@ endfunction
 " Write an arbitrary string {str} to the REPL buffer.
 " {conn} should be a valid @dict(NvlimeConnection). {str_type} is currently
 " ignored.
-function! nvlime#ui#OnWriteString(conn, str, str_type) dict
+function! nvlime#ui#OnWriteString(conn, str, str_type, thread = v:null) dict
   let [_, bufnr] = luaeval('require"nvlime.window.main.repl".open(_A[1], _A[2])',
         \ [a:str, { 'conn-name': a:conn.cb_data.name }])
+  if a:thread isnot v:null
+    " new as per slime 78ad57b7455be3f34a38da456183ddf8d604bdf8
+    call a:conn.Send([nvlime#KW('NVLIME-RAW-MSG'), '(:WRITE-DONE ' .. a:thread .. ')'])
+  endif
 endfunction
 
 function! nvlime#ui#OnReadString(conn, thread, ttag) dict
@@ -1173,7 +1177,20 @@ function! nvlime#ui#MatchAddCoords(group, coords)
   let match_list = []
   let stride = 8
   for i in range(0, len(pos_list) - 1, stride)
-    call add(match_list, matchaddpos(a:group, pos_list[i:i+stride-1]))
+    if a:group == 'nvlime_replCoord'
+      " Use a priority less than 0 so that search hilight works as
+      " expected even on the REPL buffer.
+      "
+      " From `:help matchadd`:
+      "
+      " - default priority is 10
+      " - the priority of 'hlsearch' is 0
+      "
+      " See: https://github.com/vlime/vlime/issues/74
+      call add(match_list, matchaddpos(a:group, pos_list[i:i+stride-1], -1))
+    else
+      call add(match_list, matchaddpos(a:group, pos_list[i:i+stride-1]))
+    endif
   endfor
   return match_list
 endfunction

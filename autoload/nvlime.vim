@@ -196,7 +196,7 @@ endfunction
 " @dict NvlimeConnection.Send
 " @public
 "
-" Send a raw message {msg} to the server, and optionally register an async
+" Send a message {msg} to the server, and optionally register an async
 " [callback] function to handle the reply.
 function! nvlime#Send(msg, Callback = v:null) dict
   call nvlime#async#ch_sendexpr(self.channel, a:msg, a:Callback)
@@ -1188,7 +1188,8 @@ function! nvlime#OnWriteString(conn, msg)
   if a:conn.ui isnot v:null
     let str = a:msg[1]
     let str_type = (len(a:msg) >= 3) ? a:msg[2] : v:null
-    call a:conn.ui.OnWriteString(a:conn, str, str_type)
+    let thread = (len(a:msg) >= 4) ? a:msg[3] : v:null
+    call a:conn.ui.OnWriteString(a:conn, str, str_type, thread)
   endif
 endfunction
 
@@ -1255,11 +1256,11 @@ endfunction
 
 function! nvlime#OnServerEvent(chan, msg) dict
   let msg_type = a:msg[0]
-  let Handler = get(self.server_event_handlers, msg_type['name'], v:null)
+  let Handler = nvlime#Get(self.server_event_handlers, msg_type['name'], v:null)
   if type(Handler) == v:t_func
     call Handler(self, a:msg)
   elseif get(g:, '_nvlime_debug', v:false)
-    echom 'Unknown server event: ' . string(a:msg)
+    echom 'Unknown server event: ' .. string(a:msg)
   endif
 endfunction
 
@@ -1365,18 +1366,18 @@ endfunction
 " Normalize a source location object parsed by
 " @function(nvlime#ParseSourceLocation).
 function! nvlime#GetValidSourceLocation(loc)
-  let loc_file = get(a:loc, 'FILE', v:null)
-  let loc_buffer = get(a:loc, 'BUFFER', v:null)
-  let loc_buf_and_file = get(a:loc, 'BUFFER-AND-FILE', v:null)
-  let loc_src_form = get(a:loc, 'SOURCE-FORM', v:null)
+  let loc_file = nvlime#Get(a:loc, 'FILE', v:null)
+  let loc_buffer = nvlime#Get(a:loc, 'BUFFER', v:null)
+  let loc_buf_and_file = nvlime#Get(a:loc, 'BUFFER-AND-FILE', v:null)
+  let loc_src_form = nvlime#Get(a:loc, 'SOURCE-FORM', v:null)
 
   if loc_file isnot v:null
-    let loc_pos = get(a:loc, 'POSITION', v:null)
-    let loc_snippet = get(a:loc, 'SNIPPET', v:null)
+    let loc_pos = nvlime#Get(a:loc, 'POSITION', v:null)
+    let loc_snippet = nvlime#Get(a:loc, 'SNIPPET', v:null)
     let valid_loc = [loc_file, loc_pos, loc_snippet]
   elseif loc_buffer isnot v:null
-    let loc_offset = get(a:loc, 'OFFSET', v:null)
-    let loc_snippet = get(a:loc, 'SNIPPET', v:null)
+    let loc_offset = nvlime#Get(a:loc, 'OFFSET', v:null)
+    let loc_snippet = nvlime#Get(a:loc, 'SNIPPET', v:null)
     if loc_offset isnot v:null
       " Negative offsets are used to designate the code snippets entered
       " via the input buffer
@@ -1388,8 +1389,8 @@ function! nvlime#GetValidSourceLocation(loc)
     endif
     let valid_loc = [loc_buffer, loc_offset, loc_snippet]
   elseif loc_buf_and_file isnot v:null
-    let loc_offset = get(a:loc, 'OFFSET', v:null)
-    let loc_snippet = get(a:loc, 'SNIPPET', v:null)
+    let loc_offset = nvlime#Get(a:loc, 'OFFSET', v:null)
+    let loc_snippet = nvlime#Get(a:loc, 'SNIPPET', v:null)
     if loc_offset isnot v:null
       if loc_offset[0] < 0 || loc_offset[1] < 0
         let loc_offset = v:null
@@ -1589,6 +1590,19 @@ function! s:SearchPList(plist, name)
   endwhile
 endfunction
 
+function! nvlime#HasKey(dict, key)
+  " This is used to accomodate *PRINT-CASE*
+  return has_key(a:dict, a:key) || has_key(a:dict, tolower(a:key))
+endfunction
+
+function! nvlime#Get(dict, key, default = v:null)
+  " This is used to accomodate *PRINT-CASE*
+  if has_key(a:dict, a:key)
+    return get(a:dict, a:key, a:default)
+  endif
+  return get(a:dict, tolower(a:key), a:default)
+endfunction
+
 function! s:CheckReturnStatus(return_msg, caller)
   let status = a:return_msg[1][0]
   if status['name'] != 'OK'
@@ -1715,8 +1729,11 @@ function! nvlime#KeywordList2Dict(input)
   if type(a:input) == v:t_list
     let dct = {}
     for el in a:input
-      if type(el) == v:t_list && type(el[0]) == v:t_dict && el[0]["package"] == 'KEYWORD'
-        let dct[ el[0]["name"] ] = el[1]
+      if type(el) == v:t_list && type(el[0]) == v:t_dict
+        let package = el[0]['package']
+        if package == 'KEYWORD' || package == 'keyword'
+          let dct[ el[0]["name"] ] = el[1]
+        endif
       endif
     endfor
     return dct

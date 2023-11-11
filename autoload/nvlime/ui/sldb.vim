@@ -331,7 +331,7 @@ endfunction
 function! s:MatchRestart()
   let line = getline('.')
   let matches = matchlist(line,
-        \ '\v^  R\s+([0-9]+)\.\s+\*?[A-Z\-]+\s+-\s.+$')
+        \ '\v^  R\s+([0-9]+)\.\s+\*?[a-zA-Z\-]+\s+-\s.+$')
   return (len(matches) > 0) ? (matches[1] + 0) : -1
 endfunction
 
@@ -371,21 +371,22 @@ function! s:ShowFrameLocalsCB(frame, restartable, line, conn, result)
     for lc in locals
       let rlc = nvlime#PListToDict(lc)
       call add(rlocals, rlc)
-      if len(rlc['NAME']) > max_name_len
-        let max_name_len = len(rlc['NAME'])
+      let rlc_l = len(nvlime#Get(rlc, 'NAME'))
+      if rlc_l > max_name_len
+        let max_name_len = rlc_l
       endif
     endfor
     for rlc in rlocals
-      let content .= "\t  "     " Indentation
-      let content .= nvlime#ui#Pad(rlc['NAME'], ':', max_name_len)
-      let content .= (rlc['VALUE'] . "\n")
+      let content ..= "\t  "     " Indentation
+      let content ..= nvlime#ui#Pad(nvlime#Get(rlc, 'NAME'), ':', max_name_len)
+      let content ..= (nvlime#Get(rlc, 'VALUE') .. "\n")
     endfor
   endif
   let catch_tags = a:result[1]
   if catch_tags isnot v:null
-    let content .= "\tCatch tags:\n"
+    let content ..= "\tCatch tags:\n"
     for ct in catch_tags
-      let content .= "\t  " . ct . "\n"
+      let content ..= "\t  " .. ct .. "\n"
     endfor
   endif
   let thread = b:nvlime_conn.GetCurrentThread()
@@ -408,26 +409,26 @@ function! s:ShowFrameSourceLocationCB(frame, line, conn, result)
   if type(a:result[1]) == v:t_list
     let r = nvlime#KeywordList2Dict(a:result[1:])
 
-    if has_key(r, "SNIPPET") 
-      let snippet = r["SNIPPET"]
+    if nvlime#HasKey(r, 'SNIPPET')
+      let snippet = nvlime#Get(r, 'SNIPPET')
     endif
-    if has_key(r, "SOURCE-FORM") 
-      let snippet = r["SOURCE-FORM"]
+    if nvlime#HasKey(r, 'SOURCE-FORM')
+      let snippet = nvlime#Get(r, 'SOURCE-FORM')
     endif
 
-    if has_key(r, "FILE") && has_key(r, "POSITION") 
+    if nvlime#HasKey(r, 'FILE') && nvlime#HasKey(r, 'POSITION')
       " The position is likely the byte position, so not actually useful for gF
-      let content = "\n\tFile: " . r["FILE"] . " " . r["POSITION"] . "\n"
+      let content = "\n\tFile: " .. nvlime#Get(r, "FILE") .. " " .. nvlime#Get(r, "POSITION") .. "\n"
     endif
   else
-    let content = "\n\tPosition: " . a:result[1] . "\n"
+    let content = "\n\tPosition: " .. a:result[1] .. "\n"
     let snippet = v:null
   endif
 
   if snippet isnot v:null
     let snippet_lines = split(snippet, "\n")
-    let snippet = join(map(snippet_lines, '"\t  " . v:val'), "\n")
-    let content .= "\n\tSnippet:\n" . snippet . "\n"
+    let snippet = join(map(snippet_lines, '"\t  " .. v:val'), "\n")
+    let content ..= "\n\tSnippet:\n" .. snippet .. "\n"
   endif
 
   let thread = b:nvlime_conn.GetCurrentThread()
@@ -471,7 +472,7 @@ function! s:FindSourceCB(edit_cmd, win_to_go, force_open, frame, conn, msg)
 
   let options = map(copy(locals),
         \ {idx, lc ->
-        \ string(idx + 1) . '. ' . nvlime#PListToDict(lc)['NAME']})
+        \ string(idx + 1) .. '. ' .. nvlime#Get(nvlime#PListToDict(lc), 'NAME')})
   echohl Question
   echom 'Which variable?'
   echohl None
@@ -489,7 +490,7 @@ endfunction
 function! s:FrameRestartable(frame)
   if len(a:frame) > 2
     let flags = nvlime#PListToDict(a:frame[2])
-    return get(flags, 'RESTARTABLE', v:false)
+    return nvlime#Get(flags, 'RESTARTABLE', v:false)
   endif
   return v:false
 endfunction

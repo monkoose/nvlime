@@ -10,11 +10,13 @@
 (fn content->lines [content]
   (var lines [])
   (each [_ item (ipairs content)]
-    (when (= (?. item 1 :name) "DESIGNATOR")
-      (let [end (match (?. item 3 :name)
-                  nil ""
-                  str (.. "  " (string.lower str)))]
-        (table.insert lines (.. (. item 2) end)))))
+    (let [name (?. item 1 :name)]
+      (when (or (= name "DESIGNATOR")
+                (= name "designator"))
+        (let [end (match (?. item 3 :name)
+                    nil ""
+                    str (.. "  " (string.lower str)))]
+          (table.insert lines (.. (. item 2) end))))))
   lines)
 
 ;;; WinID ->

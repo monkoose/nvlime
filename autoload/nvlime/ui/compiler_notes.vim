@@ -63,7 +63,7 @@ function! nvlime#ui#compiler_notes#OpenCurNote(edit_cmd = 'hide edit')
     return
   endif
 
-  let raw_note_loc = b:nvlime_compiler_note_list[note_coord['id']]['LOCATION']
+  let raw_note_loc = nvlime#Get(b:nvlime_compiler_note_list[note_coord['id']], 'LOCATION')
   try
     let note_loc = nvlime#ParseSourceLocation(raw_note_loc)
     let valid_loc = nvlime#GetValidSourceLocation(note_loc)

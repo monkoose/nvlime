@@ -50,9 +50,9 @@ local function coord_range(coord)
 end
 local function in_coord_range_3f(coord, linenr, col)
   local begin_l, begin_c, end_l, end_c = coord_range(coord)
-  if (function(_6_,_7_,_8_) return (_6_ >= _7_) and (_7_ >= _8_) end)(end_l,linenr,begin_l) then
-    if (function(_9_,_10_,_11_) return (_9_ == _10_) and (_10_ == _11_) end)(linenr,begin_l,end_l) then
-      return (function(_12_,_13_,_14_) return (_12_ >= _13_) and (_13_ >= _14_) end)(end_c,col,begin_c)
+  if (end_l >= linenr) and (linenr >= begin_l) then
+    if (linenr == begin_l) and (begin_l == end_l) then
+      return (end_c >= col) and (col >= begin_c)
     elseif (linenr == begin_l) then
       return (col >= begin_c)
     elseif (linenr == end_l) then
@@ -65,9 +65,9 @@ local function in_coord_range_3f(coord, linenr, col)
   end
 end
 local function get_win_cursor(winid)
-  local _let_17_ = vim.api.nvim_win_get_cursor(winid)
-  local linenr = _let_17_[1]
-  local col_0 = _let_17_[2]
+  local _let_8_ = vim.api.nvim_win_get_cursor(winid)
+  local linenr = _let_8_[1]
+  local col_0 = _let_8_[2]
   return {linenr, (col_0 + 1)}
 end
 local function set_win_cursor(winid, pos)
