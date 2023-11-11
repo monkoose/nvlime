@@ -23,7 +23,8 @@
     :until
     (restart-case
         (progn
-          (nvlime:main :port port #+allegro :backend #+allegro :nvlime-patched t))
+          (nvlime:main :port port #+allegro :backend #+allegro :nvlime-patched)
+          t)
       (choose-different-port (p)
         :report "Choose a different port"
         :interactive read-port
