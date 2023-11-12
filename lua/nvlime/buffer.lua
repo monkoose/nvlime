@@ -50,7 +50,7 @@ end
 buffer.create = function(name, listed_3f, _3fcallback)
   local bufnr = vim.api.nvim_create_buf(listed_3f, false)
   vim.api.nvim_buf_set_name(bufnr, name)
-  buffer["set-opts"](bufnr, {buftype = "nofile", modifiable = false, swapfile = false, modeline = false})
+  buffer["set-opts"](bufnr, {buftype = "nofile", modeline = false, modifiable = false, swapfile = false})
   if not listed_3f then
     local function _5_()
       return buffer["set-opts"](bufnr, {buflisted = false})
