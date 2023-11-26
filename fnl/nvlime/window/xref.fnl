@@ -14,10 +14,10 @@
 (fn content->lines [content]
   (var lines [])
   (each [_ xref (ipairs content)]
-    (let [filename (. xref 2 2 2)
+    (let [filename (?. xref 2 2 2)
           sym (string.gsub (. xref 1) "\n%s*" " ")]
       (table.insert lines sym)
-      (table.insert lines (.. "  ;; " filename))))
+      (table.insert lines (.. "  ;; " (or filename (?. xref 2 1 :name))))))
   lines)
 
 ;;; LineNr -> integer

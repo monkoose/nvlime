@@ -50,9 +50,9 @@ local function coord_range(coord)
 end
 local function in_coord_range_3f(coord, linenr, col)
   local begin_l, begin_c, end_l, end_c = coord_range(coord)
-  if (end_l >= linenr) and (linenr >= begin_l) then
-    if (linenr == begin_l) and (begin_l == end_l) then
-      return (end_c >= col) and (col >= begin_c)
+  if ((end_l >= linenr) and (linenr >= begin_l)) then
+    if ((linenr == begin_l) and (begin_l == end_l)) then
+      return ((end_c >= col) and (col >= begin_c))
     elseif (linenr == begin_l) then
       return (col >= begin_c)
     elseif (linenr == end_l) then
