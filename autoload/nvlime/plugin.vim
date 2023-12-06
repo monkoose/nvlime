@@ -939,8 +939,6 @@ function! nvlime#plugin#CalcCurIndent(shift_width = 2)
     return indent(line_no)
   endif
 
-  let conn = nvlime#connection#Get(v:true)
-
   " The deepest special forms this function can handle are FLET/LABELS,
   " which are of depth 3, thus the magic number "3" here.
   let op_list = nvlime#ui#ParseOuterOperators(3)
@@ -953,7 +951,7 @@ function! nvlime#plugin#CalcCurIndent(shift_width = 2)
 
   " 1. Special forms such as FLET
   let a_count = s:IndentCheckSpecialForms(op_list)
-  if a_count is v:null
+  if type(a_count) == type(v:null)
     let matches = matchlist(op_list[0][0],
           \ '\(\([^:|]\+\||[^|]\+|\):\{1,2}\)\?\([^:|]\+\||[^|]\+|\)$')
     if len(matches) == 0
@@ -962,6 +960,7 @@ function! nvlime#plugin#CalcCurIndent(shift_width = 2)
     let op = tolower(s:NormalizeIdentifierForIndentInfo(matches[3]))
   endif
 
+  let conn = nvlime#connection#Get(v:true)
   " 2. Swank-provided indent keywords
   if a_count is v:null && conn isnot v:null
     let op_pkg = toupper(s:NormalizeIdentifierForIndentInfo(matches[2]))

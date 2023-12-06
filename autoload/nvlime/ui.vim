@@ -526,7 +526,10 @@ endfunction
 function! nvlime#ui#CurOperator()
   " There may be an incomplete expression, so instead of
   " @function(nvlime#ui#CurExpr) we use searchpairpos() instead
-  let [s_line, s_col] = nvlime#ui#SearchParenPos('cbnW')
+  let [line, col] = getcurpos()[1:2]
+  let [s_line, s_col] = luaeval('require"nvlime.search".pair_paren(_A[1], _A[2], _A[3])',
+        \ [line, col, {'backward': v:true, 'same-column?': v:true}])
+  " let [s_line, s_col] = nvlime#ui#SearchParenPos('cbnW')
   if s_line > 0 && s_col > 0
     let op_line = getline(s_line)[(s_col-1):]
     let matches = matchlist(op_line, '^(\s*\(\k\+\)\s*')
@@ -544,7 +547,10 @@ endfunction
 " surrounding expression instead, if the cursor is on the left enclosing
 " parentheses.
 function! nvlime#ui#SurroundingOperator()
-  let [s_line, s_col] = nvlime#ui#SearchParenPos('bnW')
+  let [line, col] = getcurpos()[1:2]
+  let [s_line, s_col] = luaeval('require"nvlime.search".pair_paren(_A[1], _A[2], _A[3])',
+        \ [line, col, {'backward': v:true}])
+  " let [s_line, s_col] = nvlime#ui#SearchParenPos('bnW')
   if s_line > 0 && s_col > 0
     let op_line = getline(s_line)[(s_col-1):]
     let matches = matchlist(op_line, '^(\s*\(\k\+\)\s*')
@@ -558,14 +564,20 @@ endfunction
 function! nvlime#ui#ParseOuterOperators(max_count)
   let stack = []
   let old_cur_pos = getcurpos()
+  let line = old_cur_pos[1]
+  let col = old_cur_pos[2]
+  let stopline = luaeval('require"nvlime.search".top_form_line(true)')
   try
     while len(stack) < a:max_count
-      let [p_line, p_col] = nvlime#ui#SearchParenPos('bnW')
+      let [p_line, p_col] = luaeval('require"nvlime.search".pair_paren(_A[1], _A[2], _A[3])',
+            \ [line, col, {'backward': v:true, 'stopline': stopline}])
       if p_line <= 0 || p_col <= 0
         break
       endif
       let cur_pos = nvlime#ui#CurArgPos([p_line, p_col])
 
+      let line = p_line
+      let col = p_col
       call setpos('.', [0, p_line, p_col, 0])
       let cur_op = nvlime#ui#CurOperator()
       call add(stack, [cur_op, cur_pos, [p_line, p_col]])
