@@ -908,8 +908,8 @@ function! s:SpaceEnter(id)
 endfunction
 
 function! nvlime#plugin#SpaceEnterKey()
-  " call timer_stop(s:key_timer)
-  " let s:key_timer = timer_start(500, function('s:SpaceEnter'))
+  call timer_stop(s:key_timer)
+  let s:key_timer = timer_start(150, function('s:SpaceEnter'))
 endfunction
 
 " Currently not used
