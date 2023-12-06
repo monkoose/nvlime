@@ -6,10 +6,10 @@
 
 (fn lisp.add []
   (km.buffer.insert lm.insert.space_arglist
-                    "<Space><C-r>=nvlime#plugin#NvlimeKey('space')<CR>"
+                    "<Space><Cmd>call nvlime#plugin#SpaceEnterKey()<CR>"
                     "nvlime: Trigger the arglist hint")
   (km.buffer.insert lm.insert.cr_arglist
-                    "<CR><C-r>=nvlime#plugin#NvlimeKey('cr')<CR>"
+                    "<CR><Cmd>call nvlime#plugin#SpaceEnterKey()<CR>"
                     "nvlime: Trigger the arglist hint")
 
   (km.buffer.normal lm.normal.interaction_mode

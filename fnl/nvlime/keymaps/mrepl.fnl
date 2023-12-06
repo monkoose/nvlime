@@ -11,13 +11,13 @@
                     "<Cmd>call nvlime#ui#mrepl#Disconnect()<CR>"
                     "nvlime: Disconnect from this REPL")
   (km.buffer.insert mm.insert.space_arglist
-                    "<Space><C-r>=nvlime#plugin#NvlimeKey('space')<CR>"
+                    "<Space><Cmd>call nvlime#plugin#SpaceEnterKey()<CR>"
                     "nvlime: Trigger the arglist hint")
   (km.buffer.insert mm.insert.submit
                     "<C-r>=nvlime#ui#mrepl#Submit()<CR>"
                     "nvlime: Submit the last input to the REPL")
   (km.buffer.insert mm.insert.cr_arglist
-                    "<CR><C-r>=nvlime#plugin#NvlimeKey('cr')<CR>"
+                    "<CR><Cmd>call nvlime#plugin#SpaceEnterKey<CR>"
                     "nvlime: Insert a newline and trigger the arglist hint")
   (km.buffer.insert mm.insert.interrupt
                     "<C-r>=nvlime#ui#mrepl#Interrupt()<CR>"

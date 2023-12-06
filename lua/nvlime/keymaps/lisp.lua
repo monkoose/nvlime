@@ -3,8 +3,8 @@ local lm = km.mappings.lisp
 local repl = require("nvlime.window.main.repl")
 local lisp = {}
 lisp.add = function()
-  km.buffer.insert(lm.insert.space_arglist, "<Space><C-r>=nvlime#plugin#NvlimeKey('space')<CR>", "nvlime: Trigger the arglist hint")
-  km.buffer.insert(lm.insert.cr_arglist, "<CR><C-r>=nvlime#plugin#NvlimeKey('cr')<CR>", "nvlime: Trigger the arglist hint")
+  km.buffer.insert(lm.insert.space_arglist, "<Space><Cmd>call nvlime#plugin#SpaceEnterKey()<CR>", "nvlime: Trigger the arglist hint")
+  km.buffer.insert(lm.insert.cr_arglist, "<CR><Cmd>call nvlime#plugin#SpaceEnterKey()<CR>", "nvlime: Trigger the arglist hint")
   km.buffer.normal(lm.normal.interaction_mode, "<Cmd>call nvlime#plugin#InteractionMode()<CR>", "nvlime: Toggle interaction mode")
   km.buffer.normal(lm.normal.load_file, "<Cmd>call nvlime#plugin#LoadFile(nvim_buf_get_name(0))<CR>", "nvlime: Load the current file")
   km.buffer.normal(lm.normal.disassemble.expr, "<Cmd>call nvlime#plugin#DisassembleForm(nvlime#ui#CurExpr())<CR>", "nvlime: Disassemble the form under the cursor")

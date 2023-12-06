@@ -895,34 +895,39 @@ function! nvlime#plugin#CompleteFunc(findstart, base)
   return {'words': [], 'refresh': 'always'}
 endfunction
 
-function! nvlime#plugin#NvlimeKey(key)
-  let key = tolower(a:key)
-  if key == 'space' || key == 'cr'
-    if g:nvlime_options.autodoc.enabled
-      call nvlime#plugin#CurAutodoc()
-    else
-      let op = nvlime#ui#SurroundingOperator()
-      if s:NeedToShowArgList(op)
-        call nvlime#plugin#ShowOperatorArgList(op)
-      endif
-    endif
-  elseif key == 'tab'
-    if s:isInString()
-      return "\<tab>"
-    endif
-    let line = getline('.')
-    let spaces = nvlime#ui#CalcLeadingSpaces(line, v:true)
-    let col = virtcol('.')
-    if col <= spaces + 1
-      let indent = nvlime#plugin#CalcCurIndent()
-      call nvlime#ui#IndentCurLine(indent)
-    else
-      return "\<c-x>\<c-o>"
-    endif
+let s:key_timer = 0
+function! s:SpaceEnter(id)
+  if g:nvlime_options.autodoc.enabled
+    call nvlime#plugin#CurAutodoc()
   else
-    throw 'nvlime#plugin#NvlimeKey: Unknown key: ' . a:key
+    let op = nvlime#ui#SurroundingOperator()
+    if s:NeedToShowArgList(op)
+      call nvlime#plugin#ShowOperatorArgList(op)
+    endif
   endif
-  return ''
+endfunction
+
+function! nvlime#plugin#SpaceEnterKey()
+  " call timer_stop(s:key_timer)
+  " let s:key_timer = timer_start(500, function('s:SpaceEnter'))
+endfunction
+
+" Currently not used
+function! nvlime#plugin#TabKey(key)
+  if s:isInString()
+    return "\<tab>"
+  endif
+
+  let line = getline('.')
+  let spaces = nvlime#ui#CalcLeadingSpaces(line, v:true)
+  let col = virtcol('.')
+  if col <= spaces + 1
+    let indent = nvlime#plugin#CalcCurIndent()
+    call nvlime#ui#IndentCurLine(indent)
+    return ''
+  else
+    return "\<c-x>\<c-o>"
+  endif
 endfunction
 
 ""
