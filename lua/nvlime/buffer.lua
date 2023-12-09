@@ -13,6 +13,9 @@ end
 buffer["gen-filetype"] = function(suffix)
   return ("nvlime_" .. suffix)
 end
+buffer["get-opt"] = function(bufnr, opt)
+  return vim.api.nvim_buf_get_option(bufnr, opt)
+end
 buffer["set-opts"] = function(bufnr, opts)
   for opt, val in pairs(opts) do
     vim.api.nvim_buf_set_option(bufnr, opt, val)

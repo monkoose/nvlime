@@ -30,7 +30,7 @@
 
 ;;; string -> ?number
 (fn flags->kind [flags]
-  (var kinds {})
+  (local kinds {})
   (for [i 1 (length flags)]
     (let [kind (. flag-kind (flags:sub i i))]
       (when kind

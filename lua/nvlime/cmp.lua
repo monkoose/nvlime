@@ -70,17 +70,17 @@ source.complete = function(self, params, callback)
   local on_done
   local function _10_(candidates)
     local function _11_()
-      local tbl_17_auto = {}
-      local i_18_auto = #tbl_17_auto
+      local tbl_18_auto = {}
+      local i_19_auto = 0
       for _, c in ipairs((candidates or {})) do
-        local val_19_auto = get_lsp_kind(c)
-        if (nil ~= val_19_auto) then
-          i_18_auto = (i_18_auto + 1)
-          do end (tbl_17_auto)[i_18_auto] = val_19_auto
+        local val_20_auto = get_lsp_kind(c)
+        if (nil ~= val_20_auto) then
+          i_19_auto = (i_19_auto + 1)
+          do end (tbl_18_auto)[i_19_auto] = val_20_auto
         else
         end
       end
-      return tbl_17_auto
+      return tbl_18_auto
     end
     return callback(_11_())
   end

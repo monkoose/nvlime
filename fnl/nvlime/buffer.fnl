@@ -49,6 +49,11 @@
   "Generate nvlime filetype."
   (.. "nvlime_" suffix))
 
+;;; BufNr string -> any
+(fn buffer.get-opt [bufnr opt]
+  "Get buffer local option `opt`."
+  (vim.api.nvim_buf_get_option bufnr opt))
+
 ;;; TODO rewrite to macro
 ;;; BufNr {any} ->
 (fn buffer.set-opts [bufnr opts]

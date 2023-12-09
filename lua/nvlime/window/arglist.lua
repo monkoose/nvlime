@@ -21,6 +21,7 @@ local function calc_opts(args)
   return {relative = "win", row = row, col = wininfo.textoff, width = width, height = height, focusable = false}
 end
 local function win_callback(winid)
+  window["set-opt"](winid, "conceallevel", 2)
   local function _2_()
     return window["close-float"](winid)
   end
@@ -36,14 +37,12 @@ arglist.show = function(content)
     local winid = _4_
     window["update-win-options"](winid, opts)
     return {winid, bufnr}
-  elseif true then
+  else
     local _ = _3_
     local function _5_(_241)
       return win_callback(_241)
     end
     return {window["open-float"](bufnr, opts, false, false, _5_), bufnr}
-  else
-    return nil
   end
 end
 return arglist
