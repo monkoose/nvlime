@@ -28,6 +28,7 @@
 
 ;;; WinID ->
 (fn win-callback [winid]
+  (window.set-opt winid "conceallevel" 2)
   (vim.api.nvim_create_autocmd
     "InsertLeave"
     {:callback #(window.close-float winid)

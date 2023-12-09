@@ -855,14 +855,6 @@ endfunction
 " Show {content} in the arglist buffer. {conn} should be a
 " @dict(NvlimeConnection).
 function! nvlime#ui#ShowArgList(conn, content)
-  if !exists('#NvlimeArgListInit')
-    augroup NvlimeArgListInit
-      autocmd!
-      let escaped_name = escape(nvlime#ui#ArgListBufName(), ' |\' .. '/')
-      execute 'autocmd BufWinEnter' escaped_name 'setlocal conceallevel=2'
-    augroup end
-  endif
-
   call luaeval('require"nvlime.window.arglist".show(_A)', a:content)
 endfunction
 
