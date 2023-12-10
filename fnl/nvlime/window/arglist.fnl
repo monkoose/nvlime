@@ -13,7 +13,7 @@
   (let [border-len 2
         wininfo (psl-win.get-info (vim.api.nvim_get_current_win))
         width (- wininfo.width wininfo.textoff border-len)
-        height (length args.lines)
+        height (math.min 4 (length args.lines))
         curline (vim.fn.line ".")
         row (if (> (- curline wininfo.topline)
                    (- (+ wininfo.topline wininfo.height) curline))
@@ -34,7 +34,7 @@
     {:callback #(window.close-float winid)
      :once true}))
 
-;;; string {any} -> [WinID BufNr]
+;;; string -> [WinID BufNr]
 (fn arglist.show [content]
   "Opens/updates arglist window."
   (let [lines (ut.text->lines content)

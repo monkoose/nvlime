@@ -145,7 +145,7 @@ end
 window.close_last_float = function()
   local last_float_winid = window["last-float-except-current"]()
   if last_float_winid then
-    vim.api.nvim_win_close(last_float_winid, true)
+    nvim_win_close(last_float_winid, true)
     return last_float_winid
   else
     return nil

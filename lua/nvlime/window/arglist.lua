@@ -10,7 +10,7 @@ local function calc_opts(args)
   local border_len = 2
   local wininfo = psl_win["get-info"](vim.api.nvim_get_current_win())
   local width = (wininfo.width - wininfo.textoff - border_len)
-  local height = #args.lines
+  local height = math.min(4, #args.lines)
   local curline = vim.fn.line(".")
   local row
   if ((curline - wininfo.topline) > ((wininfo.topline + wininfo.height) - curline)) then

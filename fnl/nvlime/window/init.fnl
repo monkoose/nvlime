@@ -128,6 +128,9 @@
 (fn window.last-float []
   "Returns winid of the last opened floating window."
   (let [win-list (nvim_tabpage_list_wins 0)]
+    ;; Last opened window always has the highest winid.
+    ;; 'nvim_tabpage_list_wins' isnot sorted, so it should be sorted first
+    ;; or just get the maximum of the found winids.
     (table.sort win-list #(> $1 $2))
     (var result nil)
     (each [_ winid (ipairs win-list) &until result]
@@ -151,12 +154,9 @@
 (fn window.close_last_float []
   "Closes last opened floating window (unless it is current window)
   and returns its id. Returns nil if such window wasn't found."
-  ;; Last opened window always has the highest winid.
-  ;; 'nvim_tabpage_list_wins' isnot sorted, so it should be sorted first
-  ;; or just get the maximum of the found winids.
   (let [last-float-winid (window.last-float-except-current)]
     (when last-float-winid
-      (vim.api.nvim_win_close last-float-winid true)
+      (nvim_win_close last-float-winid true)
       last-float-winid)))
 
 ;;; integer bool ->
