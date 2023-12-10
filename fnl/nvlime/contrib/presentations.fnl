@@ -1,4 +1,3 @@
-(import-macros {: return} "parsley.macros")
 (local buffer (require "nvlime.buffer"))
 (local psl (require "parsley"))
 (local psl-buf (require "parsley.buffer"))
@@ -9,7 +8,7 @@
                       "nvlime_presentations")})
 
 (var *repl-bufnr* nil)
-(var *pending-coords* {})
+(local *pending-coords* {})
 
 ;;; BufNr string ->
 (fn set-presentation-begin [bufnr msg]
@@ -27,11 +26,17 @@
         last-col (psl-buf.line-length bufnr last-linenr)]
     (tset coord :end [last-linenr last-col])))
 
-;;; [{any}] -> {any}
+;;; [{any}] -> ({any} integer)
 (fn get-pending-coord [coords-list]
-  (each [i coord (ipairs coords-list)]
+  (var index 0)
+  (var pending-coord nil)
+  (each [i coord (ipairs coords-list)
+         &until pending-coord]
     (when (not (. coord :end))
-      (return coord i))))
+      (set index i)
+      (set pending-coord coord)))
+  (when pending-coord
+    (values pending-coord index)))
 
 (fn highlight-presentation [bufnr coord]
   (let [begin (. coord :begin)

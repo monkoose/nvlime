@@ -7,7 +7,7 @@ local _2apending_coords_2a = {}
 local function set_presentation_begin(bufnr, msg)
   local last_linenr = vim.api.nvim_buf_line_count(bufnr)
   local id = psl.second(msg)
-  local coords_list = ((_2apending_coords_2a)[id] or {})
+  local coords_list = (_2apending_coords_2a[id] or {})
   table.insert(coords_list, {begin = {(last_linenr + 1), 1}, type = "PRESENTATION", id = id})
   do end (_2apending_coords_2a)[id] = coords_list
   return nil
@@ -19,21 +19,29 @@ local function set_presentation_end(bufnr, coord)
   return nil
 end
 local function get_pending_coord(coords_list)
+  local index = 0
+  local pending_coord = nil
   for i, coord in ipairs(coords_list) do
+    if pending_coord then break end
     if not coord["end"] then
-      return coord, i
+      index = i
+      pending_coord = coord
     else
     end
   end
-  return nil
+  if pending_coord then
+    return pending_coord, index
+  else
+    return nil
+  end
 end
 local function highlight_presentation(bufnr, coord)
   local begin = coord.begin
   local _end = coord["end"]
-  local function _2_()
+  local function _3_()
     return vim.api.nvim_buf_set_extmark(bufnr, presentation.namespace, (psl.first(begin) - 1), (psl.second(begin) - 1), {end_row = (psl.first(_end) - 1), end_col = psl.second(_end), hl_group = "nvlime_replCoord"})
   end
-  return vim.defer_fn(_2_, 3)
+  return vim.defer_fn(_3_, 3)
 end
 presentation.on_start = function(conn, msg)
   local _, repl_bufnr = psl_buf["exists?"](buffer["gen-repl-name"](conn.cb_data.name))
@@ -47,7 +55,7 @@ end
 presentation.on_end = function(_, msg)
   if _2arepl_bufnr_2a then
     local id = psl.second(msg)
-    local coords_list = ((_2apending_coords_2a)[id] or {})
+    local coords_list = (_2apending_coords_2a[id] or {})
     local pending_coord, idx = get_pending_coord(coords_list)
     if pending_coord then
       set_presentation_end(_2arepl_bufnr_2a, pending_coord)
