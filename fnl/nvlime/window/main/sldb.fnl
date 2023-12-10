@@ -22,21 +22,21 @@
 ;;; TODO remove flickering of stepping and continue
 ;;; {any} ->
 (fn sldb.on-debug-return [config]
-  (match (psl-buf.exists? (buffer.gen-sldb-name
-                            config.conn-name config.thread))
-    (true bufnr)
-    (let [buf-level (or (vim.api.nvim_buf_get_var
-                          bufnr "nvlime_sldb_level")
-                        -1)]
-      (when (= buf-level config.level)
-        (main.sldb:remove-buf bufnr)
-        (buffer.fill! bufnr [])
-        (buffer.set-vars bufnr {:buflisted false})
-        (if (not (psl.empty? main.sldb.buffers))
-            (vim.api.nvim_win_set_buf
-              main.sldb.id (. main.sldb.buffers
-                              (length main.sldb.buffers)))
-            (vim.api.nvim_win_close main.sldb.id true))))))
+  (let [(exists? bufnr) (psl-buf.exists? (buffer.gen-sldb-name
+                                           config.conn-name config.thread))]
+
+    (when exists?
+      (let [buf-level (or (vim.api.nvim_buf_get_var bufnr "nvlime_sldb_level")
+                          -1)]
+        (when (= buf-level config.level)
+          (main.sldb:remove-buf bufnr)
+          (buffer.fill! bufnr [])
+          (buffer.set-vars bufnr {:buflisted false})
+          (if (not (psl.empty? main.sldb.buffers))
+              (vim.api.nvim_win_set_buf
+                main.sldb.id (. main.sldb.buffers
+                                (length main.sldb.buffers)))
+              (vim.api.nvim_win_close main.sldb.id true)))))))
 
 ;;; string {any} -> [WinID BufNr]
 (fn sldb.open [content config]

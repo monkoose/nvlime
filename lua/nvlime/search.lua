@@ -45,27 +45,37 @@ local function skip_by_region(line, col)
   end
 end
 local function skip_same_paren(backward_3f)
+  local count = 0
   local same_paren
   if backward_3f then
     same_paren = ")"
   else
     same_paren = "("
   end
-  local count = 0
-  local function _6_(paren)
+  local inc_skip
+  local function _6_()
+    count = (count + 1)
+    return true
+  end
+  inc_skip = _6_
+  local dec_skip
+  local function _7_()
+    count = (count - 1)
+    return true
+  end
+  dec_skip = _7_
+  local function _8_(paren)
     if (paren == same_paren) then
-      count = (count + 1)
-      return true
+      return inc_skip()
     else
       if (count == 0) then
         return false
       else
-        count = (count - 1)
-        return true
+        return dec_skip()
       end
     end
   end
-  return _6_
+  return _8_
 end
 local function find_forward(text, pattern, init)
   local index, _, bracket = string.find(text, pattern, (init and (1 + init)))
@@ -95,7 +105,7 @@ local function forward_matches(pattern, line, col, _end, same_column_3f)
     index = col
   end
   local capture = nil
-  local function _11_()
+  local function _13_()
     while text do
       index, capture = find_forward(text, pattern, index)
       if index then
@@ -108,14 +118,14 @@ local function forward_matches(pattern, line, col, _end, same_column_3f)
     end
     return nil
   end
-  return _11_
+  return _13_
 end
 local function backward_matches(pattern, line, col, start, same_column_3f)
   local lines = get_lines(start, line)
   local len = #lines
   local offset = (line - len)
   local reverse
-  local function _13_(list, i)
+  local function _15_(list, i)
     local str = list[i]
     if str then
       return str:reverse()
@@ -123,7 +133,7 @@ local function backward_matches(pattern, line, col, start, same_column_3f)
       return nil
     end
   end
-  reverse = _13_
+  reverse = _15_
   local i = len
   local index
   if same_column_3f then
@@ -133,7 +143,7 @@ local function backward_matches(pattern, line, col, start, same_column_3f)
   end
   local capture = nil
   local reversed_text = reverse(lines, i)
-  local function _16_()
+  local function _18_()
     while reversed_text do
       index, capture = find_backward(reversed_text, pattern, index)
       if index then
@@ -146,15 +156,15 @@ local function backward_matches(pattern, line, col, start, same_column_3f)
     end
     return nil
   end
-  return _16_
+  return _18_
 end
 search.top_form_line = function(backward_3f)
   local re = "^\\s*\\%($\\|;.*\\)\\n("
   local find_top
-  local function _18_(flags)
+  local function _20_(flags)
     return vim.fn.search(re, flags)
   end
-  find_top = _18_
+  find_top = _20_
   if backward_3f then
     return vim.fn.search(re, "bnW")
   else
@@ -178,14 +188,14 @@ search.pair_paren = function(line, col, opts)
     matches = forward_matches
   end
   local skip
-  local function _22_(l, c, paren)
+  local function _24_(l, c, paren)
     if skip_by_region(l, c) then
       return true
     else
       return skip_paren(paren)
     end
   end
-  skip = _22_
+  skip = _24_
   local result = nil
   for l, c, cap in matches(pattern, line, col, stopline, o["same-column?"]) do
     if result then break end

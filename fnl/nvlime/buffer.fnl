@@ -90,7 +90,7 @@
   "Get b:nvlime_conn variable, but without vimscript methods.
   Returns nil if it is not present."
   (buffer.set-conn-var! bufnr)
-  (match (pcall vim.api.nvim_buf_get_var bufnr "nvlime_conn")
+  (case (pcall vim.api.nvim_buf_get_var bufnr "nvlime_conn")
     (true conn) conn))
 
 ;;; BufName bool ?(fn [BufNr]) -> BufNr

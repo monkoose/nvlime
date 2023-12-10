@@ -66,14 +66,8 @@ local function content__3elines_2a(content)
         local splitted_line = vim.split(line, "\n")
         do
           local tbl_17_auto = lines
-          local i_18_auto = #tbl_17_auto
           for _, l in ipairs(splitted_line) do
-            local val_19_auto = l
-            if (nil ~= val_19_auto) then
-              i_18_auto = (i_18_auto + 1)
-              do end (tbl_17_auto)[i_18_auto] = val_19_auto
-            else
-            end
+            table.insert(tbl_17_auto, l)
           end
         end
         line = ""
@@ -103,17 +97,17 @@ end
 local function add_coords_highlight(bufnr)
   vim.api.nvim_buf_clear_namespace(bufnr, _2bnamespace_2b, 0, 1)
   local set_extmark
-  local function _13_(begin, _end, hl)
+  local function _12_(begin, _end, hl)
     return vim.api.nvim_buf_set_extmark(bufnr, _2bnamespace_2b, (begin[1] - 1), (begin[2] - 1), {end_row = (_end[1] - 1), end_col = (_end[2] - 1), hl_group = hl})
   end
-  set_extmark = _13_
+  set_extmark = _12_
   for _, coord in ipairs(_2acoords_2a) do
-    local _14_ = coord.type
-    if (_14_ == "ACTION") then
+    local _13_ = coord.type
+    if (_13_ == "ACTION") then
       set_extmark(coord.begin, coord["end"], "nvlime_inspectorAction")
-    elseif (_14_ == "VALUE") then
+    elseif (_13_ == "VALUE") then
       set_extmark(coord.begin, coord["end"], "nvlime_inspectorValue")
-    elseif (_14_ == "RANGE") then
+    elseif (_13_ == "RANGE") then
       set_extmark(coord.begin, coord["end"], "nvlime_inspectorAction")
     else
     end
@@ -123,10 +117,10 @@ end
 local function content__3elines(content)
   local content_2a = ut["plist->table"](content)
   local lookup_content
-  local function _16_(key)
-    return ((content_2a)[key] or (content_2a)[string.lower(key)])
+  local function _15_(key)
+    return (content_2a[key] or content_2a[string.lower(key)])
   end
-  lookup_content = _16_
+  lookup_content = _15_
   local content_data = lookup_content("CONTENT")
   local title = lookup_content("TITLE")
   local range_buttons = make_range_buttons(content_data)
@@ -142,10 +136,10 @@ inspector.open = function(content)
   _2acoords_2a = {}
   local lines = content__3elines(content)
   local bufnr
-  local function _17_(_241)
+  local function _16_(_241)
     return buf_callback(_241)
   end
-  bufnr = buffer["create-if-not-exists"](_2bbufname_2b, false, _17_)
+  bufnr = buffer["create-if-not-exists"](_2bbufname_2b, false, _16_)
   local winid = window.center.open(bufnr, lines, {height = 12, width = 80, title = buffer.names.inspector})
   add_coords_highlight(bufnr)
   buffer["set-vars"](bufnr, {nvlime_inspector_title = _2acontent_title_2a, nvlime_inspector_coords = _2acoords_2a, nvlime_inspector_content_start = _2acontent_start_2a, nvlime_inspector_content_end = _2acontent_end_2a})

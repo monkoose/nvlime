@@ -55,18 +55,20 @@
       false))
 
 (fn skip-same-paren [backward?]
-  (let [same-paren (if backward? ")" "(")]
-    (var count 0)
+  (var count 0)
+  (let [same-paren (if backward? ")" "(")
+        inc-skip (fn []
+                   (set count (+ count 1))
+                   true)
+        dec-skip (fn []
+                   (set count (- count 1))
+                   true)]
     (fn [paren]
       (if (= paren same-paren)
-          (do
-            (set count (+ count 1))
-            true)
+          (inc-skip)
           (if (= count 0)
               false
-              (do
-                (set count (- count 1))
-                true))))))
+              (dec-skip))))))
 
 (fn find-forward [text pattern init]
   (let [(index _ bracket) (string.find text
@@ -85,10 +87,7 @@
 (fn get-lines [start end]
   (let [first (- start 1)]
     (vim.api.nvim_buf_get_lines
-      0
-      first
-      end
-      false)))
+      0 first end false)))
 
 (fn forward-matches [pattern line col end same-column?]
   (let [lines (get-lines line end)]
@@ -116,9 +115,7 @@
                     (when str
                       (str:reverse))))]
     (var i len)
-    (var index (if same-column?
-                   (+ 1 col)
-                   col))
+    (var index (if same-column? (+ 1 col) col))
     (var capture nil)
     (var reversed-text (reverse lines i))
     #(while reversed-text

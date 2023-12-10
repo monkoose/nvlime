@@ -11,9 +11,8 @@ local function buf_callback(bufnr, opts)
   return buffer["vim-call!"](bufnr, {("call b:nvlime_conn.SetCurrentThread(" .. opts.thread .. ")")})
 end
 sldb["on-debug-return"] = function(config)
-  local _1_, _2_ = psl_buf["exists?"](buffer["gen-sldb-name"](config["conn-name"], config.thread))
-  if ((_1_ == true) and (nil ~= _2_)) then
-    local bufnr = _2_
+  local exists_3f, bufnr = psl_buf["exists?"](buffer["gen-sldb-name"](config["conn-name"], config.thread))
+  if exists_3f then
     local buf_level = (vim.api.nvim_buf_get_var(bufnr, "nvlime_sldb_level") or -1)
     if (buf_level == config.level) then
       do end (function(tgt, m, ...) return tgt[m](tgt, ...) end)(main.sldb, "remove-buf", bufnr)
@@ -33,10 +32,10 @@ sldb["on-debug-return"] = function(config)
 end
 sldb.open = function(content, config)
   local bufnr
-  local function _6_(_241)
+  local function _4_(_241)
     return buf_callback(_241, config)
   end
-  bufnr = buffer["create-if-not-exists"](buffer["gen-sldb-name"](config["conn-name"], config.thread), true, _6_)
+  bufnr = buffer["create-if-not-exists"](buffer["gen-sldb-name"](config["conn-name"], config.thread), true, _4_)
   return {(main.sldb):open(bufnr, true), bufnr}
 end
 return sldb

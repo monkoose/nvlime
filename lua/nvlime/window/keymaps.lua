@@ -56,38 +56,30 @@ local function open_keymaps_win(bufnr)
   local lines = {format_keymap_line("MODE", "MAP", "DESCRIPTION")}
   do
     local tbl_17_auto = lines
-    local i_18_auto = #tbl_17_auto
     for _, map in ipairs(km.buffer.get()) do
-      local val_19_auto = format_keymap_line(map.mode, map.lhs, map.desc)
-      if (nil ~= val_19_auto) then
-        i_18_auto = (i_18_auto + 1)
-        do end (tbl_17_auto)[i_18_auto] = val_19_auto
-      else
-      end
+      table.insert(tbl_17_auto, format_keymap_line(map.mode, map.lhs, map.desc))
     end
   end
   if (#lines > 1) then
     buffer["fill!"](bufnr, lines)
-    local function _9_(_241)
+    local function _8_(_241)
       return win_callback(_241)
     end
-    return window["open-float"](bufnr, calc_keymaps_opts({lines = lines}), true, false, _9_)
+    return window["open-float"](bufnr, calc_keymaps_opts({lines = lines}), true, false, _8_)
   else
     return nil
   end
 end
 keymaps.toggle = function()
   local bufnr = buffer["create-scratch"](_2bbufname_2b, _2bfiletype_2b)
-  local _11_, _12_ = psl_buf["visible?"](bufnr)
-  if ((_11_ == true) and (nil ~= _12_)) then
-    local winid = _12_
+  local _10_, _11_ = psl_buf["visible?"](bufnr)
+  if ((_10_ == true) and (nil ~= _11_)) then
+    local winid = _11_
     window["close-float"](winid)
     return {winid, bufnr}
-  elseif true then
-    local _ = _11_
-    return {open_keymaps_win(bufnr), bufnr}
   else
-    return nil
+    local _ = _10_
+    return {open_keymaps_win(bufnr), bufnr}
   end
 end
 return keymaps

@@ -81,7 +81,7 @@
                          :end_col (- (. end 2) 1)
                          :hl_group hl}))]
     (each [_ coord (ipairs *coords*)]
-      (match coord.type
+      (case coord.type
         "ACTION" (set-extmark
                    coord.begin coord.end
                    "nvlime_inspectorAction")

@@ -74,7 +74,7 @@
 ;;; -> [WinID BufNr]
 (fn keymaps.toggle []
   (let [bufnr (buffer.create-scratch +bufname+ +filetype+)]
-    (match (psl-buf.visible? bufnr)
+    (case (psl-buf.visible? bufnr)
       (true winid) (do (window.close-float winid) [winid bufnr])
       _            [(open-keymaps-win bufnr) bufnr])))
 

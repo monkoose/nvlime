@@ -3,7 +3,7 @@
 (local opts (require "nvlime.config"))
 
 (local main-win-pos
-       (match opts.main_window.position
+       (case opts.main_window.position
          "top" "topleft"
          "left" "vertical topleft"
          "bottom" "botright"

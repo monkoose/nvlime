@@ -10,11 +10,11 @@ local function content__3elines(content)
     do
       local t_1_ = item
       if (nil ~= t_1_) then
-        t_1_ = (t_1_)[1]
+        t_1_ = t_1_[1]
       else
       end
       if (nil ~= t_1_) then
-        t_1_ = (t_1_).name
+        t_1_ = t_1_.name
       else
       end
       name = t_1_
@@ -26,11 +26,11 @@ local function content__3elines(content)
         do
           local t_5_ = item
           if (nil ~= t_5_) then
-            t_5_ = (t_5_)[3]
+            t_5_ = t_5_[3]
           else
           end
           if (nil ~= t_5_) then
-            t_5_ = (t_5_).name
+            t_5_ = t_5_.name
           else
           end
           _4_ = t_5_

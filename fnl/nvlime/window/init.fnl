@@ -215,7 +215,7 @@
 
 ;;; char -> BufNr
 (fn create-scrollbar-buffer [icon]
-  (match (psl-buf.exists? +scrollbar-bufname+)
+  (case (psl-buf.exists? +scrollbar-bufname+)
     (true bufnr) bufnr
     _ (let [bufnr (buffer.create +scrollbar-bufname+)]
         (buffer.fill!
@@ -335,7 +335,7 @@
   (let [cur-winid (nvim_get_current_win)]
     (when (not (psl-win.floating? cur-winid))
       (set *focus-winid* cur-winid))
-    (let [zindex (match (window.last-float)
+    (let [zindex (case (window.last-float)
                    nil 42
                    id (+ (psl-win.get-zindex id) 2))
           winid (nvim_open_win
@@ -403,12 +403,12 @@
         opts (window.cursor.calc-opts
                {:lines lines :title config.title})]
     (buffer.fill! bufnr lines)
-    (match (psl-buf.visible? bufnr)
+    (case (psl-buf.visible? bufnr)
       (true winid) (do
                      (window.update-win-options
                        winid opts (psl-win.floating? winid))
                      winid)
-      _ (match (visible-ft? config.similar)
+      _ (case (visible-ft? config.similar)
           (true winid) (do
                          (nvim_win_set_buf winid bufnr)
                          (window.update-win-options winid opts)
@@ -456,7 +456,7 @@
         opts (window.center.calc-opts opts-table)]
     (when (not config.noedit)
       (buffer.fill! bufnr lines))
-    (match (psl-buf.visible? bufnr)
+    (case (psl-buf.visible? bufnr)
       (true winid) (do
                      (window.update-win-options
                        winid opts true)

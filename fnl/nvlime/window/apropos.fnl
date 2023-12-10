@@ -13,7 +13,7 @@
     (let [name (?. item 1 :name)]
       (when (or (= name "DESIGNATOR")
                 (= name "designator"))
-        (let [end (match (?. item 3 :name)
+        (let [end (case (?. item 3 :name)
                     nil ""
                     str (.. "  " (string.lower str)))]
           (table.insert lines (.. (. item 2) end))))))

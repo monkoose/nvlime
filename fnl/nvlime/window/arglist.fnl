@@ -41,7 +41,7 @@
         bufnr (buffer.create-nolisted +bufname+ +filetype+)
         opts (calc-opts {: lines})]
     (buffer.fill! bufnr lines)
-    (match (psl-buf.visible? bufnr)
+    (case (psl-buf.visible? bufnr)
       (true winid) (do
                      (window.update-win-options winid opts)
                      [winid bufnr])
