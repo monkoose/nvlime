@@ -12,11 +12,9 @@ do
     main_win_pos = "botright"
   elseif (_1_ == "right") then
     main_win_pos = "vertical botright"
-  elseif true then
+  else
     local _ = _1_
     main_win_pos = "vertical botright"
-  else
-    main_win_pos = nil
   end
 end
 local main_win = {pos = main_win_pos, size = opts.main_window.size, ["vert?"] = (nil ~= (main_win_pos and string.find(main_win_pos, "^vertical")))}
@@ -79,7 +77,7 @@ main_win["split-opposite"] = function(self, bufnr)
   local opposite = main_win[self.opposite]
   vim.api.nvim_set_current_win(opposite.id)
   local height
-  if self.size then
+  if (self.size and (type(self.size) == "number")) then
     height = math.floor((psl_win["get-height"](opposite.id) * self.size))
   else
     height = ""

@@ -66,7 +66,8 @@
 (fn main-win.split-opposite [self bufnr]
   (let [opposite (. main-win self.opposite)]
     (vim.api.nvim_set_current_win opposite.id)
-    (let [height (if self.size
+    (let [height (if (and self.size
+                          (= (type self.size) "number"))
                      (math.floor
                        (* (psl-win.get-height
                             opposite.id)
