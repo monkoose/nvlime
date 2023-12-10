@@ -21,13 +21,15 @@
 
 ;;; [any] -> [string]
 (fn content->lines [content]
-  (local lines [])
-  (each [_ xref (ipairs content)]
-    (let [filename (?. xref 2 2 2)
-          sym (string.gsub (. xref 1) "\n%s*" " ")]
-      (table.insert lines sym)
-      (table.insert lines (.. "  ;; " (or filename (?. xref 2 1 :name))))))
-  lines)
+  (let [lines []]
+    (each [_ xref (ipairs content)]
+      ;; filename and parent keys can be missed, so use `?.`
+      (let [filename (?. xref 2 2 2)
+            filename-or-error (or filename (?. xref 2 1 :name))
+            sym (string.gsub (. xref 1) "\n%s*" " ")]
+        (table.insert lines sym)
+        (table.insert lines (.. "  ;; " filename-or-error))))
+    lines))
 
 ;;; LineNr -> integer
 (fn double-cursorline [linenr]

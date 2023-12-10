@@ -34,8 +34,7 @@ local function content__3elines(content)
       end
       filename = t_2_
     end
-    local sym = string.gsub(xref0[1], "\n%s*", " ")
-    table.insert(lines, sym)
+    local filename_or_error
     local function _6_(...)
       local t_7_ = xref0
       if (nil ~= t_7_) then
@@ -52,7 +51,10 @@ local function content__3elines(content)
       end
       return t_7_
     end
-    table.insert(lines, ("  ;; " .. (filename or _6_())))
+    filename_or_error = (filename or _6_())
+    local sym = string.gsub(xref0[1], "\n%s*", " ")
+    table.insert(lines, sym)
+    table.insert(lines, ("  ;; " .. filename_or_error))
   end
   return lines
 end
