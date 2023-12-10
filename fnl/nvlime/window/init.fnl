@@ -4,6 +4,10 @@
 (local psl-win (require "parsley.window"))
 (local options (require "nvlime.config"))
 
+;; TODO: after neovim 0.10 release
+;; Change `nvim_buf_set_option` and `nvim_win_set_option` 
+;; and the same get functions to `nvim_set_option_value`.
+;; Change `nvim_exec` to `nvim_exec2`
 (local {: nvim_buf_line_count
         : nvim_buf_get_name
         : nvim_win_set_option
