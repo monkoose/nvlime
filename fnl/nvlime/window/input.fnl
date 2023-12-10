@@ -5,16 +5,24 @@
 (local psl-buf (require "parsley.buffer"))
 (local psl-win (require "parsley.window"))
 
+(local {: nvim_create_namespace
+        : nvim_create_augroup
+        : nvim_create_autocmd
+        : nvim_buf_clear_namespace
+        : nvim_buf_set_extmark
+        : nvim_get_current_win}
+       vim.api)
+
 (local input {})
 
-(local +namespace+ (vim.api.nvim_create_namespace
+(local +namespace+ (nvim_create_namespace
                      (buffer.gen-filetype buffer.names.input)))
 
 ;;; {any} -> {any}
 (fn calc-opts [config]
   (let [border-len 2
         wininfo (psl-win.get-info
-                  (vim.api.nvim_get_current_win))
+                  (nvim_get_current_win))
         width (math.min 80 (- wininfo.width
                               wininfo.textoff
                               border-len))
@@ -51,26 +59,26 @@
 (fn show-history-extmark [bufnr]
   (var extmark-id 0)
   (let [history-len (length vim.g.nvlime_input_history)
-        group (vim.api.nvim_create_augroup
+        group (nvim_create_augroup
                 "nvlime-input-history" {})
         add-extmark
         (fn []
-          (vim.api.nvim_buf_clear_namespace
+          (nvim_buf_clear_namespace
             bufnr +namespace+ 0 -1)
           (set extmark-id
-               (vim.api.nvim_buf_set_extmark
+               (nvim_buf_set_extmark
                  bufnr +namespace+ 0 0
                  {:virt_lines
                   (text->virt-lines
                     (. vim.g.nvlime_input_history history-len))})))]
-    (vim.api.nvim_create_autocmd
+    (nvim_create_autocmd
       ["CursorMoved" "CursorMovedI"]
       {:group group
        :buffer bufnr
        :callback #(if (and (psl-buf.empty? bufnr)
                            (> history-len 0))
                       (add-extmark)
-                      (vim.api.nvim_buf_clear_namespace
+                      (nvim_buf_clear_namespace
                         bufnr +namespace+ 0 -1))})))
 
 ;;; string {any} -> [WinID BufNr]
