@@ -823,47 +823,6 @@ endfunction
 ""
 " @public
 "
-" Close Nvlime special windows. [win_name] is the type of windows to close. See
-" @function(nvlime#ui#GetWindowList) for valid values for [win_name]. If
-" [win_name] is omitted, show a menu to let you choose which window to close.
-function! nvlime#plugin#CloseWindow(win_name = v:null)
-  if a:win_name is v:null
-    let win_list = nvlime#ui#GetWindowList(v:null, '')
-    if len(win_list) <= 0
-      call nvlime#ui#ErrMsg('Cannot find any Nvlime window.')
-      return
-    endif
-
-    let win_choices = []
-    let idx = 1
-    for [winid, bufname] in win_list
-      call add(win_choices, idx . '. ' . bufname . ' (' . winid . ')')
-      let idx += 1
-    endfor
-
-    echohl Question
-    echom 'Which window to close?'
-    echohl None
-    let idx = inputlist(win_choices)
-    if idx <= 0
-      call nvlime#ui#ErrMsg('Canceled.')
-    else
-      let idx -= 1
-      if idx >= len(win_list)
-        call nvlime#ui#ErrMsg('Invalid window number: ' . idx)
-      else
-        let winnr = win_id2win(win_list[idx][0])
-        execute winnr . 'wincmd c'
-      endif
-    endif
-  else
-    call nvlime#ui#CloseWindow(v:null, a:win_name)
-  endif
-endfunction
-
-""
-" @public
-"
 " The completion function. This function is meant to be used as |omnifunc| or
 " |completefunc|. It is asynchronous, and will NOT return the completion list
 " immediately.

@@ -879,21 +879,6 @@ endfunction
 ""
 " @public
 "
-" Close Nvlime windows. See @function(nvlime#ui#GetWindowList) for the use of
-" {conn} and {win_name}.
-function! nvlime#ui#CloseWindow(conn, win_name)
-  let winid_list = nvlime#ui#GetWindowList(a:conn, a:win_name)
-  for [winid, bufname] in winid_list
-    let winnr = win_id2win(winid)
-    if winnr > 0
-      execute winnr . 'wincmd c'
-    endif
-  endfor
-endfunction
-
-""
-" @public
-"
 " Append {str} to [line] in the current buffer. Append to the last line if
 " [line] is omitted. Elaborately handle newline characters.
 function! nvlime#ui#AppendString(str, line = v:null)

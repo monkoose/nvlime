@@ -861,12 +861,6 @@ nvlime#plugin#UndefineUninternWrapper()
   |nvlime#plugin#UninternSymbol()|. Pick the type of action to perform
   interactively.
 
-nvlime#plugin#CloseWindow([win_name])              *nvlime#plugin#CloseWindow()*
-
-  Close Nvlime special windows. [win_name] is the type of windows to close. See
-  |nvlime#ui#GetWindowList()| for valid values for [win_name]. If [win_name] is
-  omitted, show a menu to let you choose which window to close.
-
 nvlime#plugin#CompleteFunc({findstart}, {base})   *nvlime#plugin#CompleteFunc()*
 
   The completion function. This function is meant to be used as |omnifunc| or
@@ -1052,11 +1046,6 @@ nvlime#ui#GetWindowList({conn}, {win_name})          *nvlime#ui#GetWindowList()*
 nvlime#ui#GetFiletypeWindowList({ft})        *nvlime#ui#GetFiletypeWindowList()*
 
   Return a list of windows containing buffers of filetype {ft}.
-
-nvlime#ui#CloseWindow({conn}, {win_name})              *nvlime#ui#CloseWindow()*
-
-  Close Nvlime windows. See |nvlime#ui#GetWindowList()| for the use of {conn}
-  and {win_name}.
 
 nvlime#ui#AppendString({str}, [line])                 *nvlime#ui#AppendString()*
 
