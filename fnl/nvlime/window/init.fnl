@@ -257,36 +257,40 @@
                content-height (nvim_buf_line_count info.bufnr)]
            (if (and (psl-win.floating? info.winid)
                     (scrollbar-required? info content-height))
-               (let [scrollbar-height (calc-scrollbar-height info content-height)
-                     scrollbar-offset (calc-scrollbar-offset
-                                        info content-height scrollbar-height)]
+               (let [scrollbar-height (calc-scrollbar-height info
+                                                             content-height)
+                     scrollbar-offset (calc-scrollbar-offset info
+                                                             content-height
+                                                             scrollbar-height)
+                     update-sb-window #(nvim_win_set_config
+                                         scrollbar-winid
+                                         {:relative "win"
+                                          :win info.winid
+                                          :height scrollbar-height
+                                          :row scrollbar-offset
+                                          :col info.width})
+                     open-sb-window (fn []
+                                      (set scrollbar-winid
+                                           (nvim_open_win
+                                             scrollbar-bufnr false
+                                             {:relative "win"
+                                              :win info.winid
+                                              :width 1
+                                              :height scrollbar-height
+                                              :row scrollbar-offset
+                                              :col info.width
+                                              :focusable false
+                                              :zindex (+ zindex 1)
+                                              :style "minimal"}))
+                                      (window.set-opts scrollbar-winid
+                                                       {:winhighlight "Normal:FloatBorder"})
+                                      ;; set this var to prevent functions such as `last-float`
+                                      ;; consider scrollbar windows as floating windows
+                                      (nvim_win_set_var
+                                        scrollbar-winid "nvlime_scrollbar" true))]
                  (if (psl-win.visible? scrollbar-winid)
-                     (nvim_win_set_config
-                       scrollbar-winid
-                       {:relative "win"
-                        :win info.winid
-                        :height scrollbar-height
-                        :row scrollbar-offset
-                        :col info.width})
-                     (do
-                       (set scrollbar-winid
-                            (nvim_open_win
-                              scrollbar-bufnr false
-                              {:relative "win"
-                               :win info.winid
-                               :width 1
-                               :height scrollbar-height
-                               :row scrollbar-offset
-                               :col info.width
-                               :focusable false
-                               :zindex (+ zindex 1)
-                               :style "minimal"}))
-                       ;; set this var to prevent functions such as `last-float`
-                       ;; consider scrollbar windows as floating windows
-                       (window.set-opts scrollbar-winid
-                                        {:winhighlight "Normal:FloatBorder"})
-                       (nvim_win_set_var
-                         scrollbar-winid "nvlime_scrollbar" true))))
+                     (update-sb-window)
+                     (open-sb-window)))
                (close-scrollbar)))]
     ;; Because plugin sets 'modified' option before changing content of
     ;; the plugin's buffers, then `BufModifiedSet` is enough instead of `TextChanged`.
