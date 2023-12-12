@@ -4,9 +4,10 @@ endif
 
 syntax match nvlime_disassemblyLine "\m^\s*[[:xdigit:]]\+:.*" contains=nvlime_disassemblyComment,nvlime_disassemblyLabel,
       \ nvlime_disassemblyAddress,@CodeInstruction
-syntax match nvlime_disassemblyAddress "\m\%>3l^\s*[[:xdigit:]]\+\ze:\s" contained
-syntax match nvlime_disassemblyLabel "\m\%>3l:\s\+\zsL\d*\ze:\s" contained
-syntax match nvlime_disassemblyInstruction "\m\%>3l:\zs\s\+[[:xdigit:]]\+\s\+\S\+\%(\s\|$\)" contained contains=nvlime_disassemblyAsmInstruction
+syntax match nvlime_disassemblyAddress "\m\%>3l^\s*[[:xdigit:]]\+\ze:\s" contained nextgroup=nvlime_disassemblyLabel,nvlime_disassemblyInstruction
+syntax match nvlime_disassemblyLabel "\m\%>3l:\s\+\zsL\d*\ze:\s" contained nextgroup=nvlime_disassemblyInstruction
+syntax match nvlime_disassemblyInstruction "\m\%>3l:\zs\s\+[[:xdigit:]]\+\s\+\S\+\%(\s\|$\)" contained
+      \ contains=nvlime_disassemblyAsmInstruction nextgroup=nvlime_disassemblyComment
 syntax match nvlime_disassemblyAsmInstruction "\m\%>3l\s\+[[:xdigit:]]\+\s\+\zs\S\+\ze\%(\s\|$\)" contained
 syntax cluster CodeInstruction contains=nvlime_disassemblyInstruction,nvlime_disassemblyAsmInstruction
 
@@ -26,7 +27,6 @@ syntax match nvlime_disassemblySymbol "\m\%1ldisassembly\sfor\s\zs.*"
 hi def link nvlime_disassemblyAddress Constant
 hi def link nvlime_disassemblySize Constant
 hi def link nvlime_disassemblyComment Comment
-hi def link nvlime_disassemblySymbol Statement
 hi def link nvlime_disassemblySymbol Statement
 hi def link nvlime_disassemblyLabel Statement
 hi def link nvlime_disassemblyInstruction Identifier
