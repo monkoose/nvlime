@@ -1597,10 +1597,7 @@ endfunction
 
 function! nvlime#Get(dict, key, default = v:null)
   " This is used to accomodate *PRINT-CASE*
-  if has_key(a:dict, a:key)
-    return get(a:dict, a:key, a:default)
-  endif
-  return get(a:dict, tolower(a:key), a:default)
+  return get(a:dict, a:key, get(a:dict, tolower(a:key), a:default))
 endfunction
 
 function! s:CheckReturnStatus(return_msg, caller)
