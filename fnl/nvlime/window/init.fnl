@@ -35,34 +35,34 @@
 (var *focus-winid* 1000)
 
 ;;; [FileType] -> ?(true WinID)
-(fn visible-ft? [filetypes]
-  "Checks if any window in the current tabpage shows
-  a buffer with any of specified `filetypes`."
-  (var found-winid false)
+(fn filetype-win [filetypes]
+  "Returns first found window in which displayed buffer has
+any of the listed `filetypes`. If there is no such window returns nil."
+  (var found-winid nil)
   (each [_ winid (ipairs (nvim_tabpage_list_wins 0)) &until found-winid]
     (let [bufnr (nvim_win_get_buf winid)
           buf-ft (psl-buf.filetype bufnr)]
       (each [_ ft (ipairs filetypes) &until found-winid]
         (when (= buf-ft ft)
           (set found-winid winid)))))
-  (when found-winid
-    (values true found-winid)))
+  found-winid)
 
 ;;; WinID string any ->
 (fn window.set-opt [winid opt value]
-  "Set window local option `opt` with `value`."
+  "Set the window's local option."
   (nvim_win_set_option winid opt value))
 
 ;;; WinID {any} ->
 (fn window.set-opts [winid opts]
-  "Set window local options from the hash table where
-  key - option name, value - option value."
+  "Sets window's local options, `opts` is table with
+option name as key and new value as it's value."
   (each [opt val (pairs opts)]
     (nvim_win_set_option winid opt val)))
 
 ;;; WinID ->
 (fn window.set-minimal-style-options [winid]
-  "Sets preconfigured window options."
+  "Sets minimal style window options for the window 
+with `winid`."
   (window.set-opts
     winid {:wrap true
            :number false
@@ -73,6 +73,9 @@
 
 ;;; integer integer integer -> (bool integer)
 (fn window.find-horiz-pos [req-height scr-row scr-height]
+  "Finds where is more line space on the screen (top or bottom)
+related to the screen row and the screen height. Returns (true height)
+for bottom and (false height) for top."
   (let [border-len 3
         bot-height (- scr-height scr-row border-len)
         top-height (- scr-row border-len)
@@ -82,25 +85,29 @@
         (values true (math.min bot-height req-height))
         (values false (math.min top-height req-height)))))
 
-;;; WinID (fn [{any}] {any}) {any} ?bool ->
+;;; WinID {any} ?bool ->
 (fn window.update-win-options [winid opts ?focus?]
-  "Updates window options"
+  "Updates a floating window options with `opts` as in
+vim.api.nvim_open_win(), then focus this window if required."
   (nvim_win_set_cursor winid [1 0])
   (when (psl-win.floating? winid)
     (nvim_win_set_config winid opts))
   (when ?focus?
     (nvim_set_current_win winid)))
 
-;;; WinID -> bool
-(fn win-buf-nvlime-ft? [winid]
-  "Checks if window with `winid` has buffer with
-  one of nvlime filetypes."
+(fn win-nvlime-ft? [winid]
+  "Returns true if the window displays a buffer
+with any of the nvlime's filetypes; otherwise, returns false."
   (let [pattern "nvlime_"]
-    (string.find (psl-win.filetype winid) pattern)))
+    (not= nil
+       (string.find (psl-win.filetype winid)
+                    pattern))))
 
 ;;; WinID -> bool
 (fn main-win? [winid]
-  "Checks if window with `winid` is main plugin window."
+  "Returns true if the window is the main plugin's window;
+otherwise, returns false.
+Main windows are repl, sldb and compiler notes."
   (let [win-ft (psl-win.filetype winid)]
     (var result false)
     (each [_ ft
@@ -112,25 +119,26 @@
 
 ;;; (fn [WinID] bool) ->
 (fn window.close-when [predicate]
-  "Closes all windows in the current tabpage that meet the `predicate`."
+  "Closes all windows within the current tabpage that match the specified `predicate`.
+Predicate accepts one argument - integer representing window id and returns boolean."
   (each [_ winid (ipairs (nvim_tabpage_list_wins 0))]
     (when (predicate winid)
       (nvim_win_close winid true))))
 
-;;; ->
 (fn window.close_all []
-  "Closes all plugin's windows."
-  (window.close-when #(win-buf-nvlime-ft? $)))
+  "Closes all windows related to the plugin."
+  (window.close-when #(win-nvlime-ft? $)))
 
-;;; ->
 (fn window.close_all_except_main []
-  "Closes all plugin's windows except main ones."
-  (window.close-when #(and (win-buf-nvlime-ft? $)
+  "Closes all windows associated with the plugin, excluding the main ones.
+Main windows are repl, sldb and compiler notes."
+  (window.close-when #(and (win-nvlime-ft? $)
                            (not (main-win? $)))))
 
 ;;; -> ?WinID
 (fn window.last-float []
-  "Returns winid of the last opened floating window."
+  "Returns winid of the last opened floating window, if no such
+window is present returns nil."
   (let [win-list (nvim_tabpage_list_wins 0)]
     ;; Last opened window always has the highest winid.
     ;; 'nvim_tabpage_list_wins' isnot sorted, so it should be sorted first
@@ -147,17 +155,16 @@
 
 ;;; -> ?WinID
 (fn window.last-float-except-current []
-  "Returns winid of the last opened floating window except
-  if it is current window."
+  "Returns the window ID of the most recently opened floating window,
+unless it is the current window. If no such window is present returns nil."
   (let [float-id (window.last-float)]
-    (if (= float-id (nvim_get_current_win))
-        nil
+    (when (not= float-id (nvim_get_current_win))
         float-id)))
 
 ;;; -> ?WinID
 (fn window.close_last_float []
-  "Closes last opened floating window (unless it is current window)
-  and returns its id. Returns nil if such window wasn't found."
+  "Closes last opened floating window, unless it is the current window,
+and returns its ID. Returns nil if such window wasn't found."
   (let [last-float-winid (window.last-float-except-current)]
     (when last-float-winid
       (nvim_win_close last-float-winid true)
@@ -165,7 +172,8 @@
 
 ;;; integer bool ->
 (fn window.scroll_float [step reverse?]
-  "Scrolls last opened floating window by `step` lines."
+  "Scrolls last opened floating window down by `step` lines.
+If `reverse?` is provided and true, then scrolls upwards."
   (let [last-float-winid (window.last-float-except-current)]
     (when last-float-winid
       (let [wininfo (psl-win.get-info last-float-winid)
@@ -190,9 +198,10 @@
 
 ;;; WinID BufNr string -> WinID
 (fn window.split [winid bufnr cmd]
-  "Splits window with `winid` with `cmd` command and
-  sets buffer number of a new split window to `bufnr`.
-  Returns new split window id."
+  "Splits the window using the specified neovim ex `cmd` and
+changes new split window buffer to `bufnr`.
+Returns winid of this new window."
+  ;; TODO: add buffer.with-bufhidden macro
   (let [bufhidden (buffer.get-opt bufnr "bufhidden")]
     (buffer.set-opts bufnr {:bufhidden "hide"})
     (nvim_set_current_win winid)
@@ -215,19 +224,25 @@
 
 ;;; char -> BufNr
 (fn create-scrollbar-buffer [icon]
+  "Creates buffer that will represent scrollbar.
+It is filled with `icon` on the first columnt of it."
   (case (psl-buf.exists? +scrollbar-bufname+)
     (true bufnr) bufnr
     _ (let [bufnr (buffer.create +scrollbar-bufname+)]
         (buffer.fill!
+          ;; TODO: convert magic number 100 to neovim window height
+          ;; and update it on VimResized autocmd
           bufnr (fcollect [_ 1 100] icon))
         bufnr)))
 
 ;;; {any} integer -> bool
 (fn scrollbar-required? [wininfo content-height]
+  "Returns true if scrollbar should be added; otherwise, returns false."
   (< wininfo.height content-height))
 
 ;;; {any} integer -> integer
 (fn calc-scrollbar-height [wininfo content-height]
+  "Returns number of window rows as scrollbar height."
   (math.max
     (math.floor
       (* (/ wininfo.height content-height)
@@ -236,6 +251,8 @@
 
 ;;; {any} integer integer -> integer
 (fn calc-scrollbar-offset [wininfo buf-height scrollbar-height]
+  "Returns number of rows from the top of the window at which
+scrollbar window should be placed."
   (math.min
     (- wininfo.height scrollbar-height)
     (math.ceil (* (/ (- wininfo.topline 1)
@@ -245,8 +262,8 @@
 ;;; TODO should be correct when lines are wrapped
 ;;; {any} integer -> WinID
 (fn add-scrollbar [wininfo zindex]
-  "Attaches scrollbar to window with `wininfo.winid`.
-  Returns winid of the scrollbar."
+  "Attaches scrollbar to the window with `wininfo.winid`.
+Returns winid of the created scrollbar window."
   (var scrollbar-winid -1)
   (let [scrollbar-bufnr (create-scrollbar-buffer "▌")
         pattern (tostring wininfo.winid)
@@ -334,8 +351,8 @@
 
 ;;; BufNr {any} bool bool (fn [WinID BufNr]) -> [WinID BufNr]
 (fn window.open-float [bufnr opts close-on-leave? focus? ?callback]
-  "Opens general floating window. Returns a list of the created
-  window winid and bufnr of the attached buffer to it."
+  "Opens general floating window. Returns a tuple with that window
+window's id and buffer number of the attached buffer to it."
   (let [cur-winid (nvim_get_current_win)]
     (when (not (psl-win.floating? cur-winid))
       (set *focus-winid* cur-winid))
@@ -364,8 +381,7 @@
 
 ;;; WinID ->
 (fn window.close-float [winid]
-  "Closes the window with `winid` if it isn't already closed
-  and it is floating window."
+  "Closes the window with `winid` if it opened and it is a floating window."
   (when (and (psl-win.visible? winid)
              (psl-win.floating? winid))
     (nvim_win_close winid true)))
@@ -374,6 +390,8 @@
 
 ;;; {any} -> {any}
 (fn window.cursor.calc-opts [config]
+  "Returns options table accepted by vim.api.nvim_open_win().
+Config is {:lines [lines] :title string} table."
   (let [[scr-height scr-width] (psl-win.get-screen-size)
         [text-height text-width] (ut.calc-lines-size config.lines)
         width (math.min (- scr-width 4) text-width)
@@ -392,6 +410,7 @@
 
 ;;; WinID ->
 (fn window.cursor.callback [winid]
+  "Callback to execute after opening the cursor window."
   (let [cur-bufnr (nvim_get_current_buf)]
     (nvim_create_autocmd
       ["CursorMoved" "InsertEnter"]
@@ -400,7 +419,7 @@
        :nested true
        :once true})))
 
-;;; string {any} -> [WinID BufNr]
+;;; BufNr string {any} -> [WinID BufNr]
 (fn window.cursor.open [bufnr content config]
   "Opens new floating window at cursor position."
   (let [lines (ut.text->lines content)
@@ -412,7 +431,7 @@
                      (window.update-win-options
                        winid opts (psl-win.floating? winid))
                      winid)
-      _ (case (visible-ft? config.similar)
+      _ (case (filetype-win config.similar)
           (true winid) (do
                          (nvim_win_set_buf winid bufnr)
                          (window.update-win-options winid opts)
@@ -433,6 +452,7 @@
 
 ;;; {any} -> {any}
 (fn window.center.calc-opts [args]
+  "Returns options table accepted by vim.api.nvim_open_win()."
   (let [[scr-height scr-width] (psl-win.get-screen-size)
         [text-height text-width] (ut.calc-lines-size args.lines)
         gap 6
@@ -451,7 +471,8 @@
 
 ;;; BufNr string {any} (fn [WinID BufNr]) -> WinID
 (fn window.center.open [bufnr content config ?callback]
-  "Opens new floating window at the center of the screen."
+  "Opens new floating window at the center of the screen
+and returns its window id."
   (let [lines (ut.text->lines content)
         opts-table {:lines lines
                     :height config.height

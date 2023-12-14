@@ -26,8 +26,8 @@ local nvim_open_win = _local_1_["nvim_open_win"]
 local window = {cursor = {}, center = {}}
 local _2bscrollbar_bufname_2b = buffer["gen-name"]("scrollbar")
 local _2afocus_winid_2a = 1000
-local function visible_ft_3f(filetypes)
-  local found_winid = false
+local function filetype_win(filetypes)
+  local found_winid = nil
   for _, winid in ipairs(nvim_tabpage_list_wins(0)) do
     if found_winid then break end
     local bufnr = nvim_win_get_buf(winid)
@@ -40,11 +40,7 @@ local function visible_ft_3f(filetypes)
       end
     end
   end
-  if found_winid then
-    return true, found_winid
-  else
-    return nil
-  end
+  return found_winid
 end
 window["set-opt"] = function(winid, opt, value)
   return nvim_win_set_option(winid, opt, value)
@@ -81,9 +77,9 @@ window["update-win-options"] = function(winid, opts, _3ffocus_3f)
     return nil
   end
 end
-local function win_buf_nvlime_ft_3f(winid)
+local function win_nvlime_ft_3f(winid)
   local pattern = "nvlime_"
-  return string.find(psl_win.filetype(winid), pattern)
+  return (nil ~= string.find(psl_win.filetype(winid), pattern))
 end
 local function main_win_3f(winid)
   local win_ft = psl_win.filetype(winid)
@@ -107,23 +103,23 @@ window["close-when"] = function(predicate)
   return nil
 end
 window.close_all = function()
+  local function _8_(_241)
+    return win_nvlime_ft_3f(_241)
+  end
+  return window["close-when"](_8_)
+end
+window.close_all_except_main = function()
   local function _9_(_241)
-    return win_buf_nvlime_ft_3f(_241)
+    return (win_nvlime_ft_3f(_241) and not main_win_3f(_241))
   end
   return window["close-when"](_9_)
 end
-window.close_all_except_main = function()
-  local function _10_(_241)
-    return (win_buf_nvlime_ft_3f(_241) and not main_win_3f(_241))
-  end
-  return window["close-when"](_10_)
-end
 window["last-float"] = function()
   local win_list = nvim_tabpage_list_wins(0)
-  local function _11_(_241, _242)
+  local function _10_(_241, _242)
     return (_241 > _242)
   end
-  table.sort(win_list, _11_)
+  table.sort(win_list, _10_)
   local result = nil
   for _, winid in ipairs(win_list) do
     if result then break end
@@ -136,10 +132,10 @@ window["last-float"] = function()
 end
 window["last-float-except-current"] = function()
   local float_id = window["last-float"]()
-  if (float_id == nvim_get_current_win()) then
-    return nil
-  else
+  if (float_id ~= nvim_get_current_win()) then
     return float_id
+  else
+    return nil
   end
 end
 window.close_last_float = function()
@@ -158,10 +154,10 @@ window.scroll_float = function(step, reverse_3f)
       local wininfo = psl_win["get-info"](last_float_winid)
       local old_scrolloff = nvim_win_get_option(last_float_winid, "scrolloff")
       local set_float_cursor
-      local function _15_(_241)
+      local function _14_(_241)
         return nvim_win_set_cursor(last_float_winid, {_241, 0})
       end
-      set_float_cursor = _15_
+      set_float_cursor = _14_
       window["set-opt"](last_float_winid, "scrolloff", 0)
       if reverse_3f then
         local expected_line = (wininfo.topline - step)
@@ -202,14 +198,14 @@ window.split_focus = function(cmd)
   end
 end
 local function create_scrollbar_buffer(icon)
-  local _21_, _22_ = psl_buf["exists?"](_2bscrollbar_bufname_2b)
-  if ((_21_ == true) and (nil ~= _22_)) then
-    local bufnr = _22_
+  local _20_, _21_ = psl_buf["exists?"](_2bscrollbar_bufname_2b)
+  if ((_20_ == true) and (nil ~= _21_)) then
+    local bufnr = _21_
     return bufnr
   else
-    local _ = _21_
+    local _ = _20_
     local bufnr = buffer.create(_2bscrollbar_bufname_2b)
-    local function _23_()
+    local function _22_()
       local tbl_18_auto = {}
       local i_19_auto = 0
       for _0 = 1, 100 do
@@ -222,7 +218,7 @@ local function create_scrollbar_buffer(icon)
       end
       return tbl_18_auto
     end
-    buffer["fill!"](bufnr, _23_())
+    buffer["fill!"](bufnr, _22_())
     return bufnr
   end
 end
@@ -240,33 +236,33 @@ local function add_scrollbar(wininfo, zindex)
   local scrollbar_bufnr = create_scrollbar_buffer("\226\150\140")
   local pattern = tostring(wininfo.winid)
   local close_scrollbar
-  local function _26_()
+  local function _25_()
     if psl_win["visible?"](scrollbar_winid) then
       return nvim_win_close(scrollbar_winid, true)
     else
       return nil
     end
   end
-  close_scrollbar = _26_
+  close_scrollbar = _25_
   local callback
-  local function _28_()
+  local function _27_()
     local info = psl_win["get-info"](wininfo.winid)
     local content_height = nvim_buf_line_count(info.bufnr)
     if (psl_win["floating?"](info.winid) and scrollbar_required_3f(info, content_height)) then
       local scrollbar_height = calc_scrollbar_height(info, content_height)
       local scrollbar_offset = calc_scrollbar_offset(info, content_height, scrollbar_height)
       local update_sb_window
-      local function _29_()
+      local function _28_()
         return nvim_win_set_config(scrollbar_winid, {relative = "win", win = info.winid, height = scrollbar_height, row = scrollbar_offset, col = info.width})
       end
-      update_sb_window = _29_
+      update_sb_window = _28_
       local open_sb_window
-      local function _30_()
+      local function _29_()
         scrollbar_winid = nvim_open_win(scrollbar_bufnr, false, {relative = "win", win = info.winid, width = 1, height = scrollbar_height, row = scrollbar_offset, col = info.width, zindex = (zindex + 1), style = "minimal", focusable = false})
         window["set-opts"](scrollbar_winid, {winhighlight = "Normal:FloatBorder"})
         return nvim_win_set_var(scrollbar_winid, "nvlime_scrollbar", true)
       end
-      open_sb_window = _30_
+      open_sb_window = _29_
       if psl_win["visible?"](scrollbar_winid) then
         return update_sb_window()
       else
@@ -276,27 +272,27 @@ local function add_scrollbar(wininfo, zindex)
       return close_scrollbar()
     end
   end
-  callback = _28_
+  callback = _27_
   nvim_create_autocmd("BufModifiedSet", {buffer = wininfo.bufnr, callback = callback})
   nvim_create_autocmd("WinScrolled", {pattern = pattern, callback = callback})
-  local function _33_()
+  local function _32_()
     close_scrollbar()
     nvim_clear_autocmds({event = {"WinClosed", "WinScrolled"}, pattern = pattern})
     return nvim_clear_autocmds({event = "BufModifiedSet", buffer = wininfo.bufnr})
   end
-  nvim_create_autocmd("WinClosed", {pattern = pattern, nested = true, callback = _33_})
-  local function _34_()
+  nvim_create_autocmd("WinClosed", {pattern = pattern, nested = true, callback = _32_})
+  local function _33_()
     if psl_win["visible?"](wininfo.winid) then
       return callback()
     else
       return nil
     end
   end
-  nvim_create_autocmd("WinScrolled", {pattern = tostring(_2afocus_winid_2a), callback = _34_, once = true})
-  local function _36_()
+  nvim_create_autocmd("WinScrolled", {pattern = tostring(_2afocus_winid_2a), callback = _33_, once = true})
+  local function _35_()
     return callback()
   end
-  vim.defer_fn(_36_, 5)
+  vim.defer_fn(_35_, 5)
   return scrollbar_winid
 end
 window["open-float"] = function(bufnr, opts, close_on_leave_3f, focus_3f, _3fcallback)
@@ -307,11 +303,11 @@ window["open-float"] = function(bufnr, opts, close_on_leave_3f, focus_3f, _3fcal
   end
   local zindex
   do
-    local _38_ = window["last-float"]()
-    if (_38_ == nil) then
+    local _37_ = window["last-float"]()
+    if (_37_ == nil) then
       zindex = 42
-    elseif (nil ~= _38_) then
-      local id = _38_
+    elseif (nil ~= _37_) then
+      local id = _37_
       zindex = (psl_win["get-zindex"](id) + 2)
     else
       zindex = nil
@@ -320,10 +316,10 @@ window["open-float"] = function(bufnr, opts, close_on_leave_3f, focus_3f, _3fcal
   local winid = nvim_open_win(bufnr, focus_3f, vim.tbl_extend("keep", opts, {style = "minimal", border = options.floating_window.border, zindex = zindex}))
   add_scrollbar(psl_win["get-info"](winid), psl_win["get-zindex"](winid))
   if close_on_leave_3f then
-    local function _40_()
+    local function _39_()
       return window["close-float"](winid)
     end
-    nvim_create_autocmd("WinLeave", {buffer = bufnr, callback = _40_, nested = true, once = true})
+    nvim_create_autocmd("WinLeave", {buffer = bufnr, callback = _39_, nested = true, once = true})
   else
   end
   window["set-minimal-style-options"](winid)
@@ -341,16 +337,16 @@ window["close-float"] = function(winid)
   end
 end
 window.cursor["calc-opts"] = function(config)
-  local _let_44_ = psl_win["get-screen-size"]()
-  local scr_height = _let_44_[1]
-  local scr_width = _let_44_[2]
-  local _let_45_ = ut["calc-lines-size"](config.lines)
-  local text_height = _let_45_[1]
-  local text_width = _let_45_[2]
+  local _let_43_ = psl_win["get-screen-size"]()
+  local scr_height = _let_43_[1]
+  local scr_width = _let_43_[2]
+  local _let_44_ = ut["calc-lines-size"](config.lines)
+  local text_height = _let_44_[1]
+  local text_width = _let_44_[2]
   local width = math.min((scr_width - 4), text_width)
-  local _let_46_ = psl_win["get-screen-pos"]()
-  local scr_row = _let_46_[1]
-  local _ = _let_46_[2]
+  local _let_45_ = psl_win["get-screen-pos"]()
+  local scr_row = _let_45_[1]
+  local _ = _let_45_[2]
   local bot_3f, height = window["find-horiz-pos"](text_height, scr_row, scr_height)
   local row
   if bot_3f then
@@ -358,44 +354,44 @@ window.cursor["calc-opts"] = function(config)
   else
     row = 0
   end
-  local _48_
+  local _47_
   if bot_3f then
-    _48_ = "NW"
+    _47_ = "NW"
   else
-    _48_ = "SW"
+    _47_ = "SW"
   end
-  return {relative = "cursor", row = row, col = -1, width = width, height = height, anchor = _48_, title = (" " .. config.title .. " "), title_pos = "center"}
+  return {relative = "cursor", row = row, col = -1, width = width, height = height, anchor = _47_, title = (" " .. config.title .. " "), title_pos = "center"}
 end
 window.cursor.callback = function(winid)
   local cur_bufnr = nvim_get_current_buf()
-  local function _50_()
+  local function _49_()
     return window["close-float"](winid)
   end
-  return nvim_create_autocmd({"CursorMoved", "InsertEnter"}, {buffer = cur_bufnr, callback = _50_, nested = true, once = true})
+  return nvim_create_autocmd({"CursorMoved", "InsertEnter"}, {buffer = cur_bufnr, callback = _49_, nested = true, once = true})
 end
 window.cursor.open = function(bufnr, content, config)
   local lines = ut["text->lines"](content)
   local opts = window.cursor["calc-opts"]({lines = lines, title = config.title})
   buffer["fill!"](bufnr, lines)
-  local _51_, _52_ = psl_buf["visible?"](bufnr)
-  if ((_51_ == true) and (nil ~= _52_)) then
-    local winid = _52_
+  local _50_, _51_ = psl_buf["visible?"](bufnr)
+  if ((_50_ == true) and (nil ~= _51_)) then
+    local winid = _51_
     window["update-win-options"](winid, opts, psl_win["floating?"](winid))
     return winid
   else
-    local _ = _51_
-    local _53_, _54_ = visible_ft_3f(config.similar)
-    if ((_53_ == true) and (nil ~= _54_)) then
-      local winid = _54_
+    local _ = _50_
+    local _52_, _53_ = filetype_win(config.similar)
+    if ((_52_ == true) and (nil ~= _53_)) then
+      local winid = _53_
       nvim_win_set_buf(winid, bufnr)
       window["update-win-options"](winid, opts)
       return winid
     else
-      local _0 = _53_
-      local function _55_(_241)
+      local _0 = _52_
+      local function _54_(_241)
         return window.cursor.callback(_241)
       end
-      return window["open-float"](bufnr, opts, true, false, _55_)
+      return window["open-float"](bufnr, opts, true, false, _54_)
     end
   end
 end
@@ -406,12 +402,12 @@ window.center["calc-pos"] = function(max, side, gap)
   return ((max - side - gap) * 0.5)
 end
 window.center["calc-opts"] = function(args)
-  local _let_58_ = psl_win["get-screen-size"]()
-  local scr_height = _let_58_[1]
-  local scr_width = _let_58_[2]
-  local _let_59_ = ut["calc-lines-size"](args.lines)
-  local text_height = _let_59_[1]
-  local text_width = _let_59_[2]
+  local _let_57_ = psl_win["get-screen-size"]()
+  local scr_height = _let_57_[1]
+  local scr_width = _let_57_[2]
+  local _let_58_ = ut["calc-lines-size"](args.lines)
+  local text_height = _let_58_[1]
+  local text_width = _let_58_[2]
   local gap = 6
   local width = calc_optimal_size(text_width, args.width, scr_width, (gap + 4))
   local height = calc_optimal_size(text_height, args.height, scr_height, gap)
@@ -425,13 +421,13 @@ window.center.open = function(bufnr, content, config, _3fcallback)
     buffer["fill!"](bufnr, lines)
   else
   end
-  local _61_, _62_ = psl_buf["visible?"](bufnr)
-  if ((_61_ == true) and (nil ~= _62_)) then
-    local winid = _62_
+  local _60_, _61_ = psl_buf["visible?"](bufnr)
+  if ((_60_ == true) and (nil ~= _61_)) then
+    local winid = _61_
     window["update-win-options"](winid, opts, true)
     return winid
   else
-    local _ = _61_
+    local _ = _60_
     local winid = window["open-float"](bufnr, opts, true, true, _3fcallback)
     nvim_win_set_cursor(winid, {1, 0})
     return winid
