@@ -2,8 +2,8 @@ local window = require("nvlime.window")
 local buffer = require("nvlime.buffer")
 local km = require("nvlime.keymaps")
 local ut = require("nvlime.utilities")
-local psl_buf = require("parsley.buffer")
-local psl_win = require("parsley.window")
+local pbuf = require("parsley.buffer")
+local pwin = require("parsley.window")
 local _local_1_ = vim.api
 local nvim_create_namespace = _local_1_["nvim_create_namespace"]
 local nvim_create_augroup = _local_1_["nvim_create_augroup"]
@@ -15,7 +15,7 @@ local input = {}
 local _2bnamespace_2b = nvim_create_namespace(buffer["gen-filetype"](buffer.names.input))
 local function calc_opts(config)
   local border_len = 2
-  local wininfo = psl_win["get-info"](nvim_get_current_win())
+  local wininfo = pwin["get-info"](nvim_get_current_win())
   local width = math.min(80, (wininfo.width - wininfo.textoff - border_len))
   local height = 4
   local row = (wininfo.height - height - border_len)
@@ -55,7 +55,7 @@ local function show_history_extmark(bufnr)
   end
   add_extmark = _3_
   local function _4_()
-    if (psl_buf["empty?"](bufnr) and (history_len > 0)) then
+    if (pbuf["empty?"](bufnr) and (history_len > 0)) then
       return add_extmark()
     else
       return nvim_buf_clear_namespace(bufnr, _2bnamespace_2b, 0, -1)

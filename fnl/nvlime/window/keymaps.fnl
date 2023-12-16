@@ -2,8 +2,10 @@
 (local buffer (require "nvlime.buffer"))
 (local window (require "nvlime.window"))
 (local ut (require "nvlime.utilities"))
-(local psl-buf (require "parsley.buffer"))
-(local psl-win (require "parsley.window"))
+(local pbuf (require "parsley.buffer"))
+(local pwin (require "parsley.window"))
+(local {: nvim_create_autocmd}
+       vim.api)
 
 (local keymaps {})
 
@@ -23,11 +25,11 @@
 
 ;;; {any} -> {any}
 (fn calc-keymaps-opts [args]
-  (let [[scr-height scr-width] (psl-win.get-screen-size)
+  (let [[scr-height scr-width] (pwin.get-screen-size)
         [text-height text-width] (ut.calc-lines-size args.lines)
         width (math.min (- scr-width 4) text-width)
         center-col (window.center.calc-pos scr-width width 3)
-        [scr-row scr-col] (psl-win.get-screen-pos)
+        [scr-row scr-col] (pwin.get-screen-pos)
         title " nvlime buffer keymaps "
         ]
     (if (cursor-overlap? width center-col scr-col)
@@ -54,8 +56,7 @@
 ;;; WinID ->
 (fn win-callback [winid]
   (window.cursor.callback winid)
-  (vim.api.nvim_create_autocmd
-    "WinLeave"
+  (nvim_create_autocmd "WinLeave"
     {:callback #(window.close-float winid)
      :once true}))
 
@@ -74,7 +75,7 @@
 ;;; -> [WinID BufNr]
 (fn keymaps.toggle []
   (let [bufnr (buffer.create-scratch +bufname+ +filetype+)]
-    (case (psl-buf.visible? bufnr)
+    (case (pbuf.visible? bufnr)
       (true winid) (do (window.close-float winid) [winid bufnr])
       _            [(open-keymaps-win bufnr) bufnr])))
 

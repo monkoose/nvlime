@@ -1,7 +1,7 @@
 local buffer = require("nvlime.buffer")
 local ut = require("nvlime.utilities")
-local psl_buf = require("parsley.buffer")
-local psl_win = require("parsley.window")
+local pbuf = require("parsley.buffer")
+local pwin = require("parsley.window")
 local options = require("nvlime.config")
 local _local_1_ = vim.api
 local nvim_buf_line_count = _local_1_["nvim_buf_line_count"]
@@ -31,7 +31,7 @@ local function filetype_win(filetypes)
   for _, winid in ipairs(nvim_tabpage_list_wins(0)) do
     if found_winid then break end
     local bufnr = nvim_win_get_buf(winid)
-    local buf_ft = psl_buf.filetype(bufnr)
+    local buf_ft = pbuf.filetype(bufnr)
     for _0, ft in ipairs(filetypes) do
       if found_winid then break end
       if (buf_ft == ft) then
@@ -67,7 +67,7 @@ window["find-horiz-pos"] = function(req_height, scr_row, scr_height)
 end
 window["update-win-options"] = function(winid, opts, focus_3f)
   nvim_win_set_cursor(winid, {1, 0})
-  if psl_win["floating?"](winid) then
+  if pwin["floating?"](winid) then
     nvim_win_set_config(winid, opts)
   else
   end
@@ -79,10 +79,10 @@ window["update-win-options"] = function(winid, opts, focus_3f)
 end
 local function win_nvlime_ft_3f(winid)
   local pattern = "nvlime_"
-  return (nil ~= string.find(psl_win.filetype(winid), pattern))
+  return (nil ~= string.find(pwin.filetype(winid), pattern))
 end
 local function main_win_3f(winid)
-  local win_ft = psl_win.filetype(winid)
+  local win_ft = pwin.filetype(winid)
   local result = false
   for _, ft in ipairs({"nvlime_repl", "nvlime_sldb", "nvlime_notes"}) do
     if result then break end
@@ -123,7 +123,7 @@ window["last-float"] = function()
   local result = nil
   for _, winid in ipairs(win_list) do
     if result then break end
-    if (psl_win["floating?"](winid) and not pcall(nvim_win_get_var, winid, "nvlime_scrollbar")) then
+    if (pwin["floating?"](winid) and not pcall(nvim_win_get_var, winid, "nvlime_scrollbar")) then
       result = winid
     else
     end
@@ -151,7 +151,7 @@ window.scroll_float = function(step, reverse_3f)
   local last_float_winid = window["last-float-except-current"]()
   if last_float_winid then
     do
-      local wininfo = psl_win["get-info"](last_float_winid)
+      local wininfo = pwin["get-info"](last_float_winid)
       local old_scrolloff = nvim_win_get_option(last_float_winid, "scrolloff")
       local set_float_cursor
       local function _14_(_241)
@@ -191,14 +191,14 @@ window.split = function(winid, bufnr, cmd)
   return nvim_get_current_win()
 end
 window.split_focus = function(cmd)
-  if psl_win["visible?"](_2afocus_winid_2a) then
+  if pwin["visible?"](_2afocus_winid_2a) then
     return window.split(_2afocus_winid_2a, nvim_get_current_buf(), cmd)
   else
     return ut["echo-warning"]("Can't split this window.")
   end
 end
 local function create_scrollbar_buffer(icon)
-  local _20_, _21_ = psl_buf["exists?"](_2bscrollbar_bufname_2b)
+  local _20_, _21_ = pbuf["exists?"](_2bscrollbar_bufname_2b)
   if ((_20_ == true) and (nil ~= _21_)) then
     local bufnr = _21_
     return bufnr
@@ -237,7 +237,7 @@ local function add_scrollbar(wininfo, zindex)
   local pattern = tostring(wininfo.winid)
   local close_scrollbar
   local function _25_()
-    if psl_win["visible?"](scrollbar_winid) then
+    if pwin["visible?"](scrollbar_winid) then
       return nvim_win_close(scrollbar_winid, true)
     else
       return nil
@@ -246,9 +246,9 @@ local function add_scrollbar(wininfo, zindex)
   close_scrollbar = _25_
   local callback
   local function _27_()
-    local info = psl_win["get-info"](wininfo.winid)
+    local info = pwin["get-info"](wininfo.winid)
     local content_height = nvim_buf_line_count(info.bufnr)
-    if (psl_win["floating?"](info.winid) and scrollbar_required_3f(info, content_height)) then
+    if (pwin["floating?"](info.winid) and scrollbar_required_3f(info, content_height)) then
       local scrollbar_height = calc_scrollbar_height(info, content_height)
       local scrollbar_offset = calc_scrollbar_offset(info, content_height, scrollbar_height)
       local update_sb_window
@@ -263,7 +263,7 @@ local function add_scrollbar(wininfo, zindex)
         return nvim_win_set_var(scrollbar_winid, "nvlime_scrollbar", true)
       end
       open_sb_window = _29_
-      if psl_win["visible?"](scrollbar_winid) then
+      if pwin["visible?"](scrollbar_winid) then
         return update_sb_window()
       else
         return open_sb_window()
@@ -282,7 +282,7 @@ local function add_scrollbar(wininfo, zindex)
   end
   nvim_create_autocmd("WinClosed", {pattern = pattern, nested = true, callback = _32_})
   local function _33_()
-    if psl_win["visible?"](wininfo.winid) then
+    if pwin["visible?"](wininfo.winid) then
       return callback()
     else
       return nil
@@ -297,7 +297,7 @@ local function add_scrollbar(wininfo, zindex)
 end
 window["open-float"] = function(bufnr, opts, close_on_leave_3f, focus_3f, callback)
   local cur_winid = nvim_get_current_win()
-  if not psl_win["floating?"](cur_winid) then
+  if not pwin["floating?"](cur_winid) then
     _2afocus_winid_2a = cur_winid
   else
   end
@@ -308,13 +308,13 @@ window["open-float"] = function(bufnr, opts, close_on_leave_3f, focus_3f, callba
       zindex = 42
     elseif (nil ~= _37_) then
       local id = _37_
-      zindex = (psl_win["get-zindex"](id) + 2)
+      zindex = (pwin["get-zindex"](id) + 2)
     else
       zindex = nil
     end
   end
   local winid = nvim_open_win(bufnr, focus_3f, vim.tbl_extend("keep", opts, {style = "minimal", border = options.floating_window.border, zindex = zindex}))
-  add_scrollbar(psl_win["get-info"](winid), psl_win["get-zindex"](winid))
+  add_scrollbar(pwin["get-info"](winid), pwin["get-zindex"](winid))
   if close_on_leave_3f then
     local function _39_()
       return window["close-float"](winid)
@@ -330,21 +330,21 @@ window["open-float"] = function(bufnr, opts, close_on_leave_3f, focus_3f, callba
   return winid
 end
 window["close-float"] = function(winid)
-  if (psl_win["visible?"](winid) and psl_win["floating?"](winid)) then
+  if (pwin["visible?"](winid) and pwin["floating?"](winid)) then
     return nvim_win_close(winid, true)
   else
     return nil
   end
 end
 window.cursor["calc-opts"] = function(config)
-  local _let_43_ = psl_win["get-screen-size"]()
+  local _let_43_ = pwin["get-screen-size"]()
   local scr_height = _let_43_[1]
   local scr_width = _let_43_[2]
   local _let_44_ = ut["calc-lines-size"](config.lines)
   local text_height = _let_44_[1]
   local text_width = _let_44_[2]
   local width = math.min((scr_width - 4), text_width)
-  local _let_45_ = psl_win["get-screen-pos"]()
+  local _let_45_ = pwin["get-screen-pos"]()
   local scr_row = _let_45_[1]
   local _ = _let_45_[2]
   local bot_3f, height = window["find-horiz-pos"](text_height, scr_row, scr_height)
@@ -373,10 +373,10 @@ window.cursor.open = function(bufnr, content, config)
   local lines = ut["text->lines"](content)
   local opts = window.cursor["calc-opts"]({lines = lines, title = config.title})
   buffer["fill!"](bufnr, lines)
-  local _50_, _51_ = psl_buf["visible?"](bufnr)
+  local _50_, _51_ = pbuf["visible?"](bufnr)
   if ((_50_ == true) and (nil ~= _51_)) then
     local winid = _51_
-    window["update-win-options"](winid, opts, psl_win["floating?"](winid))
+    window["update-win-options"](winid, opts, pwin["floating?"](winid))
     return winid
   else
     local _ = _50_
@@ -402,7 +402,7 @@ window.center["calc-pos"] = function(max, side, gap)
   return ((max - side - gap) * 0.5)
 end
 window.center["calc-opts"] = function(args)
-  local _let_57_ = psl_win["get-screen-size"]()
+  local _let_57_ = pwin["get-screen-size"]()
   local scr_height = _let_57_[1]
   local scr_width = _let_57_[2]
   local _let_58_ = ut["calc-lines-size"](args.lines)
@@ -421,7 +421,7 @@ window.center.open = function(bufnr, content, config, callback)
     buffer["fill!"](bufnr, lines)
   else
   end
-  local _60_, _61_ = psl_buf["visible?"](bufnr)
+  local _60_, _61_ = pbuf["visible?"](bufnr)
   if ((_60_ == true) and (nil ~= _61_)) then
     local winid = _61_
     window["update-win-options"](winid, opts, true)

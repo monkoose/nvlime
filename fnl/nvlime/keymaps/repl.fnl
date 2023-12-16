@@ -4,6 +4,8 @@
 (local presentations (require "nvlime.contrib.presentations"))
 (local repl-win (require "nvlime.window.main.repl"))
 (local ut (require "nvlime.utilities"))
+(local {: nvim_buf_line_count}
+       vim.api)
 
 (local repl {})
 
@@ -41,7 +43,7 @@
                    (ut.echo "No more presented objects.")))]
     (if backward?
         (jump (prev-coord presentations.coords linenr col))
-        (let [max-linenr (vim.api.nvim_buf_line_count 0)]
+        (let [max-linenr (nvim_buf_line_count 0)]
           (jump (next-coord presentations.coords
                             linenr max-linenr))))))
 

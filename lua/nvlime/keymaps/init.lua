@@ -1,5 +1,10 @@
 local opts = require("nvlime.config")
 local psl = require("parsley")
+local _local_1_ = vim.api
+local nvim_replace_termcodes = _local_1_["nvim_replace_termcodes"]
+local nvim_feedkeys = _local_1_["nvim_feedkeys"]
+local nvim_buf_set_keymap = _local_1_["nvim_buf_set_keymap"]
+local nvim_buf_get_keymap = _local_1_["nvim_buf_get_keymap"]
 local keymaps = {leader = opts.leader, buffer = {}}
 local function with_leader(key)
   return (opts.leader .. key)
@@ -20,18 +25,18 @@ local mrepl_mappings = {normal = {clear = with_leader("C"), disconnect = with_le
 local default_mappings = {global = global_mappings, lisp = lisp_mappings, input = input_mappings, repl = repl_mappings, sldb = sldb_mappings, apropos = apropos_mappings, inspector = inspector_mappings, notes = notes_mappings, server = server_mappings, threads = threads_mappings, trace = trace_mappings, xref = xref_mappings, mrepl = mrepl_mappings}
 keymaps["mappings"] = vim.tbl_deep_extend("force", default_mappings, (vim.g.nvlime_mappings or {}))
 local function from_keycode(key)
-  return vim.api.nvim_replace_termcodes(key, true, false, true)
+  return nvim_replace_termcodes(key, true, false, true)
 end
 keymaps.feedkeys = function(keys)
-  return vim.api.nvim_feedkeys(from_keycode(keys), "n", false)
+  return nvim_feedkeys(from_keycode(keys), "n", false)
 end
 local function set_buf_map(mode, lhs, rhs, desc)
   local opts0 = {noremap = true, nowait = true, silent = true, desc = desc}
   if (type(rhs) == "function") then
     opts0["callback"] = rhs
-    return vim.api.nvim_buf_set_keymap(0, mode, lhs, "", opts0)
+    return nvim_buf_set_keymap(0, mode, lhs, "", opts0)
   else
-    return vim.api.nvim_buf_set_keymap(0, mode, lhs, rhs, opts0)
+    return nvim_buf_set_keymap(0, mode, lhs, rhs, opts0)
   end
 end
 local function set_buf_map_2a(mode, lhs, rhs, desc)
@@ -61,19 +66,15 @@ keymaps.buffer.get = function()
   local maps = {}
   for _, mode in ipairs({"n", "i", "v"}) do
     local tbl_17_auto = maps
-    local i_18_auto = #tbl_17_auto
-    for _0, map in ipairs(vim.api.nvim_buf_get_keymap(0, mode)) do
-      local val_19_auto
-      if (map.desc and string.find(map.desc, "^nvlime:")) then
-        val_19_auto = {mode = map.mode, lhs = string.gsub(map.lhs, " ", "<SPACE>"), desc = string.gsub(map.desc, "^nvlime: ", "")}
-      else
-        val_19_auto = nil
+    for _0, map in ipairs(nvim_buf_get_keymap(0, mode)) do
+      local function _5_()
+        if (map.desc and string.find(map.desc, "^nvlime:")) then
+          return {mode = map.mode, lhs = string.gsub(map.lhs, " ", "<SPACE>"), desc = string.gsub(map.desc, "^nvlime: ", "")}
+        else
+          return nil
+        end
       end
-      if (nil ~= val_19_auto) then
-        i_18_auto = (i_18_auto + 1)
-        do end (tbl_17_auto)[i_18_auto] = val_19_auto
-      else
-      end
+      table.insert(tbl_17_auto, _5_())
     end
   end
   return maps

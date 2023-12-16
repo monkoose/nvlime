@@ -2,8 +2,8 @@
 (local buffer (require "nvlime.buffer"))
 (local km (require "nvlime.keymaps"))
 (local ut (require "nvlime.utilities"))
-(local psl-buf (require "parsley.buffer"))
-(local psl-win (require "parsley.window"))
+(local pbuf (require "parsley.buffer"))
+(local pwin (require "parsley.window"))
 
 (local {: nvim_create_namespace
         : nvim_create_augroup
@@ -21,7 +21,7 @@
 ;;; {any} -> {any}
 (fn calc-opts [config]
   (let [border-len 2
-        wininfo (psl-win.get-info
+        wininfo (pwin.get-info
                   (nvim_get_current_win))
         width (math.min 80 (- wininfo.width
                               wininfo.textoff
@@ -71,11 +71,10 @@
                  {:virt_lines
                   (text->virt-lines
                     (. vim.g.nvlime_input_history history-len))})))]
-    (nvim_create_autocmd
-      ["CursorMoved" "CursorMovedI"]
+    (nvim_create_autocmd ["CursorMoved" "CursorMovedI"]
       {:group group
        :buffer bufnr
-       :callback #(if (and (psl-buf.empty? bufnr)
+       :callback #(if (and (pbuf.empty? bufnr)
                            (> history-len 0))
                       (add-extmark)
                       (nvim_buf_clear_namespace

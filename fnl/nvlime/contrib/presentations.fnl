@@ -1,10 +1,14 @@
 (local buffer (require "nvlime.buffer"))
 (local psl (require "parsley"))
-(local psl-buf (require "parsley.buffer"))
+(local pbuf (require "parsley.buffer"))
+(local {: nvim_buf_set_extmark
+        : nvim_create_namespace
+        : nvim_buf_line_count}
+       vim.api)
 
 (local presentation
        {:coords {}
-        :namespace (vim.api.nvim_create_namespace
+        :namespace (nvim_create_namespace
                       "nvlime_presentations")})
 
 (var *repl-bufnr* nil)
@@ -12,7 +16,7 @@
 
 ;;; BufNr string ->
 (fn set-presentation-begin [bufnr msg]
-  (let [last-linenr (vim.api.nvim_buf_line_count bufnr)
+  (let [last-linenr (nvim_buf_line_count bufnr)
         id (psl.second msg)
         coords-list (or (. *pending-coords* id) [])]
     (table.insert coords-list {:begin [(+ last-linenr 1) 1]
@@ -22,8 +26,8 @@
 
 ;;; BufNr {any} ->
 (fn set-presentation-end [bufnr coord]
-  (let [last-linenr (vim.api.nvim_buf_line_count bufnr)
-        last-col (psl-buf.line-length bufnr last-linenr)]
+  (let [last-linenr (nvim_buf_line_count bufnr)
+        last-col (pbuf.line-length bufnr last-linenr)]
     (tset coord :end [last-linenr last-col])))
 
 ;;; [{any}] -> ({any} integer)
@@ -42,7 +46,7 @@
   (let [begin (. coord :begin)
         end (. coord :end)]
     (vim.defer_fn
-      #(vim.api.nvim_buf_set_extmark
+      #(nvim_buf_set_extmark
          bufnr presentation.namespace
          (- (psl.first begin) 1) (- (psl.second begin) 1)
          {:end_row (- (psl.first end) 1)
@@ -52,7 +56,7 @@
 
 ;;; Conn string ->
 (fn presentation.on_start [conn msg]
-  (let [(_ repl-bufnr) (psl-buf.exists?
+  (let [(_ repl-bufnr) (pbuf.exists?
                            (buffer.gen-repl-name
                              conn.cb_data.name))]
     (set *repl-bufnr* repl-bufnr)

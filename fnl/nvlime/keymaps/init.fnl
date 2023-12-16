@@ -1,5 +1,10 @@
 (local opts (require "nvlime.config"))
 (local psl (require "parsley"))
+(local {: nvim_replace_termcodes
+        : nvim_feedkeys
+        : nvim_buf_set_keymap
+        : nvim_buf_get_keymap}
+       vim.api)
 
 (local keymaps
        {:leader opts.leader
@@ -199,10 +204,10 @@
                           (or vim.g.nvlime_mappings {})))
 
 (fn from-keycode [key]
-  (vim.api.nvim_replace_termcodes key true false true))
+  (nvim_replace_termcodes key true false true))
 
 (fn keymaps.feedkeys [keys]
-  (vim.api.nvim_feedkeys (from-keycode keys) "n" false))
+  (nvim_feedkeys (from-keycode keys) "n" false))
 
 ;;; string string fn|string string ->
 (fn set-buf-map [mode lhs rhs desc]
@@ -213,8 +218,8 @@
     (if (= (type rhs) "function")
         (do
           (tset opts :callback rhs)
-          (vim.api.nvim_buf_set_keymap 0 mode lhs "" opts))
-        (vim.api.nvim_buf_set_keymap 0 mode lhs rhs opts))))
+          (nvim_buf_set_keymap 0 mode lhs "" opts))
+        (nvim_buf_set_keymap 0 mode lhs rhs opts))))
 
 ;;; string string|list fn|string string ->
 (fn set-buf-map* [mode lhs rhs desc]
@@ -236,7 +241,7 @@
 (fn keymaps.buffer.get []
   (let [maps []]
     (each [_ mode (ipairs ["n" "i" "v"])]
-      (icollect [_ map (ipairs (vim.api.nvim_buf_get_keymap 0 mode))
+      (icollect [_ map (ipairs (nvim_buf_get_keymap 0 mode))
                  &into maps]
         (when (and map.desc (string.find map.desc "^nvlime:"))
           {:mode map.mode

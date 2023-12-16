@@ -2,11 +2,15 @@ local buffer = require("nvlime.buffer")
 local window = require("nvlime.window")
 local ut = require("nvlime.utilities")
 local psl = require("parsley")
-local psl_list = require("parsley.list")
+local psllist = require("parsley.list")
+local _local_1_ = vim.api
+local nvim_buf_clear_namespace = _local_1_["nvim_buf_clear_namespace"]
+local nvim_buf_set_extmark = _local_1_["nvim_buf_set_extmark"]
+local nvim_create_namespace = _local_1_["nvim_create_namespace"]
 local inspector = {}
 local _2bbufname_2b = buffer["gen-name"](buffer.names.inspector)
 local _2bfiletype_2b = buffer["gen-filetype"](buffer.names.inspector)
-local _2bnamespace_2b = vim.api.nvim_create_namespace(_2bfiletype_2b)
+local _2bnamespace_2b = nvim_create_namespace(_2bfiletype_2b)
 local _2acontent_title_2a = ""
 local _2acoords_2a = {}
 local _2acontent_start_2a = 0
@@ -14,20 +18,20 @@ local _2acontent_end_2a = 0
 local function make_range_buttons(content)
   local buttons = {}
   local add_separator
-  local function _1_()
+  local function _2_()
     return table.insert(buttons, "  ")
   end
-  add_separator = _1_
+  add_separator = _2_
   local add_newline
-  local function _2_()
+  local function _3_()
     return table.insert(buttons, "\n")
   end
-  add_newline = _2_
+  add_newline = _3_
   local add_button
-  local function _3_(name, id)
+  local function _4_(name, id)
     return table.insert(buttons, {{name = "RANGE", package = "KEYWORD"}, name, id})
   end
-  add_button = _3_
+  add_button = _4_
   _2acontent_start_2a = content[3]
   _2acontent_end_2a = content[4]
   if (_2acontent_start_2a > 0) then
@@ -56,10 +60,10 @@ local function content__3elines_2a(content)
   local line = ""
   local lines = {}
   local get_cur_pos
-  local function _8_()
+  local function _9_()
     return {(#lines + 1), (#line + 1)}
   end
-  get_cur_pos = _8_
+  get_cur_pos = _9_
   local function add_lines(c)
     if psl["string?"](c) then
       if (c == "\n") then
@@ -95,19 +99,19 @@ local function content__3elines_2a(content)
   return lines
 end
 local function add_coords_highlight(bufnr)
-  vim.api.nvim_buf_clear_namespace(bufnr, _2bnamespace_2b, 0, 1)
+  nvim_buf_clear_namespace(bufnr, _2bnamespace_2b, 0, 1)
   local set_extmark
-  local function _12_(begin, _end, hl)
-    return vim.api.nvim_buf_set_extmark(bufnr, _2bnamespace_2b, (begin[1] - 1), (begin[2] - 1), {end_row = (_end[1] - 1), end_col = (_end[2] - 1), hl_group = hl})
+  local function _13_(begin, _end, hl)
+    return nvim_buf_set_extmark(bufnr, _2bnamespace_2b, (begin[1] - 1), (begin[2] - 1), {end_row = (_end[1] - 1), end_col = (_end[2] - 1), hl_group = hl})
   end
-  set_extmark = _12_
+  set_extmark = _13_
   for _, coord in ipairs(_2acoords_2a) do
-    local _13_ = coord.type
-    if (_13_ == "ACTION") then
+    local _14_ = coord.type
+    if (_14_ == "ACTION") then
       set_extmark(coord.begin, coord["end"], "nvlime_inspectorAction")
-    elseif (_13_ == "VALUE") then
+    elseif (_14_ == "VALUE") then
       set_extmark(coord.begin, coord["end"], "nvlime_inspectorValue")
-    elseif (_13_ == "RANGE") then
+    elseif (_14_ == "RANGE") then
       set_extmark(coord.begin, coord["end"], "nvlime_inspectorAction")
     else
     end
@@ -117,14 +121,14 @@ end
 local function content__3elines(content)
   local content_2a = ut["plist->table"](content)
   local lookup_content
-  local function _15_(key)
+  local function _16_(key)
     return (content_2a[key] or content_2a[string.lower(key)])
   end
-  lookup_content = _15_
+  lookup_content = _16_
   local content_data = lookup_content("CONTENT")
   local title = lookup_content("TITLE")
   local range_buttons = make_range_buttons(content_data)
-  local lines = content__3elines_2a(psl_list.concat({title, "\n", "\n"}, content_data[1], range_buttons))
+  local lines = content__3elines_2a(psllist.concat({title, "\n", "\n"}, content_data[1], range_buttons))
   _2acontent_title_2a = title
   return lines
 end
@@ -136,10 +140,10 @@ inspector.open = function(content)
   _2acoords_2a = {}
   local lines = content__3elines(content)
   local bufnr
-  local function _16_(_241)
+  local function _17_(_241)
     return buf_callback(_241)
   end
-  bufnr = buffer["create-if-not-exists"](_2bbufname_2b, false, _16_)
+  bufnr = buffer["create-if-not-exists"](_2bbufname_2b, false, _17_)
   local winid = window.center.open(bufnr, lines, {height = 12, width = 80, title = buffer.names.inspector})
   add_coords_highlight(bufnr)
   buffer["set-vars"](bufnr, {nvlime_inspector_title = _2acontent_title_2a, nvlime_inspector_coords = _2acoords_2a, nvlime_inspector_content_start = _2acontent_start_2a, nvlime_inspector_content_end = _2acontent_end_2a})

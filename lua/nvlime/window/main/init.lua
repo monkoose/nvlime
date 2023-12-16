@@ -1,19 +1,27 @@
 local window = require("nvlime.window")
-local psl_win = require("parsley.window")
+local pwin = require("parsley.window")
 local opts = require("nvlime.config")
+local _local_1_ = vim.api
+local nvim_exec = _local_1_["nvim_exec"]
+local nvim_win_set_buf = _local_1_["nvim_win_set_buf"]
+local nvim_set_current_win = _local_1_["nvim_set_current_win"]
+local nvim_get_current_win = _local_1_["nvim_get_current_win"]
+local nvim_buf_get_name = _local_1_["nvim_buf_get_name"]
+local nvim_win_get_buf = _local_1_["nvim_win_get_buf"]
+local nvim_win_set_option = _local_1_["nvim_win_set_option"]
 local main_win_pos
 do
-  local _1_ = opts.main_window.position
-  if (_1_ == "top") then
+  local _2_ = opts.main_window.position
+  if (_2_ == "top") then
     main_win_pos = "topleft"
-  elseif (_1_ == "left") then
+  elseif (_2_ == "left") then
     main_win_pos = "vertical topleft"
-  elseif (_1_ == "bottom") then
+  elseif (_2_ == "bottom") then
     main_win_pos = "botright"
-  elseif (_1_ == "right") then
+  elseif (_2_ == "right") then
     main_win_pos = "vertical botright"
   else
-    local _ = _1_
+    local _ = _2_
     main_win_pos = "vertical botright"
   end
 end
@@ -23,20 +31,20 @@ main_win.new = function(cmd, size, opposite)
   local vert_3f = main_win["vert?"]
   self["id"] = nil
   self["buffers"] = {}
-  local _3_
+  local _4_
   if vert_3f then
-    _3_ = cmd
+    _4_ = cmd
   else
-    _3_ = ("vertical " .. cmd)
+    _4_ = ("vertical " .. cmd)
   end
-  self["cmd"] = _3_
-  local _5_
+  self["cmd"] = _4_
+  local _6_
   if vert_3f then
-    _5_ = size
+    _6_ = size
   else
-    _5_ = nil
+    _6_ = nil
   end
-  self["size"] = _5_
+  self["size"] = _6_
   self["opposite"] = opposite
   return self
 end
@@ -51,8 +59,8 @@ main_win["set-id"] = function(self, winid)
 end
 main_win["set-options"] = function(self)
   window["set-minimal-style-options"](self.id)
-  vim.api.nvim_win_set_option(self.id, "foldcolumn", "1")
-  return vim.api.nvim_win_set_option(self.id, "winhighlight", "FoldColumn:Normal")
+  nvim_win_set_option(self.id, "foldcolumn", "1")
+  return nvim_win_set_option(self.id, "winhighlight", "FoldColumn:Normal")
 end
 main_win["remove-buf"] = function(self, bufnr)
   for i, b in ipairs(self.buffers) do
@@ -68,56 +76,56 @@ main_win["add-buf"] = function(self, bufnr)
   return table.insert(self.buffers, bufnr)
 end
 main_win["update-opts"] = function(self)
-  local winid = vim.api.nvim_get_current_win()
+  local winid = nvim_get_current_win()
   self["set-id"](self, winid)
-  self["add-buf"](self, vim.api.nvim_win_get_buf(winid))
+  self["add-buf"](self, nvim_win_get_buf(winid))
   return self["set-options"](self)
 end
 main_win["split-opposite"] = function(self, bufnr)
   local opposite = main_win[self.opposite]
-  vim.api.nvim_set_current_win(opposite.id)
+  nvim_set_current_win(opposite.id)
   local height
   if (self.size and (type(self.size) == "number")) then
-    height = math.floor((psl_win["get-height"](opposite.id) * self.size))
+    height = math.floor((pwin["get-height"](opposite.id) * self.size))
   else
     height = ""
   end
-  vim.api.nvim_exec((self.cmd .. " " .. height .. "split " .. vim.api.nvim_buf_get_name(bufnr)), false)
+  nvim_exec((self.cmd .. " " .. height .. "split " .. nvim_buf_get_name(bufnr)), false)
   return self["update-opts"](self)
 end
 main_win.split = function(self, bufnr)
-  local bufname = vim.api.nvim_buf_get_name(bufnr)
-  vim.api.nvim_exec((main_win.pos .. " " .. main_win.size .. "split " .. bufname), false)
+  local bufname = nvim_buf_get_name(bufnr)
+  nvim_exec((main_win.pos .. " " .. main_win.size .. "split " .. bufname), false)
   return self["update-opts"](self)
 end
 main_win["open-new"] = function(self, bufnr, focus_3f)
-  local prev_winid = vim.api.nvim_get_current_win()
+  local prev_winid = nvim_get_current_win()
   local opposite = main_win[self.opposite]
-  if psl_win["visible?"](opposite.id) then
+  if pwin["visible?"](opposite.id) then
     self["split-opposite"](self, bufnr)
   else
     self:split(bufnr)
   end
   if not focus_3f then
-    return vim.api.nvim_set_current_win(prev_winid)
+    return nvim_set_current_win(prev_winid)
   else
     return nil
   end
 end
 main_win["show-buf"] = function(self, bufnr, focus_3f)
-  if (vim.api.nvim_win_get_buf(self.id) ~= bufnr) then
-    vim.api.nvim_win_set_buf(self.id, bufnr)
+  if (nvim_win_get_buf(self.id) ~= bufnr) then
+    nvim_win_set_buf(self.id, bufnr)
     self["add-buf"](self, bufnr)
   else
   end
   if focus_3f then
-    return vim.api.nvim_set_current_win(self.id)
+    return nvim_set_current_win(self.id)
   else
     return nil
   end
 end
 main_win.open = function(self, bufnr, focus_3f)
-  if psl_win["visible?"](self.id) then
+  if pwin["visible?"](self.id) then
     self["show-buf"](self, bufnr, focus_3f)
   else
     self["open-new"](self, bufnr, focus_3f)

@@ -1,7 +1,7 @@
 (local buffer (require "nvlime.buffer"))
 (local ut (require "nvlime.utilities"))
-(local psl-buf (require "parsley.buffer"))
-(local psl-win (require "parsley.window"))
+(local pbuf (require "parsley.buffer"))
+(local pwin (require "parsley.window"))
 (local options (require "nvlime.config"))
 
 ;; TODO: after neovim 0.10 release
@@ -41,7 +41,7 @@ any of the listed `filetypes`. If there is no such window returns nil."
   (var found-winid nil)
   (each [_ winid (ipairs (nvim_tabpage_list_wins 0)) &until found-winid]
     (let [bufnr (nvim_win_get_buf winid)
-          buf-ft (psl-buf.filetype bufnr)]
+          buf-ft (pbuf.filetype bufnr)]
       (each [_ ft (ipairs filetypes) &until found-winid]
         (when (= buf-ft ft)
           (set found-winid winid)))))
@@ -90,7 +90,7 @@ for bottom and (false height) for top."
   "Updates a floating window options with `opts` as in
 vim.api.nvim_open_win(), then focus this window if required."
   (nvim_win_set_cursor winid [1 0])
-  (when (psl-win.floating? winid)
+  (when (pwin.floating? winid)
     (nvim_win_set_config winid opts))
   (when focus?
     (nvim_set_current_win winid)))
@@ -100,7 +100,7 @@ vim.api.nvim_open_win(), then focus this window if required."
 with any of the nvlime's filetypes; otherwise, returns false."
   (let [pattern "nvlime_"]
     (not= nil
-       (string.find (psl-win.filetype winid)
+       (string.find (pwin.filetype winid)
                     pattern))))
 
 ;;; WinID -> bool
@@ -108,7 +108,7 @@ with any of the nvlime's filetypes; otherwise, returns false."
   "Returns true if the window is the main plugin's window;
 otherwise, returns false.
 Main windows are repl, sldb and compiler notes."
-  (let [win-ft (psl-win.filetype winid)]
+  (let [win-ft (pwin.filetype winid)]
     (var result false)
     (each [_ ft
            (ipairs ["nvlime_repl" "nvlime_sldb" "nvlime_notes"])
@@ -146,7 +146,7 @@ window is present returns nil."
     (table.sort win-list #(> $1 $2))
     (var result nil)
     (each [_ winid (ipairs win-list) &until result]
-      (when (and (psl-win.floating? winid)
+      (when (and (pwin.floating? winid)
                  (not (pcall
                         nvim_win_get_var
                         winid "nvlime_scrollbar")))
@@ -176,7 +176,7 @@ and returns its ID. Returns nil if such window wasn't found."
 If `reverse?` is provided and true, then scrolls upwards."
   (let [last-float-winid (window.last-float-except-current)]
     (when last-float-winid
-      (let [wininfo (psl-win.get-info last-float-winid)
+      (let [wininfo (pwin.get-info last-float-winid)
             old-scrolloff (nvim_win_get_option
                             last-float-winid "scrolloff")
             set-float-cursor #(nvim_win_set_cursor
@@ -214,7 +214,7 @@ Returns winid of this new window."
 ;;; string -> ?WinID
 (fn window.split_focus [cmd]
   "Splits focus window."
-  (if (psl-win.visible? *focus-winid*)
+  (if (pwin.visible? *focus-winid*)
       (window.split *focus-winid*
                     (nvim_get_current_buf)
                     cmd)
@@ -226,7 +226,7 @@ Returns winid of this new window."
 (fn create-scrollbar-buffer [icon]
   "Creates buffer that will represent scrollbar.
 It is filled with `icon` on the first columnt of it."
-  (case (psl-buf.exists? +scrollbar-bufname+)
+  (case (pbuf.exists? +scrollbar-bufname+)
     (true bufnr) bufnr
     _ (let [bufnr (buffer.create +scrollbar-bufname+)]
         (buffer.fill!
@@ -267,12 +267,12 @@ Returns winid of the created scrollbar window."
   (var scrollbar-winid -1)
   (let [scrollbar-bufnr (create-scrollbar-buffer "▌")
         pattern (tostring wininfo.winid)
-        close-scrollbar #(when (psl-win.visible? scrollbar-winid)
+        close-scrollbar #(when (pwin.visible? scrollbar-winid)
                            (nvim_win_close scrollbar-winid true))
         callback
-        #(let [info (psl-win.get-info wininfo.winid)
+        #(let [info (pwin.get-info wininfo.winid)
                content-height (nvim_buf_line_count info.bufnr)]
-           (if (and (psl-win.floating? info.winid)
+           (if (and (pwin.floating? info.winid)
                     (scrollbar-required? info content-height))
                (let [scrollbar-height (calc-scrollbar-height info
                                                              content-height)
@@ -305,23 +305,20 @@ Returns winid of the created scrollbar window."
                                       ;; consider scrollbar windows as floating windows
                                       (nvim_win_set_var
                                         scrollbar-winid "nvlime_scrollbar" true))]
-                 (if (psl-win.visible? scrollbar-winid)
+                 (if (pwin.visible? scrollbar-winid)
                      (update-sb-window)
                      (open-sb-window)))
                (close-scrollbar)))]
     ;; Because plugin sets 'modified' option before changing content of
     ;; the plugin's buffers, then `BufModifiedSet` is enough instead of `TextChanged`.
     ;; Except for input windows, but they do not really need a scrollbar anyway
-    (nvim_create_autocmd
-      "BufModifiedSet"
+    (nvim_create_autocmd "BufModifiedSet"
       {:buffer wininfo.bufnr
        :callback callback})
-    (nvim_create_autocmd
-      "WinScrolled"
+    (nvim_create_autocmd "WinScrolled"
       {:pattern pattern
        :callback callback})
-    (nvim_create_autocmd
-      "WinClosed"
+    (nvim_create_autocmd "WinClosed"
       {:pattern pattern
        :nested true
        :callback #(do
@@ -334,10 +331,9 @@ Returns winid of the created scrollbar window."
                       {:event "BufModifiedSet"
                        :buffer wininfo.bufnr }))})
     ;; fix hiding scrollbar for `<C-w>H/L/K/J` keymaps
-    (nvim_create_autocmd
-      "WinScrolled"
+    (nvim_create_autocmd "WinScrolled"
       {:pattern (tostring *focus-winid*)
-       :callback #(when (psl-win.visible? wininfo.winid)
+       :callback #(when (pwin.visible? wininfo.winid)
                     (callback))
        :once true})
     ;; defer required to fix wrong initial placement of the scrollbar
@@ -354,11 +350,11 @@ Returns winid of the created scrollbar window."
   "Opens general floating window. Returns a tuple with that window
 window's id and buffer number of the attached buffer to it."
   (let [cur-winid (nvim_get_current_win)]
-    (when (not (psl-win.floating? cur-winid))
+    (when (not (pwin.floating? cur-winid))
       (set *focus-winid* cur-winid))
     (let [zindex (case (window.last-float)
                    nil 42
-                   id (+ (psl-win.get-zindex id) 2))
+                   id (+ (pwin.get-zindex id) 2))
           winid (nvim_open_win
                   bufnr focus?
                   (vim.tbl_extend
@@ -366,11 +362,10 @@ window's id and buffer number of the attached buffer to it."
                     {:style "minimal"
                      :border options.floating_window.border
                      :zindex zindex}))]
-      (add-scrollbar (psl-win.get-info winid)
-                     (psl-win.get-zindex winid))
+      (add-scrollbar (pwin.get-info winid)
+                     (pwin.get-zindex winid))
       (when close-on-leave?
-        (nvim_create_autocmd
-          "WinLeave"
+        (nvim_create_autocmd "WinLeave"
           {:buffer bufnr
           :callback #(window.close-float winid)
           :nested true
@@ -382,8 +377,8 @@ window's id and buffer number of the attached buffer to it."
 ;;; WinID ->
 (fn window.close-float [winid]
   "Closes the window with `winid` if it opened and it is a floating window."
-  (when (and (psl-win.visible? winid)
-             (psl-win.floating? winid))
+  (when (and (pwin.visible? winid)
+             (pwin.floating? winid))
     (nvim_win_close winid true)))
 
 ;;; ========== CURSOR WINDOW ==========
@@ -392,10 +387,10 @@ window's id and buffer number of the attached buffer to it."
 (fn window.cursor.calc-opts [config]
   "Returns options table accepted by vim.api.nvim_open_win().
 Config is {:lines [lines] :title string} table."
-  (let [[scr-height scr-width] (psl-win.get-screen-size)
+  (let [[scr-height scr-width] (pwin.get-screen-size)
         [text-height text-width] (ut.calc-lines-size config.lines)
         width (math.min (- scr-width 4) text-width)
-        [scr-row _] (psl-win.get-screen-pos)
+        [scr-row _] (pwin.get-screen-pos)
         (bot? height) (window.find-horiz-pos
                         text-height scr-row scr-height)
         row (if bot? 1 0)]
@@ -412,8 +407,7 @@ Config is {:lines [lines] :title string} table."
 (fn window.cursor.callback [winid]
   "Callback to execute after opening the cursor window."
   (let [cur-bufnr (nvim_get_current_buf)]
-    (nvim_create_autocmd
-      ["CursorMoved" "InsertEnter"]
+    (nvim_create_autocmd ["CursorMoved" "InsertEnter"]
       {:buffer cur-bufnr
        :callback #(window.close-float winid)
        :nested true
@@ -426,10 +420,10 @@ Config is {:lines [lines] :title string} table."
         opts (window.cursor.calc-opts
                {:lines lines :title config.title})]
     (buffer.fill! bufnr lines)
-    (case (psl-buf.visible? bufnr)
+    (case (pbuf.visible? bufnr)
       (true winid) (do
                      (window.update-win-options
-                       winid opts (psl-win.floating? winid))
+                       winid opts (pwin.floating? winid))
                      winid)
       _ (case (filetype-win config.similar)
           (true winid) (do
@@ -453,7 +447,7 @@ Config is {:lines [lines] :title string} table."
 ;;; {any} -> {any}
 (fn window.center.calc-opts [args]
   "Returns options table accepted by vim.api.nvim_open_win()."
-  (let [[scr-height scr-width] (psl-win.get-screen-size)
+  (let [[scr-height scr-width] (pwin.get-screen-size)
         [text-height text-width] (ut.calc-lines-size args.lines)
         gap 6
         width (calc-optimal-size
@@ -481,7 +475,7 @@ and returns its window id."
         opts (window.center.calc-opts opts-table)]
     (when (not config.noedit)
       (buffer.fill! bufnr lines))
-    (case (psl-buf.visible? bufnr)
+    (case (pbuf.visible? bufnr)
       (true winid) (do
                      (window.update-win-options
                        winid opts true)

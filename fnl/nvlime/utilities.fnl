@@ -1,4 +1,7 @@
 (local psl (require "parsley"))
+(local {: nvim_win_set_cursor
+        : nvim_win_get_cursor}
+       vim.api)
 
 (fn text->lines [text]
   (if text
@@ -56,7 +59,7 @@
 (fn get-win-cursor [winid]
   "Returns tuple of cursor line and column numbers.
   Unlike `nvim_win_get_cursor` they are 1-indexed."
-  (let [[linenr col-0] (vim.api.nvim_win_get_cursor winid)]
+  (let [[linenr col-0] (nvim_win_get_cursor winid)]
     [linenr (+ col-0 1)]))
 
 ;;; WinID [LineNr Col] ->
@@ -65,7 +68,7 @@
   Unlike `nvim_win_set_cursor` linenr and column are 1-indexed."
   (let [linenr (psl.first pos)
         col-0 (- (psl.second pos) 1)]
-    (vim.api.nvim_win_set_cursor
+    (nvim_win_set_cursor
       winid [linenr col-0])))
 
 {: text->lines

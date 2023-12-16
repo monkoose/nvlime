@@ -1,11 +1,15 @@
 local buffer = require("nvlime.buffer")
 local psl = require("parsley")
-local psl_buf = require("parsley.buffer")
-local presentation = {coords = {}, namespace = vim.api.nvim_create_namespace("nvlime_presentations")}
+local pbuf = require("parsley.buffer")
+local _local_1_ = vim.api
+local nvim_buf_set_extmark = _local_1_["nvim_buf_set_extmark"]
+local nvim_create_namespace = _local_1_["nvim_create_namespace"]
+local nvim_buf_line_count = _local_1_["nvim_buf_line_count"]
+local presentation = {coords = {}, namespace = nvim_create_namespace("nvlime_presentations")}
 local _2arepl_bufnr_2a = nil
 local _2apending_coords_2a = {}
 local function set_presentation_begin(bufnr, msg)
-  local last_linenr = vim.api.nvim_buf_line_count(bufnr)
+  local last_linenr = nvim_buf_line_count(bufnr)
   local id = psl.second(msg)
   local coords_list = (_2apending_coords_2a[id] or {})
   table.insert(coords_list, {begin = {(last_linenr + 1), 1}, type = "PRESENTATION", id = id})
@@ -13,8 +17,8 @@ local function set_presentation_begin(bufnr, msg)
   return nil
 end
 local function set_presentation_end(bufnr, coord)
-  local last_linenr = vim.api.nvim_buf_line_count(bufnr)
-  local last_col = psl_buf["line-length"](bufnr, last_linenr)
+  local last_linenr = nvim_buf_line_count(bufnr)
+  local last_col = pbuf["line-length"](bufnr, last_linenr)
   do end (coord)["end"] = {last_linenr, last_col}
   return nil
 end
@@ -38,13 +42,13 @@ end
 local function highlight_presentation(bufnr, coord)
   local begin = coord.begin
   local _end = coord["end"]
-  local function _3_()
-    return vim.api.nvim_buf_set_extmark(bufnr, presentation.namespace, (psl.first(begin) - 1), (psl.second(begin) - 1), {end_row = (psl.first(_end) - 1), end_col = psl.second(_end), hl_group = "nvlime_replCoord"})
+  local function _4_()
+    return nvim_buf_set_extmark(bufnr, presentation.namespace, (psl.first(begin) - 1), (psl.second(begin) - 1), {end_row = (psl.first(_end) - 1), end_col = psl.second(_end), hl_group = "nvlime_replCoord"})
   end
-  return vim.defer_fn(_3_, 3)
+  return vim.defer_fn(_4_, 3)
 end
 presentation.on_start = function(conn, msg)
-  local _, repl_bufnr = psl_buf["exists?"](buffer["gen-repl-name"](conn.cb_data.name))
+  local _, repl_bufnr = pbuf["exists?"](buffer["gen-repl-name"](conn.cb_data.name))
   _2arepl_bufnr_2a = repl_bufnr
   if _2arepl_bufnr_2a then
     return set_presentation_begin(repl_bufnr, msg)

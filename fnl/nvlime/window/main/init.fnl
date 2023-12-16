@@ -1,6 +1,14 @@
 (local window (require "nvlime.window"))
-(local psl-win (require "parsley.window"))
+(local pwin (require "parsley.window"))
 (local opts (require "nvlime.config"))
+(local {: nvim_exec
+        : nvim_win_set_buf
+        : nvim_set_current_win
+        : nvim_get_current_win
+        : nvim_buf_get_name
+        : nvim_win_get_buf
+        : nvim_win_set_option}
+       vim.api)
 
 (local main-win-pos
        (case opts.main_window.position
@@ -40,8 +48,8 @@
 ;;; MainWin ->
 (fn main-win.set-options [self]
   (window.set-minimal-style-options self.id)
-  (vim.api.nvim_win_set_option self.id "foldcolumn" "1")
-  (vim.api.nvim_win_set_option
+  (nvim_win_set_option self.id "foldcolumn" "1")
+  (nvim_win_set_option
     self.id "winhighlight" "FoldColumn:Normal"))
 
 ;;; MainWin BufNr ->
@@ -57,57 +65,57 @@
 
 ;;; MainWin ->
 (fn main-win.update-opts [self]
-  (let [winid (vim.api.nvim_get_current_win)]
+  (let [winid (nvim_get_current_win)]
     (self:set-id winid)
-    (self:add-buf (vim.api.nvim_win_get_buf winid))
+    (self:add-buf (nvim_win_get_buf winid))
     (self:set-options)))
 
 ;;; MainWin BufNr ->
 (fn main-win.split-opposite [self bufnr]
   (let [opposite (. main-win self.opposite)]
-    (vim.api.nvim_set_current_win opposite.id)
+    (nvim_set_current_win opposite.id)
     (let [height (if (and self.size
                           (= (type self.size) "number"))
                      (math.floor
-                       (* (psl-win.get-height
+                       (* (pwin.get-height
                             opposite.id)
                          self.size))
                      "")]
-      (vim.api.nvim_exec
+      (nvim_exec
         (.. self.cmd " " height "split "
-            (vim.api.nvim_buf_get_name bufnr))
+            (nvim_buf_get_name bufnr))
         false)
       (self:update-opts))))
 
 ;;; MainWin BufNr ->
 (fn main-win.split [self bufnr]
-  (let [bufname (vim.api.nvim_buf_get_name bufnr)]
-    (vim.api.nvim_exec
+  (let [bufname (nvim_buf_get_name bufnr)]
+    (nvim_exec
       (.. main-win.pos " " main-win.size "split " bufname)
       false)
     (self:update-opts)))
 
 ;;; MainWin BufNr bool ->
 (fn main-win.open-new [self bufnr focus?]
-  (let [prev-winid (vim.api.nvim_get_current_win)
+  (let [prev-winid (nvim_get_current_win)
         opposite (. main-win self.opposite)]
-    (if (psl-win.visible? opposite.id)
+    (if (pwin.visible? opposite.id)
         (self:split-opposite bufnr)
         (self:split bufnr))
     (when (not focus?)
-      (vim.api.nvim_set_current_win prev-winid))))
+      (nvim_set_current_win prev-winid))))
 
 ;;; MainWin BufNr bool ->
 (fn main-win.show-buf [self bufnr focus?]
-  (when (not= (vim.api.nvim_win_get_buf self.id) bufnr)
-    (vim.api.nvim_win_set_buf self.id bufnr)
+  (when (not= (nvim_win_get_buf self.id) bufnr)
+    (nvim_win_set_buf self.id bufnr)
     (self:add-buf bufnr))
   (when focus?
-    (vim.api.nvim_set_current_win self.id)))
+    (nvim_set_current_win self.id)))
 
 ;;; MainWin BufNr bool -> WinID
 (fn main-win.open [self bufnr focus?]
-  (if (psl-win.visible? self.id)
+  (if (pwin.visible? self.id)
       (self:show-buf bufnr focus?)
       (self:open-new bufnr focus?))
   self.id)

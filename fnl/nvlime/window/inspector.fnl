@@ -2,13 +2,17 @@
 (local window (require "nvlime.window"))
 (local ut (require "nvlime.utilities"))
 (local psl (require "parsley"))
-(local psl-list (require "parsley.list"))
+(local psllist (require "parsley.list"))
+(local {: nvim_buf_clear_namespace
+        : nvim_buf_set_extmark
+        : nvim_create_namespace}
+       vim.api)
 
 (local inspector {})
 
 (local +bufname+ (buffer.gen-name buffer.names.inspector))
 (local +filetype+ (buffer.gen-filetype buffer.names.inspector))
-(local +namespace+ (vim.api.nvim_create_namespace +filetype+))
+(local +namespace+ (nvim_create_namespace +filetype+))
 
 (var *content-title* "")
 (var *coords* [])
@@ -68,10 +72,9 @@
 
 ;;; BufNr ->
 (fn add-coords-highlight [bufnr]
-  (vim.api.nvim_buf_clear_namespace
-    bufnr +namespace+ 0 1)
+  (nvim_buf_clear_namespace bufnr +namespace+ 0 1)
   (let [set-extmark (fn [begin end hl]
-                      (vim.api.nvim_buf_set_extmark
+                      (nvim_buf_set_extmark
                         bufnr +namespace+
                         (- (. begin 1) 1)
                         (- (. begin 2) 1)
@@ -100,7 +103,7 @@
         title (lookup-content "TITLE")
         range-buttons (make-range-buttons content-data)
         lines (content->lines*
-                (psl-list.concat
+                (psllist.concat
                   [title "\n" "\n"]
                   (. content-data 1)
                   range-buttons))]
@@ -116,7 +119,7 @@
 
 ;;; {any} -> [WinID BufNr]
 (fn inspector.open [content]
-  "Opens inspector window and fills its buffer with content."
+  "Opens inspector window and fills its buffer with the content."
   (set *coords* [])
   (let [lines (content->lines content)
         bufnr (buffer.create-if-not-exists

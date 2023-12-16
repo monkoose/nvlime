@@ -4,12 +4,15 @@
 (local km-window (require "nvlime.window.keymaps"))
 (local psl (require "parsley"))
 (local opts (require "nvlime.config"))
+(local {: nvim_win_close
+        : nvim_buf_del_keymap}
+       vim.api)
 
 (local globals {})
 
 (fn del-buffer-keymaps [bufnr mode maps]
   (each [_ map (ipairs maps)]
-    (pcall vim.api.nvim_buf_del_keymap bufnr mode map)))
+    (pcall nvim_buf_del_keymap bufnr mode map)))
 
 (local split-keys [])
 (each [_ keys (ipairs [gm.normal.slit_left
@@ -31,7 +34,7 @@
 (fn globals.add [add-close? add-split?]
   (when add-close?
     (km.buffer.normal gm.normal.close_current_window
-                      #(vim.api.nvim_win_close 0 true)
+                      #(nvim_win_close 0 true)
                       "Close current window"))
   (km.buffer.normal gm.normal.keymaps_help
                     #(km-window.toggle)

@@ -1,4 +1,16 @@
-(local psl-buf (require "parsley.buffer"))
+(local pbuf (require "parsley.buffer"))
+(local {: nvim_create_autocmd
+        : nvim_buf_call
+        : nvim_buf_get_option
+        : nvim_buf_set_name
+        : nvim_buf_set_var
+        : nvim_buf_set_option
+        : nvim_clear_autocmds
+        : nvim_create_buf
+        : nvim_buf_set_lines
+        : nvim_buf_get_var
+        : nvim_exec}
+       vim.api)
 
 (local buffer {})
 
@@ -23,10 +35,10 @@
 (macro with-modifiable [bufnr ...]
   "Allows making changes to the text in the buffer
 even if it's option `nomodifiable` is set."
-  `(let [old-mod# (vim.api.nvim_buf_get_option ,bufnr :modifiable)]
-     (vim.api.nvim_buf_set_option ,bufnr :modifiable true)
+  `(let [old-mod# (nvim_buf_get_option ,bufnr :modifiable)]
+     (nvim_buf_set_option ,bufnr :modifiable true)
      (do ,(unpack [...]))
-     (vim.api.nvim_buf_set_option ,bufnr :modifiable old-mod#)
+     (nvim_buf_set_option ,bufnr :modifiable old-mod#)
      nil))
 
 ;;; ...string -> BufName
@@ -53,29 +65,29 @@ even if it's option `nomodifiable` is set."
 ;;; BufNr string -> any
 (fn buffer.get-opt [bufnr opt]
   "Gets buffer local option `opt`."
-  (vim.api.nvim_buf_get_option bufnr opt))
+  (nvim_buf_get_option bufnr opt))
 
 ;;; BufNr {any} ->
 (fn buffer.set-opts [bufnr opts]
   "Sets buffer local options from the hash table where
 key - option name, value - option value."
   (each [opt val (pairs opts)]
-    (vim.api.nvim_buf_set_option bufnr opt val)))
+    (nvim_buf_set_option bufnr opt val)))
 
 ;;; BufNr {any} ->
 (fn buffer.set-vars [bufnr vars]
   "Sets buffer variables from the hash table where
 key - var name, value - var value."
   (each [v val (pairs vars)]
-    (vim.api.nvim_buf_set_var bufnr v val)))
+    (nvim_buf_set_var bufnr v val)))
 
 ;;; TODO convert to macro
 ;;; BufNr [string] ->
 (fn buffer.vim-call! [bufnr cmds]
   "Calls vim commands temporally setting buffer with `bufnr` as current buffer."
-  (vim.api.nvim_buf_call
+  (nvim_buf_call
     bufnr #(each [_ c (ipairs cmds)]
-             (vim.api.nvim_exec c false))))
+             (nvim_exec c false))))
 
 ;;; BufNr ->
 (fn buffer.set-conn-var! [bufnr]
@@ -88,15 +100,15 @@ proper vimscript methods (calling it with vimscript)."
   "Returns b:nvlime_conn variable, but without vimscript methods
 in it. Returns nil if it is not present."
   (buffer.set-conn-var! bufnr)
-  (case (pcall vim.api.nvim_buf_get_var bufnr "nvlime_conn")
+  (case (pcall nvim_buf_get_var bufnr "nvlime_conn")
     (true conn) conn))
 
 ;;; BufName bool ?(fn [BufNr]) -> BufNr
 (fn buffer.create [name listed? callback]
   "Creates a new buffer with the default options and returns its number.
 Additional configuration can be done with `callback` function."
-  (let [bufnr (vim.api.nvim_create_buf listed? false)]
-    (vim.api.nvim_buf_set_name bufnr name)
+  (let [bufnr (nvim_create_buf listed? false)]
+    (nvim_buf_set_name bufnr name)
     (buffer.set-opts bufnr {:modifiable false
                             :swapfile false
                             :modeline false
@@ -104,15 +116,13 @@ Additional configuration can be done with `callback` function."
     ;;; Always preserve 'nolisted' option, because some neovim
     ;;; keybinding can change it's value (like `C-^`)
     (when (not listed?)
-      (vim.api.nvim_create_autocmd
-        "BufWinEnter"
+      (nvim_create_autocmd "BufWinEnter"
         {:buffer bufnr
         :callback #(buffer.set-opts bufnr {:buflisted false})})
       ;; clear autocmds
-      (vim.api.nvim_create_autocmd
-        "BufWipeout"
+      (nvim_create_autocmd "BufWipeout"
         {:buffer bufnr
-        :callback #(vim.api.nvim_clear_autocmds
+        :callback #(nvim_clear_autocmds
                      {:event "BufWinEnter"
                      :buffer bufnr})
         :once true}))
@@ -123,7 +133,7 @@ Additional configuration can be done with `callback` function."
 (fn buffer.create-if-not-exists [name listed? callback]
   "Creates new buffer only if buffer with the `name` doesn't exists.
 Returns buffer number in any case."
-  (if (psl-buf.exists? name)
+  (if (pbuf.exists? name)
       (vim.fn.bufnr name)
       (buffer.create name listed? callback)))
 
@@ -163,10 +173,10 @@ And also would be wiped out after becomeing hidden."
   "Changes all lines of the buffer with `bufnr` to `lines` and
 any other variable number of [string] appended right after the `lines`."
   (with-modifiable bufnr
-    (vim.api.nvim_buf_set_lines bufnr 0 -1 false lines)
+    (nvim_buf_set_lines bufnr 0 -1 false lines)
     (when ...
       (each [_ ls (ipairs [...])]
-        (vim.api.nvim_buf_set_lines bufnr -1 -1 false ls)))))
+        (nvim_buf_set_lines bufnr -1 -1 false ls)))))
 
 ;;; BufNr ...[string] ->
 (fn buffer.append! [bufnr ...]
@@ -175,6 +185,6 @@ any other variable number of [string] appended right after the `lines`."
   (with-modifiable bufnr
     (when ...
       (each [_ ls (ipairs [...])]
-        (vim.api.nvim_buf_set_lines bufnr -1 -1 false ls)))))
+        (nvim_buf_set_lines bufnr -1 -1 false ls)))))
 
 buffer

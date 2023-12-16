@@ -1,8 +1,11 @@
 (local window (require "nvlime.window"))
 (local buffer (require "nvlime.buffer"))
 (local ut (require "nvlime.utilities"))
-(local psl-buf (require "parsley.buffer"))
-(local psl-win (require "parsley.window"))
+(local pbuf (require "parsley.buffer"))
+(local pwin (require "parsley.window"))
+(local {: nvim_create_autocmd
+        : nvim_get_current_win}
+       vim.api)
 
 (local arglist {})
 (local +bufname+ (buffer.gen-name buffer.names.arglist))
@@ -11,7 +14,7 @@
 ;;; {any} -> {any}
 (fn calc-opts [args]
   (let [border-len 2
-        wininfo (psl-win.get-info (vim.api.nvim_get_current_win))
+        wininfo (pwin.get-info (nvim_get_current_win))
         width (- wininfo.width wininfo.textoff border-len)
         height (math.min 4 (length args.lines))
         curline (vim.fn.line ".")
@@ -29,8 +32,7 @@
 ;;; WinID ->
 (fn win-callback [winid]
   (window.set-opt winid "conceallevel" 2)
-  (vim.api.nvim_create_autocmd
-    "InsertLeave"
+  (nvim_create_autocmd "InsertLeave"
     {:callback #(window.close-float winid)
      :once true}))
 
@@ -41,7 +43,7 @@
         bufnr (buffer.create-nolisted +bufname+ +filetype+)
         opts (calc-opts {: lines})]
     (buffer.fill! bufnr lines)
-    (case (psl-buf.visible? bufnr)
+    (case (pbuf.visible? bufnr)
       (true winid) (do
                      (window.update-win-options winid opts)
                      [winid bufnr])

@@ -4,10 +4,13 @@ local gm = km.mappings.global
 local km_window = require("nvlime.window.keymaps")
 local psl = require("parsley")
 local opts = require("nvlime.config")
+local _local_1_ = vim.api
+local nvim_win_close = _local_1_["nvim_win_close"]
+local nvim_buf_del_keymap = _local_1_["nvim_buf_del_keymap"]
 local globals = {}
 local function del_buffer_keymaps(bufnr, mode, maps)
   for _, map in ipairs(maps) do
-    pcall(vim.api.nvim_buf_del_keymap, bufnr, mode, map)
+    pcall(nvim_buf_del_keymap, bufnr, mode, map)
   end
   return nil
 end
@@ -17,14 +20,8 @@ for _, keys in ipairs({gm.normal.slit_left, gm.normal.split_right, gm.normal.spl
     table.insert(split_keys, keys)
   else
     local tbl_17_auto = split_keys
-    local i_18_auto = #tbl_17_auto
     for _0, key in ipairs(keys) do
-      local val_19_auto = key
-      if (nil ~= val_19_auto) then
-        i_18_auto = (i_18_auto + 1)
-        do end (tbl_17_auto)[i_18_auto] = val_19_auto
-      else
-      end
+      table.insert(tbl_17_auto, key)
     end
   end
 end
@@ -41,7 +38,7 @@ end
 globals.add = function(add_close_3f, add_split_3f)
   if add_close_3f then
     local function _5_()
-      return vim.api.nvim_win_close(0, true)
+      return nvim_win_close(0, true)
     end
     km.buffer.normal(gm.normal.close_current_window, _5_, "Close current window")
   else

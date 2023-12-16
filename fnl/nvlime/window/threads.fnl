@@ -1,5 +1,7 @@
 (local window (require "nvlime.window"))
 (local buffer (require "nvlime.buffer"))
+(local {: nvim_create_autocmd}
+       vim.api)
 
 (local threads {})
 
@@ -13,8 +15,7 @@
       (when (< linenr 3)
         (vim.fn.cursor 3 prev-col))
       (set prev-col (vim.fn.col "."))))
-  (vim.api.nvim_create_autocmd
-    "CursorMoved"
+  (nvim_create_autocmd "CursorMoved"
     {:buffer bufnr
      :callback #(restrict)}))
 

@@ -1,6 +1,10 @@
 (local buffer (require "nvlime.buffer"))
 (local sldb (. (require "nvlime.window.main") :sldb))
 (local psl (require "parsley"))
+(local {: nvim_create_autocmd
+        : nvim_win_get_buf
+        : nvim_create_augroup}
+       vim.api)
 
 (local notes {})
 
@@ -10,7 +14,7 @@
 ;;; BufNr ->
 (fn remove-notes [bufnr]
   (sldb:remove-buf bufnr)
-  (when (and (= (vim.api.nvim_win_get_buf sldb.id) bufnr)
+  (when (and (= (nvim_win_get_buf sldb.id) bufnr)
              (not (psl.empty? sldb.buffers)))
     ;; defer_fn requires to fix main windows resizing.
     ;; It happends because calculation of the height of a new window
@@ -22,9 +26,8 @@
 
 ;;; WinID BufNr ->
 (fn win-callback [winid bufnr]
-  (let [group (vim.api.nvim_create_augroup +filetype+ {})]
-    (vim.api.nvim_create_autocmd
-      "WinClosed"
+  (let [group (nvim_create_augroup +filetype+ {})]
+    (nvim_create_autocmd "WinClosed"
       {:group group
        :pattern (tostring winid)
        :nested true

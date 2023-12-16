@@ -1,4 +1,7 @@
 local psl = require("parsley")
+local _local_1_ = vim.api
+local nvim_win_set_cursor = _local_1_["nvim_win_set_cursor"]
+local nvim_win_get_cursor = _local_1_["nvim_win_get_cursor"]
 local function text__3elines(text)
   if text then
     if psl["string?"](text) then
@@ -40,12 +43,12 @@ local function echo_error(str)
   return echo(str, vim.log.levels.ERROR)
 end
 local function coord_range(coord)
-  local _let_4_ = coord.begin
-  local begin_l = _let_4_[1]
-  local begin_c = _let_4_[2]
-  local _let_5_ = coord["end"]
-  local end_l = _let_5_[1]
-  local end_c = _let_5_[2]
+  local _let_5_ = coord.begin
+  local begin_l = _let_5_[1]
+  local begin_c = _let_5_[2]
+  local _let_6_ = coord["end"]
+  local end_l = _let_6_[1]
+  local end_c = _let_6_[2]
   return begin_l, begin_c, end_l, end_c
 end
 local function in_coord_range_3f(coord, linenr, col)
@@ -65,14 +68,14 @@ local function in_coord_range_3f(coord, linenr, col)
   end
 end
 local function get_win_cursor(winid)
-  local _let_8_ = vim.api.nvim_win_get_cursor(winid)
-  local linenr = _let_8_[1]
-  local col_0 = _let_8_[2]
+  local _let_9_ = nvim_win_get_cursor(winid)
+  local linenr = _let_9_[1]
+  local col_0 = _let_9_[2]
   return {linenr, (col_0 + 1)}
 end
 local function set_win_cursor(winid, pos)
   local linenr = psl.first(pos)
   local col_0 = (psl.second(pos) - 1)
-  return vim.api.nvim_win_set_cursor(winid, {linenr, col_0})
+  return nvim_win_set_cursor(winid, {linenr, col_0})
 end
 return {["text->lines"] = text__3elines, echo = echo, ["echo-warning"] = echo_warning, ["echo-error"] = echo_error, ["plist->table"] = plist__3etable, ["calc-lines-size"] = calc_lines_size, ["get-win-cursor"] = get_win_cursor, ["set-win-cursor"] = set_win_cursor, ["in-coord-range?"] = in_coord_range_3f}

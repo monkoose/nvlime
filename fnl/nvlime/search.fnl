@@ -1,6 +1,7 @@
 (import-macros {: return} "parsley.macros")
 (local {: nvim_win_get_cursor
         : nvim_win_set_cursor
+        : nvim_buf_get_lines
         : nvim_buf_line_count}
        vim.api)
 
@@ -86,7 +87,7 @@
 
 (fn get-lines [start end]
   (let [first (- start 1)]
-    (vim.api.nvim_buf_get_lines
+    (nvim_buf_get_lines
       0 first end false)))
 
 (fn forward-matches [pattern line col end same-column?]

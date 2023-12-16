@@ -60,9 +60,9 @@
 (fn win-callback [winid bufnr]
   (set *prev-line* 0)
   (set *last-line* (nvim_buf_line_count bufnr))
-  (nvim_create_autocmd
-    "CursorMoved" {:buffer bufnr
-                   :callback #(move-odds-only winid)}))
+  (nvim_create_autocmd "CursorMoved"
+    {:buffer bufnr
+     :callback #(move-odds-only winid)}))
 
 ;;; [any] {any} -> [WinID BufNr]
 (fn xref.open [content config]
