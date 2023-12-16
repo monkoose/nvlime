@@ -20,15 +20,14 @@
               :macroexpand "macroexpand"
               :documentation "documentation"})
 
-;;; Allows to run text manipulation code
-;;; even if buffer with `bufnr` is 'nomodifiable'
 (macro with-modifiable [bufnr ...]
+  "Allows making changes to the text in the buffer
+even if it's option `nomodifiable` is set."
   `(let [old-mod# (vim.api.nvim_buf_get_option ,bufnr :modifiable)]
-     (do
-       (vim.api.nvim_buf_set_option ,bufnr :modifiable true)
-       (do ,(unpack [...]))
-       (vim.api.nvim_buf_set_option ,bufnr :modifiable old-mod#)
-       nil)))
+     (vim.api.nvim_buf_set_option ,bufnr :modifiable true)
+     (do ,(unpack [...]))
+     (vim.api.nvim_buf_set_option ,bufnr :modifiable old-mod#)
+     nil))
 
 ;;; ...string -> BufName
 (fn buffer.gen-name [...]
@@ -37,66 +36,65 @@
 
 ;;; string -> BufName
 (fn buffer.gen-repl-name [conn-name]
+  "Generates repl buffer name."
   (buffer.gen-name conn-name buffer.names.repl))
 
 ;;; string integer -> BufName
 (fn buffer.gen-sldb-name [conn-name thread]
+  "Generates sldb buffer name."
   (buffer.gen-name
     conn-name buffer.names.sldb thread))
 
 ;;; string -> string
 (fn buffer.gen-filetype [suffix]
-  "Generate nvlime filetype."
+  "Generates nvlime filetype."
   (.. "nvlime_" suffix))
 
 ;;; BufNr string -> any
 (fn buffer.get-opt [bufnr opt]
-  "Get buffer local option `opt`."
+  "Gets buffer local option `opt`."
   (vim.api.nvim_buf_get_option bufnr opt))
 
-;;; TODO rewrite to macro
 ;;; BufNr {any} ->
 (fn buffer.set-opts [bufnr opts]
-  "Set buffer local options from the hash table where
-  key - option name, value - option value."
+  "Sets buffer local options from the hash table where
+key - option name, value - option value."
   (each [opt val (pairs opts)]
     (vim.api.nvim_buf_set_option bufnr opt val)))
 
-;;; TODO rewrite to macro
 ;;; BufNr {any} ->
 (fn buffer.set-vars [bufnr vars]
-  "Set buffer variables from the hash table where
-  key - var name, value - var value."
+  "Sets buffer variables from the hash table where
+key - var name, value - var value."
   (each [v val (pairs vars)]
     (vim.api.nvim_buf_set_var bufnr v val)))
 
 ;;; TODO convert to macro
 ;;; BufNr [string] ->
 (fn buffer.vim-call! [bufnr cmds]
-  "Call vim commands temporally setting buffer
-  with `bufnr` as current buffer."
+  "Calls vim commands temporally setting buffer with `bufnr` as current buffer."
   (vim.api.nvim_buf_call
     bufnr #(each [_ c (ipairs cmds)]
              (vim.api.nvim_exec c false))))
 
 ;;; BufNr ->
 (fn buffer.set-conn-var! [bufnr]
-  "Set b:nvlime_conn variable to current connection with
-  proper vimscript methods (calling it with vimscript)."
+  "Sets b:nvlime_conn variable to current connection with
+proper vimscript methods (calling it with vimscript)."
   (buffer.vim-call! bufnr ["call nvlime#connection#Get()"]))
 
 ;;; BufNr -> ?{any}
 (fn buffer.get-conn-var! [bufnr]
-  "Get b:nvlime_conn variable, but without vimscript methods.
-  Returns nil if it is not present."
+  "Returns b:nvlime_conn variable, but without vimscript methods
+in it. Returns nil if it is not present."
   (buffer.set-conn-var! bufnr)
   (case (pcall vim.api.nvim_buf_get_var bufnr "nvlime_conn")
     (true conn) conn))
 
 ;;; BufName bool ?(fn [BufNr]) -> BufNr
-(fn buffer.create [name listed? ?callback]
-  "Creates new buffer with default options and returns its number."
-  "Additional configuration can be done with `?callback` function."
+(fn buffer.create [name listed? callback]
+  "Creates a new buffer with the default options and returns its number.
+Additional configuration can be done with `callback` function."
   (let [bufnr (vim.api.nvim_create_buf listed? false)]
     (vim.api.nvim_buf_set_name bufnr name)
     (buffer.set-opts bufnr {:modifiable false
@@ -118,41 +116,41 @@
                      {:event "BufWinEnter"
                      :buffer bufnr})
         :once true}))
-    (when ?callback (?callback bufnr))
+    (when callback (callback bufnr))
     bufnr))
 
 ;;; BufName bool ?(fn [BufNr]) -> BufNr
-(fn buffer.create-if-not-exists [name listed? ?callback]
+(fn buffer.create-if-not-exists [name listed? callback]
   "Creates new buffer only if buffer with the `name` doesn't exists.
-   Returns buffer number in any case."
+Returns buffer number in any case."
   (if (psl-buf.exists? name)
       (vim.fn.bufnr name)
-      (buffer.create name listed? ?callback)))
+      (buffer.create name listed? callback)))
 
 ;;; BufName FileType -> BufNr
 (fn buffer.create-listed [name filetype]
-  "Create new buffer which would be listed."
+  "Creates a new buffer which would be listed."
   (buffer.create-if-not-exists
     name true #(buffer.set-opts $ {: filetype})))
 
 ;;; BufName FileType -> BufNr
 (fn buffer.create-nolisted [name filetype]
-  "Create new buffer which wouldn't be listed.
-  Not shown up for `:ls`, but present for `:ls!`"
+  "Creates new buffer which wouldn't be listed.
+Not shown up for `:ls`, but present for `:ls!`"
   (buffer.create-if-not-exists
     name false #(buffer.set-opts $ {: filetype})))
 
 ;;; BufName FileType -> BufNr
 (fn buffer.create-scratch [name filetype]
-  "Create new buffer which wouldn't be listed.
-  Not shown up for `:ls`, but present for `:ls!`"
+  "Creates new buffer which wouldn't be listed.
+And also would be wiped out after becomeing hidden."
   (buffer.create-if-not-exists
     name false #(buffer.set-opts $ {:filetype filetype
                                     :bufhidden "wipe"})))
 
 ;;; BufName FileType -> BufNr
 (fn buffer.create-scratch-with-conn-var! [name filetype]
-  "Create new scratch buffer and also set `b:nvlime_conn`."
+  "Creates new scratch buffer and also set `b:nvlime_conn`."
   (let [callback
         (fn [bufnr]
           (buffer.set-conn-var! bufnr)
@@ -162,7 +160,8 @@
 
 ;;; BufNr [string] ...[string] ->
 (fn buffer.fill! [bufnr lines ...]
-  "Change all lines of the buffer with `bufnr` to `lines` and ... if any."
+  "Changes all lines of the buffer with `bufnr` to `lines` and
+any other variable number of [string] appended right after the `lines`."
   (with-modifiable bufnr
     (vim.api.nvim_buf_set_lines bufnr 0 -1 false lines)
     (when ...
@@ -171,7 +170,7 @@
 
 ;;; BufNr ...[string] ->
 (fn buffer.append! [bufnr ...]
-  "Append `...` any number of list of strings to the end of the
+  "Appends `...` any number of list of strings to the end of the
   buffer with `bufnr`."
   (with-modifiable bufnr
     (when ...

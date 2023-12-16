@@ -53,8 +53,8 @@ local function make_range_buttons(content)
   return buttons
 end
 local function content__3elines_2a(content)
-  local lines = {}
   local line = ""
+  local lines = {}
   local get_cur_pos
   local function _8_()
     return {(#lines + 1), (#line + 1)}

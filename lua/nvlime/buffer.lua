@@ -50,7 +50,7 @@ buffer["get-conn-var!"] = function(bufnr)
     return nil
   end
 end
-buffer.create = function(name, listed_3f, _3fcallback)
+buffer.create = function(name, listed_3f, callback)
   local bufnr = vim.api.nvim_create_buf(listed_3f, false)
   vim.api.nvim_buf_set_name(bufnr, name)
   buffer["set-opts"](bufnr, {buftype = "nofile", modeline = false, modifiable = false, swapfile = false})
@@ -65,17 +65,17 @@ buffer.create = function(name, listed_3f, _3fcallback)
     vim.api.nvim_create_autocmd("BufWipeout", {buffer = bufnr, callback = _6_, once = true})
   else
   end
-  if _3fcallback then
-    _3fcallback(bufnr)
+  if callback then
+    callback(bufnr)
   else
   end
   return bufnr
 end
-buffer["create-if-not-exists"] = function(name, listed_3f, _3fcallback)
+buffer["create-if-not-exists"] = function(name, listed_3f, callback)
   if psl_buf["exists?"](name) then
     return vim.fn.bufnr(name)
   else
-    return buffer.create(name, listed_3f, _3fcallback)
+    return buffer.create(name, listed_3f, callback)
   end
 end
 buffer["create-listed"] = function(name, filetype)

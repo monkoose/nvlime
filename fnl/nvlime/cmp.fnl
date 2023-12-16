@@ -62,7 +62,7 @@
                      "nvlime#cmp#get_fuzzy"
                      "nvlime#cmp#get_simple")))
 
-(var source {})
+(local source {})
 
 (fn source.is_available [self]
   (not (psl.null? (buffer.get-conn-var! 0))))

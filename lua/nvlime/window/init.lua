@@ -65,13 +65,13 @@ window["find-horiz-pos"] = function(req_height, scr_row, scr_height)
     return false, math.min(top_height, req_height)
   end
 end
-window["update-win-options"] = function(winid, opts, _3ffocus_3f)
+window["update-win-options"] = function(winid, opts, focus_3f)
   nvim_win_set_cursor(winid, {1, 0})
   if psl_win["floating?"](winid) then
     nvim_win_set_config(winid, opts)
   else
   end
-  if _3ffocus_3f then
+  if focus_3f then
     return nvim_set_current_win(winid)
   else
     return nil
@@ -295,7 +295,7 @@ local function add_scrollbar(wininfo, zindex)
   vim.defer_fn(_35_, 5)
   return scrollbar_winid
 end
-window["open-float"] = function(bufnr, opts, close_on_leave_3f, focus_3f, _3fcallback)
+window["open-float"] = function(bufnr, opts, close_on_leave_3f, focus_3f, callback)
   local cur_winid = nvim_get_current_win()
   if not psl_win["floating?"](cur_winid) then
     _2afocus_winid_2a = cur_winid
@@ -323,8 +323,8 @@ window["open-float"] = function(bufnr, opts, close_on_leave_3f, focus_3f, _3fcal
   else
   end
   window["set-minimal-style-options"](winid)
-  if _3fcallback then
-    _3fcallback(winid, bufnr)
+  if callback then
+    callback(winid, bufnr)
   else
   end
   return winid
@@ -413,7 +413,7 @@ window.center["calc-opts"] = function(args)
   local height = calc_optimal_size(text_height, args.height, scr_height, gap)
   return {relative = "editor", width = width, height = height, row = window.center["calc-pos"](scr_height, height, 3), col = window.center["calc-pos"](scr_width, width, 3), title = (" " .. args.title .. " "), title_pos = "center", focusable = not args.nofocusable}
 end
-window.center.open = function(bufnr, content, config, _3fcallback)
+window.center.open = function(bufnr, content, config, callback)
   local lines = ut["text->lines"](content)
   local opts_table = {lines = lines, height = config.height, width = config.width, title = config.title}
   local opts = window.center["calc-opts"](opts_table)
@@ -428,7 +428,7 @@ window.center.open = function(bufnr, content, config, _3fcallback)
     return winid
   else
     local _ = _60_
-    local winid = window["open-float"](bufnr, opts, true, true, _3fcallback)
+    local winid = window["open-float"](bufnr, opts, true, true, callback)
     nvim_win_set_cursor(winid, {1, 0})
     return winid
   end

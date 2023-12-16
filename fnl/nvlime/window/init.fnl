@@ -86,13 +86,13 @@ for bottom and (false height) for top."
         (values false (math.min top-height req-height)))))
 
 ;;; WinID {any} ?bool ->
-(fn window.update-win-options [winid opts ?focus?]
+(fn window.update-win-options [winid opts focus?]
   "Updates a floating window options with `opts` as in
 vim.api.nvim_open_win(), then focus this window if required."
   (nvim_win_set_cursor winid [1 0])
   (when (psl-win.floating? winid)
     (nvim_win_set_config winid opts))
-  (when ?focus?
+  (when focus?
     (nvim_set_current_win winid)))
 
 (fn win-nvlime-ft? [winid]
@@ -350,7 +350,7 @@ Returns winid of the created scrollbar window."
 ;;; ========== FLOAT WINDOW ==========
 
 ;;; BufNr {any} bool bool (fn [WinID BufNr]) -> [WinID BufNr]
-(fn window.open-float [bufnr opts close-on-leave? focus? ?callback]
+(fn window.open-float [bufnr opts close-on-leave? focus? callback]
   "Opens general floating window. Returns a tuple with that window
 window's id and buffer number of the attached buffer to it."
   (let [cur-winid (nvim_get_current_win)]
@@ -376,7 +376,7 @@ window's id and buffer number of the attached buffer to it."
           :nested true
           :once true}))
       (window.set-minimal-style-options winid)
-      (when ?callback (?callback winid bufnr))
+      (when callback (callback winid bufnr))
       winid)))
 
 ;;; WinID ->
@@ -470,7 +470,7 @@ Config is {:lines [lines] :title string} table."
      :focusable (not args.nofocusable)}))
 
 ;;; BufNr string {any} (fn [WinID BufNr]) -> WinID
-(fn window.center.open [bufnr content config ?callback]
+(fn window.center.open [bufnr content config callback]
   "Opens new floating window at the center of the screen
 and returns its window id."
   (let [lines (ut.text->lines content)
@@ -487,7 +487,7 @@ and returns its window id."
                        winid opts true)
                      winid)
       _ (let [winid (window.open-float
-                      bufnr opts true true ?callback)]
+                      bufnr opts true true callback)]
           (nvim_win_set_cursor winid [1 0])
           winid))))
 

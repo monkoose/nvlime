@@ -14,9 +14,6 @@
 (var *coords* [])
 (var *content-start* 0)
 (var *content-end* 0)
-;;; string integer -> [any]
-(macro range-button [name id]
-  [{:name "RANGE" :package "KEYWORD"} name id])
 
 ;;; [any] -> [any]
 (fn make-range-buttons [content]
@@ -25,7 +22,8 @@
         add-newline #(table.insert buttons "\n")
         add-button (fn [name id]
                      (table.insert
-                       buttons (range-button name id)))]
+                       buttons [{:name "RANGE" :package "KEYWORD"}
+                                name id]))]
     (set *content-start* (. content 3))
     (set *content-end* (. content 4))
     (when (> *content-start* 0)
@@ -44,8 +42,8 @@
 
 ;;; [any] -> [string]
 (fn content->lines* [content]
-  (var lines [])
   (var line "")
+  (local lines [])
   (local get-cur-pos #[(+ (length lines) 1) (+ (length line) 1)])
   (fn add-lines [c]
     (if (psl.string? c)
@@ -118,7 +116,7 @@
 
 ;;; {any} -> [WinID BufNr]
 (fn inspector.open [content]
-  "Opens inspector window."
+  "Opens inspector window and fills its buffer with content."
   (set *coords* [])
   (let [lines (content->lines content)
         bufnr (buffer.create-if-not-exists
