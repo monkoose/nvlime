@@ -3,7 +3,6 @@ return {
         macros = {
             env = "_COMPILER",
             compilerEnv = _G,
-            allowedGlobals = false,
         },
     },
     build = {
