@@ -873,7 +873,7 @@ endfunction
 
 " Currently not used
 function! nvlime#plugin#TabKey(key)
-  if s:isInString()
+  if s:isInString(line('.'), col('.') - 1)
     return "\<tab>"
   endif
 
@@ -898,9 +898,22 @@ endfunction
 function! nvlime#plugin#CalcCurIndent(shift_width = 2)
   let line_no = line('.')
 
-  " Don't indent inside a string
-  if s:isInString()
-    return indent(line_no)
+  "Multiline string indentation on first column
+  let nonblank = prevnonblank(line_no - 1)
+  let [_, _, last_col, _] = getpos([nonblank, '$'])
+  if s:isInString(nonblank, last_col - 1)
+    let lastchars = getline(nonblank)[-2 :]
+    if len(lastchars) >= 2
+      if lastchars[1] != '"' || lastchars == '\"'
+        return 0
+      endif
+    elseif len(lastchars) == 1
+      if lastchars[0] != '"'
+        return 0
+      endif
+    else
+      return 0
+    endif
   endif
 
   " The deepest special forms this function can handle are FLET/LABELS,
@@ -976,7 +989,8 @@ function! nvlime#plugin#CalcCurIndent(shift_width = 2)
     return vs_col + 1
   else
     " Indent as a property list if the list starts with a keyword
-    if op_list[-1][0] != 'defpackage' && op_list[0][0] =~ '^:'
+    if (op_list[-1][0] != 'defpackage' && op_list[0][0] =~ '^:') ||
+          \ op_list[-1][1] == 1
       return vs_col
     endif
     return lispindent(line_no)
@@ -1017,7 +1031,7 @@ endfunction
 
 function! s:NormalizeIdentifierForIndentInfo(ident)
   let ident_len = len(a:ident)
-  if ident_len >= 2 && a:ident[0] == '|' && a:ident[ident_len-1] == '|'
+  if ident_len >= 2 && a:ident[0] == '|' && a:ident[ident_len - 1] == '|'
     return strpart(a:ident, 1, ident_len - 2)
   else
     return a:ident
@@ -1444,9 +1458,13 @@ function! s:IndentCheckSpecialForms(op_list)
   endif
 endfunction
 
-function! s:isInString()
-  let syntax = map(synstack(line('.'), max([col('.')-1, 0])), 'synIDattr(v:val, "name")')
-  return index(syntax, 'lispString') >= 0
+function! s:isInString(lnum, col)
+  for syn_id in synstack(a:lnum, a:col)
+    if synIDattr(syn_id, "name") == 'lispString'
+      return 1
+    endif
+  endfor
+  return 0
 endfunc
 
 " vim: sw=2
