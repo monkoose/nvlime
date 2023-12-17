@@ -1,7 +1,5 @@
 (import-macros {: return} "parsley.macros")
-(local {: nvim_win_get_cursor
-        : nvim_win_set_cursor
-        : nvim_buf_get_lines
+(local {: nvim_buf_get_lines
         : nvim_buf_line_count}
        vim.api)
 
@@ -16,9 +14,9 @@
 (local search {})
 
 ; (macro with-cursor [...]
-;   `(let [cur-pos# (nvim_win_get_cursor 0)
+;   `(let [cur-pos# (vim.api.nvim_win_get_cursor 0)
 ;          result# ,(unpack [...])]
-;      (nvim_win_set_cursor 0 cur-pos#)
+;      (vim.api.nvim_win_set_cursor 0 cur-pos#)
 ;      result#))
 
 (fn syntax-on? []
@@ -86,7 +84,7 @@
       (values (- len index) bracket))))
 
 (fn get-lines [start end]
-  (let [first (- start 1)]
+  (let [first (math.max 0 (- start 1))]
     (nvim_buf_get_lines
       0 first end false)))
 
@@ -134,8 +132,8 @@
         find-top (fn [flags]
                    (vim.fn.search re flags))]
     (if backward?
-        (vim.fn.search re "bnW")
-        (let [stopline (vim.fn.search re "nW")]
+        (find-top "bnW")
+        (let [stopline (find-top "nW")]
           (if (= stopline 0)
               (nvim_buf_line_count 0)
               stopline)))))

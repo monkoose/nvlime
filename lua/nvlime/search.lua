@@ -1,6 +1,4 @@
 local _local_1_ = vim.api
-local nvim_win_get_cursor = _local_1_["nvim_win_get_cursor"]
-local nvim_win_set_cursor = _local_1_["nvim_win_set_cursor"]
 local nvim_buf_get_lines = _local_1_["nvim_buf_get_lines"]
 local nvim_buf_line_count = _local_1_["nvim_buf_line_count"]
 local skip_groups = {"string", "character", "comment", "singlequote", "escape", "symbol"}
@@ -92,7 +90,7 @@ local function find_backward(reversed_text, pattern, init)
   end
 end
 local function get_lines(start, _end)
-  local first = (start - 1)
+  local first = math.max(0, (start - 1))
   return nvim_buf_get_lines(0, first, _end, false)
 end
 local function forward_matches(pattern, line, col, _end, same_column_3f)
@@ -167,9 +165,9 @@ search.top_form_line = function(backward_3f)
   end
   find_top = _20_
   if backward_3f then
-    return vim.fn.search(re, "bnW")
+    return find_top("bnW")
   else
-    local stopline = vim.fn.search(re, "nW")
+    local stopline = find_top("nW")
     if (stopline == 0) then
       return nvim_buf_line_count(0)
     else
