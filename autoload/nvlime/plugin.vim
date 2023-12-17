@@ -898,21 +898,17 @@ endfunction
 function! nvlime#plugin#CalcCurIndent(shift_width = 2)
   let line_no = line('.')
 
-  "Multiline string indentation on first column
+  " Multiline string indentation should be first column
+  " when in insert mode; otherwise, do not indent at all
   let nonblank = prevnonblank(line_no - 1)
   let [_, _, last_col, _] = getpos([nonblank, '$'])
-  if s:isInString(nonblank, last_col - 1)
-    let lastchars = getline(nonblank)[-2 :]
-    if len(lastchars) >= 2
-      if lastchars[1] != '"' || lastchars == '\"'
-        return 0
-      endif
-    elseif len(lastchars) == 1
-      if lastchars[0] != '"'
-        return 0
-      endif
-    else
+  " Check the column right after the last one on the previous nonblanki line,
+  " if it is String, than the start of the current line is the same String
+  if s:isInString(nonblank, last_col)
+    if mode() == 'i'
       return 0
+    else
+      return indent(line_no)
     endif
   endif
 
