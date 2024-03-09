@@ -1,6 +1,7 @@
 local window = require("nvlime.window")
 local pwin = require("parsley.window")
 local opts = require("nvlime.config")
+local ut = require("nvlime.utilities")
 local _local_1_ = vim.api
 local nvim_exec = _local_1_["nvim_exec"]
 local nvim_win_set_buf = _local_1_["nvim_win_set_buf"]
@@ -26,8 +27,7 @@ do
   end
 end
 local main_win = {pos = main_win_pos, size = opts.main_window.size, ["vert?"] = (nil ~= (main_win_pos and string.find(main_win_pos, "^vertical")))}
-main_win.new = function(cmd, size, opposite)
-  local self = setmetatable({}, {__index = main_win})
+main_win.init = function(self, cmd, size, opposite)
   local vert_3f = main_win["vert?"]
   self["id"] = nil
   self["buffers"] = {}
@@ -48,10 +48,22 @@ main_win.new = function(cmd, size, opposite)
   self["opposite"] = opposite
   return self
 end
+main_win.new = function(...)
+  local self = setmetatable({}, {__index = main_win})
+  self:init(...)
+  return self
+end
+local repl_win = {}
+setmetatable(repl_win, {__index = main_win})
+repl_win.new = function(...)
+  local self = setmetatable({}, {__index = repl_win})
+  self:init(...)
+  return self
+end
 do
   local sldb_height = 0.65
   main_win["sldb"] = main_win.new("", sldb_height, "repl")
-  do end (main_win)["repl"] = main_win.new("leftabove", (1 - sldb_height), "sldb")
+  do end (main_win)["repl"] = repl_win.new("leftabove", (1 - sldb_height), "sldb")
 end
 main_win["set-id"] = function(self, winid)
   self["id"] = winid
@@ -131,5 +143,26 @@ main_win.open = function(self, bufnr, focus_3f)
     self["open-new"](self, bufnr, focus_3f)
   end
   return self.id
+end
+repl_win.open = function(self, bufnr, focus_3f)
+  do
+    local winid = ut["find-if"](pwin["visible?"], vim.fn.win_findbuf(bufnr))
+    if winid then
+      self["show-win"](self, winid, focus_3f)
+    else
+      self["open-new"](self, bufnr, focus_3f)
+    end
+  end
+  return self.id
+end
+repl_win["show-win"] = function(self, winid, focus_3f)
+  local prev_winid = nvim_get_current_win()
+  nvim_set_current_win(winid)
+  self["update-opts"](self)
+  if not focus_3f then
+    return nvim_set_current_win(prev_winid)
+  else
+    return nil
+  end
 end
 return main_win
