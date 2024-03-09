@@ -71,6 +71,14 @@
     (nvim_win_set_cursor
       winid [linenr col-0])))
 
+;;; fn [any] -> any|nil
+(fn find-if [pred list]
+  (var result nil)
+  (each [_ item (ipairs list) &until result]
+    (when (pred item)
+      (set result item)))
+  result)
+
 {: text->lines
  : echo
  : echo-warning
@@ -79,4 +87,5 @@
  : calc-lines-size
  : get-win-cursor
  : set-win-cursor
- : in-coord-range?}
+ : in-coord-range?
+ : find-if}
