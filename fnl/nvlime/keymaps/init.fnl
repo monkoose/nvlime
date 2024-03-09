@@ -1,9 +1,11 @@
 (local opts (require "nvlime.config"))
 (local psl (require "parsley"))
+(local ut (require "nvlime.utilities"))
 (local {: nvim_replace_termcodes
         : nvim_feedkeys
         : nvim_buf_set_keymap
-        : nvim_buf_get_keymap}
+        : nvim_buf_get_keymap
+        : nvim_eval}
        vim.api)
 
 (local keymaps
@@ -209,6 +211,30 @@
 (fn keymaps.feedkeys [keys]
   (nvim_feedkeys (from-keycode keys) "n" false))
 
+;;; Executes a mapping from a dict returned by maparg()
+;;; Cases:
+;;; 1. map-expression -- compute rhs and feed keys
+;;;    N.B.: if there is a callback, then use it to compute rhs
+;;;          (idea due to anuvyklack/keymap-amend.nvim)
+;;; 2. just a calback -- just call it
+;;; 3. regular mapping -- feed keys from rhs directly
+(fn exec-map [map]
+  (let [keys (if map.callback
+               (map.callback)
+               (if (= 1 map.expr) 
+                 (nvim_eval map.rhs) 
+                 map.rhs))]
+    (when (or (= 1 map.expr) (not map.callback))
+      (nvim_feedkeys (from-keycode keys) (if (= 1 map.noremap) "n" "m") false))))
+
+;;; string string -> fn
+;;; Returns a function which executes the specified mapping
+(fn get-buf-map-as-fn [mode lhs]
+  (let [map (vim.fn.maparg lhs mode nil true)]
+    (if (and map (not (vim.tbl_isempty map)))
+      #(exec-map map)
+      #(nvim_feedkeys (from-keycode lhs) mode false))))
+
 ;;; string string fn|string string ->
 (fn set-buf-map [mode lhs rhs desc]
   (let [opts {:noremap true
@@ -216,10 +242,11 @@
               :silent true
               :desc desc}]
     (if (= (type rhs) "function")
-        (do
-          (tset opts :callback rhs)
-          (nvim_buf_set_keymap 0 mode lhs "" opts))
-        (nvim_buf_set_keymap 0 mode lhs rhs opts))))
+      (do
+        (tset opts :callback (let [f (get-buf-map-as-fn mode lhs)]
+                               #(rhs f)))
+        (nvim_buf_set_keymap 0 mode lhs "" opts))
+      (nvim_buf_set_keymap 0 mode lhs rhs opts))))
 
 ;;; string string|list fn|string string ->
 (fn set-buf-map* [mode lhs rhs desc]

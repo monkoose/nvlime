@@ -21,7 +21,8 @@ for _, keys in ipairs({gm.normal.slit_left, gm.normal.split_right, gm.normal.spl
   else
     local tbl_17_auto = split_keys
     for _0, key in ipairs(keys) do
-      table.insert(tbl_17_auto, key)
+      local val_18_auto = key
+      table.insert(tbl_17_auto, val_18_auto)
     end
   end
 end
@@ -51,25 +52,25 @@ globals.add = function(add_close_3f, add_split_3f)
     return window.close_all_except_main()
   end
   km.buffer.normal(gm.normal.close_nvlime_windows, _8_, "Close all nvlime windows except main ones")
-  local function _9_()
+  local function _9_(_241)
     if not window.close_last_float() then
-      return km.feedkeys("<Esc>")
+      return _241()
     else
       return nil
     end
   end
   km.buffer.normal(gm.normal.close_floating_window, _9_, "Close last opened floating window")
-  local function _11_()
+  local function _11_(_241)
     if not window.scroll_float(opts.floating_window.scroll_step, true) then
-      return km.feedkeys(gm.normal.scroll_up)
+      return _241()
     else
       return nil
     end
   end
   km.buffer.normal(gm.normal.scroll_up, _11_, "Scroll up last opened floating window")
-  local function _13_()
+  local function _13_(_241)
     if not window.scroll_float(opts.floating_window.scroll_step) then
-      return km.feedkeys(gm.normal.scroll_down)
+      return _241()
     else
       return nil
     end
