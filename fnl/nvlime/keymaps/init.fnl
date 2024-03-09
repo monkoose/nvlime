@@ -52,7 +52,8 @@
                         :send_atom (with-leader "sa")
                         :send_expr (with-leader "se")
                         :send_toplevel_expr (with-leader "st")
-                        :prompt (with-leader "si")}
+                        :prompt (with-leader "si")
+                        :send_buffer (with-leader "sb")}
                  :macro {:expand (with-leader "mm")
                          :expand_once (with-leader "mo")
                          :expand_all (with-leader "ma")}

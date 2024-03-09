@@ -88,6 +88,9 @@
   (km.buffer.normal lm.normal.repl.prompt
                     "<Cmd>call nvlime#plugin#SendToREPL()<CR>"
                     "nvlime: Send a snippet to the REPL")
+  (km.buffer.normal lm.normal.repl.send_buffer
+                    "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurBufferContent())<CR>"
+                    "nvlime: Send the current buffer content to the REPL")
   (km.buffer.visual lm.visual.repl.send_selection
                     "<Cmd>call nvlime#plugin#SendToREPL(nvlime#ui#CurSelection())<CR>"
                     "nvlime: Send the current selection to the REPL")
