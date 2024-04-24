@@ -35,8 +35,7 @@ Please beware of bugs, and file an issue if you find anything weird/unexpected.
 
 Must-have:
 
-- Neovim master branch with the support of a title for `nvim_open_win()`
-  [1af4bd0](https://github.com/neovim/neovim/commit/1af4bd04f9ad157edbfea30642250e854c5cb5d2)
+- Neovim 0.9.5+
 - Helper plugin [parsley][parsley]
 - ASDF
 - Quicklisp
