@@ -54,7 +54,8 @@
           (nvim_win_set_cursor winid [(- cur-line 1) cur-col])))
     (let [cur-line (vim.fn.line ".")]
       (set *prev-line* cur-line)
-      (double-cursorline cur-line))))
+      (double-cursorline cur-line))
+    nil))
 
 ;;; WinID BufNr ->
 (fn win-callback [winid bufnr]

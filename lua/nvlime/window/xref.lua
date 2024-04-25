@@ -79,7 +79,8 @@ local function move_odds_only(winid)
   end
   local cur_line0 = vim.fn.line(".")
   _2aprev_line_2a = cur_line0
-  return double_cursorline(cur_line0)
+  double_cursorline(cur_line0)
+  return nil
 end
 local function win_callback(winid, bufnr)
   _2aprev_line_2a = 0
