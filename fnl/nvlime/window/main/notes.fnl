@@ -22,7 +22,8 @@
     ;; It adds some visual flickering so maybe there is a better way to fix it
     (vim.defer_fn
       #(sldb:open-new (. sldb.buffers (length sldb.buffers)) true)
-      0)))
+      0))
+  nil)
 
 ;;; WinID BufNr ->
 (fn win-callback [winid bufnr]

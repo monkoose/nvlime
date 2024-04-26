@@ -14,10 +14,10 @@ local function remove_notes(bufnr)
     local function _2_()
       return sldb["open-new"](sldb, sldb.buffers[#sldb.buffers], true)
     end
-    return vim.defer_fn(_2_, 0)
+    vim.defer_fn(_2_, 0)
   else
-    return nil
   end
+  return nil
 end
 local function win_callback(winid, bufnr)
   local group = nvim_create_augroup(_2bfiletype_2b, {})

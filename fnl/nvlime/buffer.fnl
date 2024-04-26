@@ -72,7 +72,8 @@ even if it's option `nomodifiable` is set."
   "Sets buffer local options from the hash table where
 key - option name, value - option value."
   (each [opt val (pairs opts)]
-    (nvim_buf_set_option bufnr opt val)))
+    (nvim_buf_set_option bufnr opt val))
+  nil)
 
 ;;; BufNr {any} ->
 (fn buffer.set-vars [bufnr vars]
