@@ -1,0 +1,3 @@
+lua/**/*.lua linguist-generated
+after/**/*.lua linguist-generated
+.hotpot.lua linguist-vendored
