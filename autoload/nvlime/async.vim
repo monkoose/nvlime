@@ -99,6 +99,8 @@ function! s:ChanInputCB(job_id, data, source) dict
       call add(obj_list, json_obj)
       let buffered = ''
     catch /^Vim\%((\a\+)\)\=:E474/  " Invalid argument
+    catch /^Vim\%((\a\+)\)\=:E1510/  " Same as above
+      " See https://github.com/monkoose/nvlime/issues/12
     endtry
   endfor
 
