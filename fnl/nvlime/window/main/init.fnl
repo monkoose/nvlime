@@ -1,6 +1,7 @@
 (local window (require "nvlime.window"))
 (local pwin (require "parsley.window"))
 (local opts (require "nvlime.config"))
+(local ut (require "nvlime.utilities"))
 (local {: nvim_exec
         : nvim_win_set_buf
         : nvim_set_current_win
@@ -26,10 +27,8 @@
                               (string.find
                                 main-win-pos "^vertical")))})
 
-;;; 
-(fn main-win.new [cmd size opposite]
-  (let [self (setmetatable {} {:__index main-win})
-        vert? main-win.vert?]
+(fn main-win.init [self cmd size opposite]
+  (let [vert? main-win.vert?]
     (tset self :id nil)
     (tset self :buffers [])
     (tset self :cmd (if vert? cmd (.. "vertical " cmd)))
@@ -37,9 +36,24 @@
     (tset self :opposite opposite)
     self))
 
+;;; 
+(fn main-win.new [...]
+  (let [self (setmetatable {} {:__index main-win})]
+    (self:init ...)
+    self))
+
+;;; class ReplWin <: MainWin
+(local repl-win {})
+(setmetatable repl-win {:__index main-win})
+
+(fn repl-win.new [...]
+  (let [self (setmetatable {} {:__index repl-win})]
+    (self:init ...)
+    self))
+
 (let [sldb-height 0.65]
   (tset main-win :sldb (main-win.new "" sldb-height :repl))
-  (tset main-win :repl (main-win.new "leftabove"
+  (tset main-win :repl (repl-win.new "leftabove"
                                      (- 1 sldb-height) :sldb)))
 
 (fn main-win.set-id [self winid]
@@ -116,8 +130,24 @@
 ;;; MainWin BufNr bool -> WinID
 (fn main-win.open [self bufnr focus?]
   (if (pwin.visible? self.id)
-      (self:show-buf bufnr focus?)
-      (self:open-new bufnr focus?))
+    (self:show-buf bufnr focus?)
+    (self:open-new bufnr focus?))
   self.id)
+
+(fn repl-win.open [self bufnr focus?]
+  ; any visible windows associates with given buffer?
+  (let [winid (ut.find-if pwin.visible? (vim.fn.win_findbuf bufnr))]
+    (if winid
+      (self:show-win winid focus?)
+      (self:open-new bufnr focus?)))
+  self.id)
+
+;;; ReplWin WinID bool ->
+(fn repl-win.show-win [self winid focus?]
+  (let [prev-winid (nvim_get_current_win)]
+    (nvim_set_current_win winid)
+    (self:update-opts)
+    (when (not focus?)
+      (nvim_set_current_win prev-winid))))
 
 main-win
