@@ -44,17 +44,17 @@
                     "Close all nvlime windows except main ones")
   (km.buffer.normal gm.normal.close_floating_window
                     #(when (not (window.close_last_float))
-                       (km.feedkeys "<Esc>"))
+                       ($1))
                     "Close last opened floating window")
   (km.buffer.normal gm.normal.scroll_up
                     #(when (not (window.scroll_float
                                   opts.floating_window.scroll_step true))
-                       (km.feedkeys gm.normal.scroll_up))
+                       ($1))
                     "Scroll up last opened floating window")
   (km.buffer.normal gm.normal.scroll_down
                     #(when (not (window.scroll_float
                                   opts.floating_window.scroll_step))
-                       (km.feedkeys gm.normal.scroll_down))
+                       ($1))
                     "Scroll down last opened floating window")
   (when add-split?
     (split-focus "vertical leftabove split" gm.normal.split_left)
