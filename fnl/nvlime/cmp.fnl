@@ -50,11 +50,19 @@
 (local get-lsp-kind
        (if +fuzzy?+
            (fn [item]
-             (let [flags (. item 4)]
-               {:label (psl.first item)
-               :labelDetails {:detail flags}
-               :kind (or (flags->kind flags)
-                         lsp-types.CompletionItemKind.Keyword)}))
+             (let [flags (. item 4)
+                   kind (or (flags->kind flags)
+                            lsp-types.CompletionItemKind.Keyword)
+                   label (psl.first item)
+                   base {:label label
+                         :labelDetails {:detail flags}
+                         :kind kind}]
+               (when (or (= kind lsp-types.CompletionItemKind.Function)
+                         (= kind lsp-types.CompletionItemKind.Operator)
+                         (= kind lsp-types.CompletionItemKind.Method))
+                   (tset base :insertText (.. "("  label " $0)"))
+                   (tset base :insertTextFormat 2))
+               base))
            #{:label $}))
 
 (local get-completion
