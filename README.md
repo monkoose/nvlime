@@ -2,6 +2,9 @@
     <img src="https://user-images.githubusercontent.com/6261276/209430731-dccaeebd-23e4-4f55-b8c3-4a6bfec7f01b.jpg" alt="Nvlime logo">
 </p>
 
+**I haven't used lisp for long time and don't have time to support this plugin.
+It still works at time of archiving, but not without some minor bugs (look at pull request and issues)**
+
 **WARNING:**
 [parsley][parsley] neovim plugin should be installed for Nvlime to work.
 
