@@ -39,23 +39,31 @@ local get_lsp_kind
 if _2bfuzzy_3f_2b then
   local function _5_(item)
     local flags = item[4]
-    return {label = psl.first(item), labelDetails = {detail = flags}, kind = (flags__3ekind(flags) or lsp_types.CompletionItemKind.Keyword)}
+    local kind = (flags__3ekind(flags) or lsp_types.CompletionItemKind.Keyword)
+    local label = psl.first(item)
+    local base = {label = label, labelDetails = {detail = flags}, kind = kind}
+    if ((kind == lsp_types.CompletionItemKind.Function) or (kind == lsp_types.CompletionItemKind.Operator) or (kind == lsp_types.CompletionItemKind.Method)) then
+      base["insertText"] = ("(" .. label .. " $0)")
+      base["insertTextFormat"] = 2
+    else
+    end
+    return base
   end
   get_lsp_kind = _5_
 else
-  local function _6_(_241)
+  local function _7_(_241)
     return {label = _241}
   end
-  get_lsp_kind = _6_
+  get_lsp_kind = _7_
 end
 local get_completion
-local _8_
+local _9_
 if _2bfuzzy_3f_2b then
-  _8_ = "nvlime#cmp#get_fuzzy"
+  _9_ = "nvlime#cmp#get_fuzzy"
 else
-  _8_ = "nvlime#cmp#get_simple"
+  _9_ = "nvlime#cmp#get_simple"
 end
-get_completion = vim.fn[_8_]
+get_completion = vim.fn[_9_]
 local source = {}
 source.is_available = function(self)
   return not psl["null?"](buffer["get-conn-var!"](0))
@@ -68,31 +76,31 @@ source.get_keyword_pattern = function(self)
 end
 source.complete = function(self, params, callback)
   local on_done
-  local function _10_(candidates)
-    local function _11_()
-      local tbl_18_auto = {}
-      local i_19_auto = 0
+  local function _11_(candidates)
+    local function _12_()
+      local tbl_21_ = {}
+      local i_22_ = 0
       for _, c in ipairs((candidates or {})) do
-        local val_20_auto = get_lsp_kind(c)
-        if (nil ~= val_20_auto) then
-          i_19_auto = (i_19_auto + 1)
-          do end (tbl_18_auto)[i_19_auto] = val_20_auto
+        local val_23_ = get_lsp_kind(c)
+        if (nil ~= val_23_) then
+          i_22_ = (i_22_ + 1)
+          tbl_21_[i_22_] = val_23_
         else
         end
       end
-      return tbl_18_auto
+      return tbl_21_
     end
-    return callback(_11_())
+    return callback(_12_())
   end
-  on_done = _10_
+  on_done = _11_
   local input = string.sub(params.context.cursor_before_line, params.offset)
   return get_completion(input, on_done)
 end
 source.resolve = function(self, item, callback)
   set_documentation(item)
-  local function _13_()
+  local function _14_()
     return callback(item)
   end
-  return vim.defer_fn(_13_, 5)
+  return vim.defer_fn(_14_, 5)
 end
 return source
