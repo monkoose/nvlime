@@ -78,4 +78,15 @@ local function set_win_cursor(winid, pos)
   local col_0 = (psl.second(pos) - 1)
   return nvim_win_set_cursor(winid, {linenr, col_0})
 end
-return {["text->lines"] = text__3elines, echo = echo, ["echo-warning"] = echo_warning, ["echo-error"] = echo_error, ["plist->table"] = plist__3etable, ["calc-lines-size"] = calc_lines_size, ["get-win-cursor"] = get_win_cursor, ["set-win-cursor"] = set_win_cursor, ["in-coord-range?"] = in_coord_range_3f}
+local function find_if(pred, list)
+  local result = nil
+  for _, item in ipairs(list) do
+    if result then break end
+    if pred(item) then
+      result = item
+    else
+    end
+  end
+  return result
+end
+return {["text->lines"] = text__3elines, echo = echo, ["echo-warning"] = echo_warning, ["echo-error"] = echo_error, ["plist->table"] = plist__3etable, ["calc-lines-size"] = calc_lines_size, ["get-win-cursor"] = get_win_cursor, ["set-win-cursor"] = set_win_cursor, ["in-coord-range?"] = in_coord_range_3f, ["find-if"] = find_if}
